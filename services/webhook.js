@@ -31,12 +31,14 @@ async function dispatchMakeInquiryWebhook(inquiry, artworkData = null) {
 
     const siteUrl = getSiteUrl();
     const callbackUrl = `${siteUrl}/api/inquiries/${inquiry.id}/reply`;
+    const detailsUrl = `${siteUrl}/api/inquiries/${inquiry.id}/details`;
 
     const payload = {
       event: 'inquiry.created',
       timestamp: new Date().toISOString(),
       platform: '55 smartCREATIVES',
       callbackUrl,
+      detailsUrl,
       inquiry: {
         id: inquiry.id,
         date: inquiry.date,

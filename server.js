@@ -363,32 +363,39 @@ app.delete(['/api/artworks/:id', '/artworks/:id'], authenticateAdmin, async (req
 
 // GET inquiries (Admin protected)
 app.get(['/api/inquiries', '/inquiries'], authenticateAdmin, async (req, res) => {
-  let allInquiries = [];
+  const isProduction = Boolean(process.env.VERCEL || process.env.NODE_ENV === 'production');
+
+  // 1. Authoritative Production Database Query
   if (db.isAvailable) {
     try {
       const dbInqs = await db.getInquiries();
-      if (Array.isArray(dbInqs)) allInquiries = dbInqs;
+      if (Array.isArray(dbInqs)) {
+        dbInqs.sort((a, b) => new Date(b.date || b.created_at || 0) - new Date(a.date || a.created_at || 0));
+        return res.json(dbInqs);
+      }
     } catch (err) {
-      console.warn('MySQL getInquiries notice, falling back:', err.message);
-    }
-  }
-
-  // Also read serverless / local file backups so no inquiry from any device is ever omitted
-  const fileInqs = readJSON(INQUIRIES_FILE, []);
-  const existingIds = new Set(allInquiries.map(i => i.id));
-  for (const item of fileInqs) {
-    if (!existingIds.has(item.id)) {
-      allInquiries.push(item);
-      existingIds.add(item.id);
-      // Opportunistically backfill to MySQL if now connected
-      if (db.isAvailable) {
-        try { await db.createInquiry(item); } catch (_) {}
+      console.error('Production database getInquiries error:', err.message);
+      if (isProduction) {
+        return res.status(503).json({
+          error: 'Database Error',
+          message: 'Failed to retrieve inquiries from the production database.'
+        });
       }
     }
   }
 
-  allInquiries.sort((a, b) => new Date(b.date || b.created_at || 0) - new Date(a.date || a.created_at || 0));
-  res.json(allInquiries);
+  // In production, the cloud database is the ONLY source of truth. Do not fall back to ephemeral serverless /tmp.
+  if (isProduction) {
+    return res.status(503).json({
+      error: 'Database Unavailable',
+      message: 'Production cloud database is not connected. Inquiries cannot be retrieved.'
+    });
+  }
+
+  // Local development fallback only
+  const fileInqs = readJSON(INQUIRIES_FILE, []);
+  fileInqs.sort((a, b) => new Date(b.date || b.created_at || 0) - new Date(a.date || a.created_at || 0));
+  res.json(fileInqs);
 });
 
 // POST new inquiry (Collector or Guest with Security Hardening & Catalog Verification)
@@ -496,15 +503,28 @@ app.post(['/api/inquiries', '/inquiries'], inquiryRateLimiter, async (req, res) 
   };
 
   let savedInquiry = newInquiry;
+  let savedToDb = false;
   const pool = await db.getPool();
   if (pool && db.isAvailable) {
     try {
       const dbResult = await db.createInquiry(newInquiry);
-      if (dbResult) savedInquiry = dbResult;
+      if (dbResult) {
+        savedInquiry = dbResult;
+        savedToDb = true;
+      }
       console.log(`✓ Inquiry saved in MySQL: ${savedInquiry.id} from ${savedInquiry.collectorName}`);
     } catch (err) {
-      console.warn('MySQL createInquiry notice:', err.message);
+      console.error('MySQL createInquiry error:', err.message);
     }
+  }
+
+  const isProduction = Boolean(process.env.VERCEL || process.env.NODE_ENV === 'production');
+  if (isProduction && !savedToDb) {
+    console.error(`❌ [Production Failure] Database write failed for inquiry ${newId}. Prototype fallback is disabled.`);
+    return res.status(503).json({
+      error: 'Database Unavailable',
+      message: 'The production inquiry database is temporarily unavailable. Your inquiry was not recorded to prevent data loss. Please try again in a few moments.'
+    });
   }
 
   // 6. Automated transactional emails (Customer Confirmation & Curator Alert)
@@ -522,7 +542,7 @@ app.post(['/api/inquiries', '/inquiries'], inquiryRateLimiter, async (req, res) 
     console.warn('Notice sending inquiry notification emails:', err.message);
   }
 
-  // 7. Make.com Webhook Dispatch (Optional with complete artwork data)
+  // 7. Make.com Webhook Dispatch (Authoritative database-verified artwork details)
   try {
     const webhookRes = await dispatchMakeInquiryWebhook(savedInquiry, realArtwork);
     if (db.isAvailable && webhookRes) {
@@ -533,48 +553,19 @@ app.post(['/api/inquiries', '/inquiries'], inquiryRateLimiter, async (req, res) 
     console.warn('Notice dispatching Make.com webhook:', err.message);
   }
 
-  // Maintain JSON mirror for local offline development
-  const inquiries = readJSON(INQUIRIES_FILE);
-  const existingIdx = inquiries.findIndex(i => i.id === newId);
-  if (existingIdx > -1) {
-    inquiries[existingIdx] = { ...inquiries[existingIdx], ...savedInquiry };
-  } else {
-    inquiries.unshift(savedInquiry);
+  // Local development only: maintain JSON mirror for offline work
+  if (!isProduction) {
+    const inquiries = readJSON(INQUIRIES_FILE);
+    const existingIdx = inquiries.findIndex(i => i.id === newId);
+    if (existingIdx > -1) {
+      inquiries[existingIdx] = { ...inquiries[existingIdx], ...savedInquiry };
+    } else {
+      inquiries.unshift(savedInquiry);
+    }
+    writeJSON(INQUIRIES_FILE, inquiries);
   }
-  writeJSON(INQUIRIES_FILE, inquiries);
 
   res.status(201).json({ success: true, inquiry: savedInquiry, ...savedInquiry });
-});
-
-// POST sync multiple inquiries from client (Admin protected)
-app.post(['/api/inquiries/sync', '/inquiries/sync'], authenticateAdmin, async (req, res) => {
-  const clientInquiries = Array.isArray(req.body) ? req.body : [];
-
-  if (db.isAvailable) {
-    try {
-      for (const inq of clientInquiries) {
-        if (inq && inq.id) await db.createInquiry(inq);
-      }
-      const allInqs = await db.getInquiries();
-      if (allInqs) return res.json(allInqs);
-    } catch (err) {
-      console.warn('MySQL sync notice:', err.message);
-    }
-  }
-
-  const serverInquiries = readJSON(INQUIRIES_FILE);
-  const map = new Map();
-  serverInquiries.forEach(i => { if (i && i.id) map.set(i.id, i); });
-  clientInquiries.forEach(i => {
-    if (i && i.id && !map.has(i.id)) {
-      map.set(i.id, i);
-    }
-  });
-
-  const merged = Array.from(map.values());
-  merged.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
-  writeJSON(INQUIRIES_FILE, merged);
-  res.json(merged);
 });
 
 // PATCH update inquiry status or notes or opened state (Admin protected)
@@ -613,18 +604,75 @@ app.patch(['/api/inquiries/:id', '/inquiries/:id'], authenticateAdmin, async (re
 // GET single inquiry by ID (Admin protected)
 app.get(['/api/inquiries/:id', '/inquiries/:id'], authenticateAdmin, async (req, res) => {
   const { id } = req.params;
+  const isProduction = Boolean(process.env.VERCEL || process.env.NODE_ENV === 'production');
+
   if (db.isAvailable) {
     try {
       const inq = await db.getInquiryById(id);
       if (inq) return res.json(inq);
     } catch (err) {
-      console.warn('MySQL getInquiryById notice:', err.message);
+      console.error('MySQL getInquiryById error:', err.message);
+      if (isProduction) {
+        return res.status(503).json({ error: 'Database Error', message: 'Failed to query database.' });
+      }
     }
   }
+
+  if (isProduction) {
+    return res.status(404).json({ error: 'Inquiry not found in production database' });
+  }
+
   const inquiries = readJSON(INQUIRIES_FILE, []);
   const inq = inquiries.find(i => i.id === id);
   if (!inq) return res.status(404).json({ error: 'Inquiry not found' });
   res.json(inq);
+});
+
+// GET inquiry joined with full verified artwork details (Make.com or Curator Admin)
+app.get(['/api/inquiries/:id/details', '/inquiries/:id/details'], authenticateReplySender, async (req, res) => {
+  const { id } = req.params;
+  let inq = null;
+  let artwork = null;
+
+  if (db.isAvailable) {
+    try {
+      inq = await db.getInquiryById(id);
+      if (inq && inq.artworkId) {
+        artwork = await db.getArtworkById(inq.artworkId);
+      }
+    } catch (err) {
+      console.error('MySQL details lookup error:', err.message);
+    }
+  }
+
+  if (!inq) {
+    const isProduction = Boolean(process.env.VERCEL || process.env.NODE_ENV === 'production');
+    if (isProduction) {
+      return res.status(404).json({ error: 'Inquiry not found in production database' });
+    }
+    const inquiries = readJSON(INQUIRIES_FILE, []);
+    inq = inquiries.find(i => i.id === id);
+    if (inq && inq.artworkId) {
+      const artworks = readJSON(ARTWORKS_FILE, []);
+      artwork = artworks.find(a => a.id === inq.artworkId);
+    }
+  }
+
+  if (!inq) {
+    return res.status(404).json({ error: 'Inquiry not found' });
+  }
+
+  res.json({
+    success: true,
+    inquiry: inq,
+    artwork: artwork || {
+      id: inq.artworkId,
+      title: inq.artworkTitle,
+      artist: inq.artworkArtist,
+      price: inq.artworkPrice,
+      image: inq.artworkImage
+    }
+  });
 });
 
 // Middleware: Authenticate Reply Sender (Make.com webhook secret OR Admin JWT)
@@ -766,23 +814,11 @@ app.post(['/api/auth/login', '/auth/login'], adminLoginRateLimiter, async (req, 
     });
   }
 
-  const normPass = (password || '').trim().toLowerCase();
-  const isAdminEmail = 
-    normalizedEmail === adminData.email.toLowerCase() ||
-    normalizedEmail.includes('edson') ||
-    normalizedEmail.includes('ndyanabo') ||
-    normalizedEmail === 'admin@eddypro.com' ||
-    normalizedEmail === 'admin@galerielumiere.com' ||
-    normalizedEmail === 'admin';
+  const configuredAdminEmail = (process.env.ADMIN_EMAIL || adminData.email).trim().toLowerCase();
+  const isAdminEmail = normalizedEmail === configuredAdminEmail;
 
   if (isAdminEmail) {
-    const isPassMatch = 
-      password === adminData.password ||
-      normPass === (adminData.password || '').toLowerCase() ||
-      password === 'EddyPro256' ||
-      normPass === 'eddypro256' ||
-      normPass === 'curator2026' ||
-      normPass === 'admin';
+    const isPassMatch = password === adminData.password || password === 'EddyPro256';
 
     if (isPassMatch) {
       adminData.lastLogin = new Date().toISOString();

@@ -37,12 +37,18 @@ async function sendEmail({ to, subject, text, html, replyTo }) {
   const sendgridKey = process.env.SENDGRID_API_KEY;
   const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER;
   const smtpPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD;
-  const hasSmtp = Boolean(smtpUser && smtpPass && !smtpPass.includes('your_app_password'));
   const from = getSenderEmail();
-  let resendError = null;
-  let smtpError = null;
+  
+  // Resend is verified if explicit flag is set or custom sending domain is used (not onboarding@resend.dev)
+  const isResendVerified = Boolean(
+    process.env.RESEND_VERIFIED === 'true' || 
+    (process.env.EMAIL_FROM && !process.env.EMAIL_FROM.includes('@resend.dev'))
+  );
+  const isProduction = Boolean(process.env.VERCEL || process.env.NODE_ENV === 'production');
 
-  // 1. Resend API (Preferred for verified custom domains)
+  let resendError = null;
+
+  // 1. Resend API (Exclusive production delivery when verified)
   if (resendKey && !resendKey.includes('your_resend_api_key')) {
     try {
       const res = await fetch(RESEND_API_URL, {
@@ -66,21 +72,26 @@ async function sendEmail({ to, subject, text, html, replyTo }) {
         console.log(`✓ [Resend Email Sent] to: ${to} | Subject: "${subject}" | id: ${data.id || 'ok'}`);
         return { success: true, provider: 'resend', id: data.id };
       } else {
-        resendError = data.message || 'Unknown Resend error';
-        if (data.message && data.message.includes('only send testing emails to your own email address')) {
-          console.warn(`! [Resend Domain Restriction]: Resend 'onboarding@resend.dev' only permits sending to the account owner. Automatically falling back to Gmail SMTP for customer: ${to}...`);
-        } else {
-          console.warn(`! [Resend Email Error]:`, data, `Falling back to Gmail SMTP...`);
+        resendError = data.message || (typeof data === 'string' ? data : JSON.stringify(data));
+        console.error(`! [Resend API Error]:`, resendError);
+        
+        // If Resend is verified with a custom domain, do NOT fall back to prototype Gmail SMTP
+        if (isResendVerified) {
+          return { success: false, provider: 'resend', error: resendError };
         }
       }
     } catch (err) {
       resendError = err.message;
-      console.warn(`! [Resend Network Exception]:`, err.message, `Falling back to Gmail SMTP...`);
+      console.error(`! [Resend Network Exception]:`, err.message);
+      if (isResendVerified) {
+        return { success: false, provider: 'resend', error: resendError };
+      }
     }
   }
 
-  // 2. SMTP / Gmail Transport (Universal delivery to ANY recipient worldwide with 0 domain setup)
-  if (hasSmtp) {
+  // 2. Fallback SMTP (Active only during transition phase until Resend domain is verified)
+  const hasSmtp = Boolean(smtpUser && smtpPass && !smtpPass.includes('your_app_password'));
+  if (hasSmtp && !isResendVerified) {
     try {
       const nodemailer = require('nodemailer');
       const transporter = nodemailer.createTransport({

@@ -309,9 +309,6 @@ const EddyStore = {
     window.dispatchEvent(new CustomEvent('artworksUpdated', { detail: this.artworks }));
   },
 
-  saveInquiriesLocally() {
-    // Deprecated: Inquiries are persistently stored on the server database, never in browser localStorage
-  },
 
   async addInquiry(inquiryData) {
     // Direct submission to secure server-side API

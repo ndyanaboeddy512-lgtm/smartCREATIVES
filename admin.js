@@ -740,7 +740,6 @@ const AdminApp = {
     
     // Auto-mark as opened when opened by curator
     inq.opened = true;
-    EddyStore.saveInquiriesLocally();
     if (EddyStore.isBackendConnected) {
       try {
         fetch(`/api/inquiries/${id}`, {
@@ -956,7 +955,6 @@ const AdminApp = {
     if (!inq) return;
 
     inq.opened = !inq.opened;
-    EddyStore.saveInquiriesLocally();
 
     if (EddyStore.isBackendConnected) {
       try {
@@ -988,8 +986,6 @@ const AdminApp = {
 
     if (statusSel) inq.status = statusSel.value;
     if (noteInput) inq.curatorNotes = noteInput.value.trim();
-
-    EddyStore.saveInquiriesLocally();
 
     if (EddyStore.isBackendConnected) {
       try {
@@ -1035,7 +1031,6 @@ const AdminApp = {
     if (!inq) return;
 
     inq.status = newStatus;
-    EddyStore.saveInquiriesLocally();
 
     if (EddyStore.isBackendConnected) {
       try {
@@ -1045,7 +1040,7 @@ const AdminApp = {
           body: JSON.stringify({ status: newStatus })
         });
       } catch (err) {
-        console.warn('API sync failed, saved locally');
+        console.warn('API sync notice:', err);
       }
     }
 
@@ -1060,7 +1055,6 @@ const AdminApp = {
     const note = prompt('Enter a note for this customer inquiry:', inq.curatorNotes || '');
     if (note !== null) {
       inq.curatorNotes = note;
-      EddyStore.saveInquiriesLocally();
       if (EddyStore.isBackendConnected) {
         fetch(`/api/inquiries/${id}`, {
           method: 'PATCH',

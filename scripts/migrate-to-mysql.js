@@ -52,22 +52,27 @@ async function migrate() {
       console.log(`\nImporting ${artworks.length} artworks...`);
       for (const a of artworks) {
         await pool.query(
-          `INSERT INTO artworks (id, title, artist, year, medium, dimensions, price, status, framing, frame_options, provenance, curatorial_statement, featured, image, high_res_zoom)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `INSERT INTO artworks (id, title, artist, year, medium, dimensions, price, status, framing, frame_options, provenance, curatorial_statement, description, shipping_details, faq_info, images, featured, image, high_res_zoom)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
            ON DUPLICATE KEY UPDATE
              title = VALUES(title),
              artist = VALUES(artist),
              price = VALUES(price),
              status = VALUES(status),
              featured = VALUES(featured),
-             image = VALUES(image)`,
+             image = VALUES(image),
+             description = COALESCE(description, VALUES(description)),
+             shipping_details = COALESCE(shipping_details, VALUES(shipping_details)),
+             faq_info = COALESCE(faq_info, VALUES(faq_info)),
+             images = COALESCE(images, VALUES(images))`,
           [
             a.id, a.title, a.artist || '55 smartCREATIVES Studio',
             a.year || 2026, a.medium || 'Fine Art', a.dimensions || 'Custom Size',
             a.price || 0, a.status || 'Available', a.framing || 'Included Framing',
             JSON.stringify(a.frameOptions || []), a.provenance || '',
-            a.curatorialStatement || '', a.featured ? 1 : 0,
-            a.image, a.highResZoom || a.image
+            a.curatorialStatement || '', a.description || '', a.shippingDetails || '',
+            JSON.stringify(a.faq || []), JSON.stringify(a.images || [a.image]),
+            a.featured ? 1 : 0, a.image, a.highResZoom || a.image
           ]
         );
       }
@@ -82,19 +87,25 @@ async function migrate() {
       for (const inq of inquiries) {
         const inqDate = inq.date ? new Date(inq.date) : new Date();
         await pool.query(
-          `INSERT INTO inquiries (id, artwork_id, artwork_title, artwork_artist, artwork_price, artwork_image, collector_name, collector_email, collector_phone, frame_preference, notes, status, opened, is_customer_submission, date, curator_notes)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `INSERT INTO inquiries (id, artwork_id, artwork_title, artwork_artist, artwork_price, artwork_image, collector_name, collector_email, collector_phone, frame_preference, notes, status, opened, is_customer_submission, date, curator_notes, generated_reply, email_delivery_result, reply_sent_at, make_webhook_status)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
            ON DUPLICATE KEY UPDATE
              status = VALUES(status),
              opened = VALUES(opened),
-             curator_notes = VALUES(curator_notes)`,
+             curator_notes = VALUES(curator_notes),
+             generated_reply = COALESCE(inquiries.generated_reply, VALUES(generated_reply)),
+             email_delivery_result = COALESCE(inquiries.email_delivery_result, VALUES(email_delivery_result)),
+             reply_sent_at = COALESCE(inquiries.reply_sent_at, VALUES(reply_sent_at)),
+             make_webhook_status = COALESCE(inquiries.make_webhook_status, VALUES(make_webhook_status))`,
           [
             inq.id, inq.artworkId || null, inq.artworkTitle || 'Acquisition Inquiry',
             inq.artworkArtist || '', inq.artworkPrice || 0, inq.artworkImage || '',
             inq.collectorName || 'Anonymous Collector', inq.collectorEmail || 'unknown@example.com',
             inq.collectorPhone || '', inq.framePreference || 'Included Framing',
             inq.notes || '', inq.status || 'Pending', inq.opened ? 1 : 0,
-            inq.isCustomerSubmission !== false ? 1 : 0, inqDate, inq.curatorNotes || ''
+            inq.isCustomerSubmission !== false ? 1 : 0, inqDate, inq.curatorNotes || '',
+            inq.generatedReply || null, inq.emailDeliveryResult ? JSON.stringify(inq.emailDeliveryResult) : null,
+            inq.replySentAt ? new Date(inq.replySentAt) : null, inq.makeWebhookStatus || 'pending'
           ]
         );
       }

@@ -1,5 +1,137 @@
 [
   {
+    "id": "inq-1841",
+    "artworkId": "art-01",
+    "artworkTitle": "Night Shadows in Warm Earth",
+    "artworkArtist": "Eleanor Vance",
+    "artworkPrice": 24500,
+    "artworkImage": "images/art-01.jpg",
+    "collectorName": "port",
+    "collectorEmail": "ndyanaboeddy512@gmail.com",
+    "collectorPhone": "+250729974065",
+    "framePreference": "Floating Black Oak Frame",
+    "notes": "",
+    "status": "Pending",
+    "opened": false,
+    "isCustomerSubmission": true,
+    "date": "2026-09-07T08:33:47.000Z",
+    "curatorNotes": "Inquiry received. Awaiting curator assignment.",
+    "generatedReply": null,
+    "emailDeliveryResult": {
+      "customerEmail": {
+        "success": false,
+        "provider": "all_providers_failed",
+        "error": "You can only send testing emails to your own email address (edsonndyanabo84@gmail.com). To send emails to other recipients, please verify a domain at resend.com/domains, and change the `from` address to an email using this domain."
+      },
+      "adminEmail": {
+        "success": true,
+        "provider": "resend",
+        "id": "9ac0687f-e6e4-4fa5-a2f3-49bd4781db25"
+      }
+    },
+    "replySentAt": null,
+    "makeWebhookStatus": "pending"
+  },
+  {
+    "id": "inq-4312",
+    "artworkId": "art-03",
+    "artworkTitle": "Minimalist White Relief",
+    "artworkArtist": "Soren Lindqvist",
+    "artworkPrice": 16500,
+    "artworkImage": "images/art-03.jpg",
+    "collectorName": "Eddy Ndyanabo",
+    "collectorEmail": "ndyanaboeddy512@gmail.com",
+    "collectorPhone": "+250729974065",
+    "framePreference": "Slim White Gallery Frame",
+    "notes": "updated",
+    "status": "Pending",
+    "opened": false,
+    "isCustomerSubmission": true,
+    "date": "2026-09-05T15:50:55.000Z",
+    "curatorNotes": "Inquiry received. Awaiting curator assignment.",
+    "generatedReply": null,
+    "emailDeliveryResult": {
+      "customerEmail": {
+        "success": false,
+        "provider": "all_providers_failed",
+        "error": "You can only send testing emails to your own email address (edsonndyanabo84@gmail.com). To send emails to other recipients, please verify a domain at resend.com/domains, and change the `from` address to an email using this domain."
+      },
+      "adminEmail": {
+        "success": true,
+        "provider": "resend",
+        "id": "960e785c-b3a8-4dd7-beac-46f77b16955a"
+      }
+    },
+    "replySentAt": null,
+    "makeWebhookStatus": "pending"
+  },
+  {
+    "id": "inq-6361",
+    "artworkId": "art-02",
+    "artworkTitle": "Modern Bronze Form",
+    "artworkArtist": "Mateo Rossi",
+    "artworkPrice": 19800,
+    "artworkImage": "images/art-02.jpg",
+    "collectorName": "Verified SMTP Collector",
+    "collectorEmail": "vcollector1788620942538@gmail.com",
+    "collectorPhone": "+1 555-0199",
+    "framePreference": "Included Framing",
+    "notes": "Testing fallback to SMTP 1788620942538",
+    "status": "Pending",
+    "opened": false,
+    "isCustomerSubmission": true,
+    "date": "2026-09-05T15:09:03.000Z",
+    "curatorNotes": "Inquiry received. Awaiting curator assignment.",
+    "generatedReply": null,
+    "emailDeliveryResult": {
+      "customerEmail": {
+        "success": false,
+        "provider": "all_providers_failed",
+        "error": "You can only send testing emails to your own email address (edsonndyanabo84@gmail.com). To send emails to other recipients, please verify a domain at resend.com/domains, and change the `from` address to an email using this domain."
+      },
+      "adminEmail": {
+        "success": true,
+        "provider": "resend",
+        "id": "2aec8d4e-394a-4661-8b2b-06724ff9fbfd"
+      }
+    },
+    "replySentAt": null,
+    "makeWebhookStatus": "pending"
+  },
+  {
+    "id": "inq-8157",
+    "artworkId": "art-01",
+    "artworkTitle": "Night Shadows in Warm Earth",
+    "artworkArtist": "Eleanor Vance",
+    "artworkPrice": 24500,
+    "artworkImage": "images/art-01.jpg",
+    "collectorName": "Fresh Test Collector",
+    "collectorEmail": "freshtest1788620918332@example.com",
+    "collectorPhone": "+1 555-0199",
+    "framePreference": "Included Framing",
+    "notes": "Testing resilient inquiry routing 1788620918332",
+    "status": "Pending",
+    "opened": false,
+    "isCustomerSubmission": true,
+    "date": "2026-09-05T15:08:38.000Z",
+    "curatorNotes": "Inquiry received. Awaiting curator assignment.",
+    "generatedReply": null,
+    "emailDeliveryResult": {
+      "customerEmail": {
+        "success": false,
+        "provider": "resend",
+        "error": "Invalid `to` field. Please use our testing email address instead of domains like `example.com`. See our documentation for more information."
+      },
+      "adminEmail": {
+        "success": true,
+        "provider": "resend",
+        "id": "106e0c82-9895-423e-9a9f-ff5ac7c1376b"
+      }
+    },
+    "replySentAt": null,
+    "makeWebhookStatus": "pending"
+  },
+  {
     "id": "inq-5734",
     "artworkId": "art-05",
     "artworkTitle": "Architectural Steel & Stone",
