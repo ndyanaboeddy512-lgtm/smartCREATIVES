@@ -409,8 +409,8 @@ app.post(['/api/inquiries', '/inquiries'], inquiryRateLimiter, async (req, res) 
   }
 
   // 3. Input validation & sanitization
-  const rawName = req.body.collectorName || '';
-  const rawEmail = (req.body.collectorEmail || '').trim();
+  const rawName = req.body.collectorName || req.body.name || '';
+  const rawEmail = (req.body.collectorEmail || req.body.email || '').trim();
   const collectorName = sanitizeText(rawName, 80);
 
   if (!collectorName || collectorName.length < 2) {
@@ -421,7 +421,7 @@ app.post(['/api/inquiries', '/inquiries'], inquiryRateLimiter, async (req, res) 
   }
 
   const collectorEmail = rawEmail.toLowerCase();
-  const collectorPhone = sanitizeText(req.body.collectorPhone || '', 40);
+  const collectorPhone = sanitizeText(req.body.collectorPhone || req.body.phone || '', 40);
   const framePreference = sanitizeText(req.body.framePreference || 'Included Framing', 100);
   const notes = sanitizeHtml(req.body.notes || '', 2000);
   const rawArtworkId = sanitizeText(req.body.artworkId || '', 64);
