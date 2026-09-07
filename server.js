@@ -193,7 +193,7 @@ app.get(['/admin', '/admin.html'], (req, res) => {
 
 // --- API ROUTES ---
 
-// Health check
+// Health check & Environment Audit
 app.get(['/api/health', '/health'], async (req, res) => {
   const pool = await db.getPool();
   const hasEmail = Boolean(
@@ -201,6 +201,18 @@ app.get(['/api/health', '/health'], async (req, res) => {
     (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) || 
     process.env.SENDGRID_API_KEY
   );
+
+  const envAudit = {
+    DATABASE_URL: db.isAvailable ? 'connected' : (process.env.DATABASE_URL ? 'configured_but_unreachable' : 'missing'),
+    RESEND_API_KEY: Boolean(process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('your_resend')) ? 'configured' : 'missing',
+    RESEND_VERIFIED: Boolean(process.env.RESEND_VERIFIED === 'true') ? 'enabled' : 'disabled',
+    EMAIL_FROM: Boolean(process.env.EMAIL_FROM && !process.env.EMAIL_FROM.includes('@resend.dev')) ? 'verified_domain' : 'default_sandbox',
+    ADMIN_EMAIL: Boolean(process.env.ADMIN_EMAIL) ? 'configured' : 'default',
+    MAKE_INQUIRY_WEBHOOK_URL: Boolean(process.env.MAKE_INQUIRY_WEBHOOK_URL && !process.env.MAKE_INQUIRY_WEBHOOK_URL.includes('your_make')) ? 'configured' : 'missing',
+    MAKE_WEBHOOK_SECRET: Boolean(process.env.MAKE_WEBHOOK_SECRET) ? 'configured' : 'missing',
+    SITE_URL: Boolean(process.env.SITE_URL) ? 'configured' : 'default'
+  };
+
   res.json({
     status: 'ok',
     gallery: '55 smartCREATIVES — Editorial Fine Art',
@@ -208,11 +220,13 @@ app.get(['/api/health', '/health'], async (req, res) => {
     siteUrl: SITE_URL,
     emailService: hasEmail ? 'configured' : 'simulated',
     emailProvider: process.env.RESEND_API_KEY ? 'resend' : (process.env.GMAIL_USER ? 'gmail_smtp' : (process.env.SENDGRID_API_KEY ? 'sendgrid' : 'simulated')),
-    makeWebhook: process.env.MAKE_INQUIRY_WEBHOOK_URL ? 'configured' : 'unconfigured',
+    makeWebhook: envAudit.MAKE_INQUIRY_WEBHOOK_URL === 'configured' ? 'configured' : 'unconfigured',
     adminEmail: getAdminEmail(),
+    environmentAudit: envAudit,
     timestamp: new Date().toISOString()
   });
 });
+
 
 // GET all artworks
 app.get(['/api/artworks', '/artworks'], async (req, res) => {
