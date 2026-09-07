@@ -203,7 +203,7 @@ app.get(['/api/health', '/health'], async (req, res) => {
   );
 
   const envAudit = {
-    DATABASE_URL: db.isAvailable ? 'connected' : (process.env.DATABASE_URL ? 'configured_but_unreachable' : 'missing'),
+    DATABASE_URL: db.isAvailable ? 'connected' : ((process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.POSTGRES_HOST) ? 'configured_but_unreachable' : 'missing'),
     RESEND_API_KEY: Boolean(process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('your_resend')) ? 'configured' : 'missing',
     RESEND_VERIFIED: Boolean(process.env.RESEND_VERIFIED === 'true') ? 'enabled' : 'disabled',
     EMAIL_FROM: Boolean(process.env.EMAIL_FROM && !process.env.EMAIL_FROM.includes('@resend.dev')) ? 'verified_domain' : 'default_sandbox',
@@ -216,7 +216,7 @@ app.get(['/api/health', '/health'], async (req, res) => {
   res.json({
     status: 'ok',
     gallery: '55 smartCREATIVES — Editorial Fine Art',
-    database: db.isAvailable ? 'mysql' : 'unavailable',
+    database: db.isAvailable ? (db.isPg ? 'postgres' : 'mysql') : 'unavailable',
     siteUrl: SITE_URL,
     emailService: hasEmail ? 'configured' : 'simulated',
     emailProvider: process.env.RESEND_API_KEY ? 'resend' : (process.env.GMAIL_USER ? 'gmail_smtp' : (process.env.SENDGRID_API_KEY ? 'sendgrid' : 'simulated')),
