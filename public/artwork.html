@@ -284,9 +284,9 @@
 
           <!-- Anti-bot honeypot and time-gate -->
           <input type="hidden" id="inquiryTimestamp" name="_ts" value="">
-          <div class="honeypot-field" aria-hidden="true" style="display:none !important; position:absolute; left:-9999px;">
-            <input type="text" name="website_hp" id="inquiryWebsiteHp" tabindex="-1" autocomplete="off">
-            <input type="text" name="gallery_curation_check" id="inquiryGalleryCurationCheck" tabindex="-1" autocomplete="off">
+          <div class="honeypot-field" aria-hidden="true" style="display:none !important; position:absolute; left:-9999px; width:0; height:0; overflow:hidden;">
+            <input type="text" name="website_hp" id="inquiryWebsiteHp" tabindex="-1" autocomplete="new-password" style="display:none !important;">
+            <input type="text" name="gallery_curation_check" id="inquiryGalleryCurationCheck" tabindex="-1" autocomplete="new-password" style="display:none !important;">
           </div>
 
           <div class="form-row">

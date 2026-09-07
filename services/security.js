@@ -52,9 +52,10 @@ function isValidEmail(email) {
  */
 function isHoneypotTriggered(body) {
   if (!body || typeof body !== 'object') return false;
-  const honeypots = ['website_hp', 'gallery_curation_check', 'address_line_secondary', 'fax_number'];
+  // Use unique gallery decoy inputs that standard browser autofill will never populate
+  const honeypots = ['website_hp', 'gallery_curation_check', 'editorial_decoy_trap'];
   for (const hp of honeypots) {
-    if (body[hp] && String(body[hp]).trim().length > 0) {
+    if (body[hp] && typeof body[hp] === 'string' && body[hp].trim().length > 0) {
       return true;
     }
   }
@@ -63,17 +64,22 @@ function isHoneypotTriggered(body) {
 
 /**
  * Time-Gate Bot Detection
- * Verifies that the client took at least minSeconds (default 1.5s) to submit the form.
+ * Verifies human submission pacing without penalizing client clock skew or fast autofill.
  */
-function isTimeGateFailed(clientTimestamp, minSeconds = 1.5) {
+function isTimeGateFailed(clientTimestamp, minSeconds = 0.4) {
   if (!clientTimestamp) {
     return false;
   }
   const ts = parseInt(clientTimestamp, 10);
-  if (isNaN(ts)) return false;
+  if (isNaN(ts) || ts <= 0) return false;
   
   const elapsedMs = Date.now() - ts;
-  if (elapsedMs < minSeconds * 1000 || elapsedMs < -5000) {
+  // If client clock is skewed (elapsedMs < 0), do NOT penalize real users
+  if (elapsedMs < 0) {
+    return false; 
+  }
+  // Only trigger if submitted inhumanly fast (< 400ms) with non-autofilled data
+  if (elapsedMs < minSeconds * 1000) {
     return true;
   }
   return false;
@@ -81,7 +87,7 @@ function isTimeGateFailed(clientTimestamp, minSeconds = 1.5) {
 
 /**
  * In-Memory Sliding Window for Duplicate Submission Suppression
- * Prevents rapid double-clicks and replay loops within a 60-second window.
+ * Prevents rapid double-clicks (15-second debounce window instead of 60s)
  */
 const recentSignatures = new Map();
 
@@ -92,7 +98,7 @@ setInterval(() => {
   }
 }, 5 * 60 * 1000);
 
-function isDuplicateSubmission(signatureKey, windowSeconds = 60) {
+function isDuplicateSubmission(signatureKey, windowSeconds = 15) {
   if (!signatureKey) return false;
   const hash = crypto.createHash('sha256').update(String(signatureKey)).digest('hex');
   const now = Date.now();
@@ -100,7 +106,7 @@ function isDuplicateSubmission(signatureKey, windowSeconds = 60) {
   if (recentSignatures.has(hash)) {
     const expiresAt = recentSignatures.get(hash);
     if (now < expiresAt) {
-      return true; // Duplicate caught
+      return true; // Duplicate caught within debounce window
     }
   }
   

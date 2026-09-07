@@ -292,10 +292,10 @@
           <input type="hidden" id="modalArtworkArtistInput">
 
           <!-- Security Honeypot and Time-gate fields -->
-          <div class="honeypot-field" aria-hidden="true">
+          <div class="honeypot-field" aria-hidden="true" style="display:none !important; position:absolute; left:-9999px; width:0; height:0; overflow:hidden;">
             <label for="inquiryHoneypot">Do not fill this field</label>
-            <input type="text" id="inquiryHoneypot" name="website_hp" tabindex="-1" autocomplete="off">
-            <input type="hidden" id="inquiryTimestamp" name="_ts">
+            <input type="text" id="inquiryHoneypot" name="website_hp" tabindex="-1" autocomplete="new-password" style="display:none !important;">
+            <input type="hidden" id="inquiryTimestamp" name="_ts" value="">
           </div>
 
           <div class="form-row">

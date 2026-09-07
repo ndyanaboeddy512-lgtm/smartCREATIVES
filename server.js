@@ -51,6 +51,9 @@ const SITE_URL = getSiteUrl();
 // Initialize MySQL database pool in background
 db.initDatabase().catch(err => console.warn('Database init notice:', err.message));
 
+// Trust proxy so rate limiters and logging detect client IP accurately on Vercel
+app.set('trust proxy', 1);
+
 // Enable CORS (supports custom domain and local preview) and generous body size
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '50mb' }));
@@ -193,12 +196,19 @@ app.get(['/admin', '/admin.html'], (req, res) => {
 // Health check
 app.get(['/api/health', '/health'], async (req, res) => {
   const pool = await db.getPool();
+  const hasEmail = Boolean(
+    process.env.RESEND_API_KEY || 
+    (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) || 
+    process.env.SENDGRID_API_KEY
+  );
   res.json({
     status: 'ok',
     gallery: '55 smartCREATIVES — Editorial Fine Art',
     database: db.isAvailable ? 'mysql' : 'unavailable',
     siteUrl: SITE_URL,
-    emailService: (process.env.RESEND_API_KEY || process.env.SENDGRID_API_KEY) ? 'configured' : 'simulated',
+    emailService: hasEmail ? 'configured' : 'simulated',
+    emailProvider: process.env.RESEND_API_KEY ? 'resend' : (process.env.GMAIL_USER ? 'gmail_smtp' : (process.env.SENDGRID_API_KEY ? 'sendgrid' : 'simulated')),
+    makeWebhook: process.env.MAKE_INQUIRY_WEBHOOK_URL ? 'configured' : 'unconfigured',
     adminEmail: getAdminEmail(),
     timestamp: new Date().toISOString()
   });
@@ -353,30 +363,49 @@ app.delete(['/api/artworks/:id', '/artworks/:id'], authenticateAdmin, async (req
 
 // GET inquiries (Admin protected)
 app.get(['/api/inquiries', '/inquiries'], authenticateAdmin, async (req, res) => {
+  let allInquiries = [];
   if (db.isAvailable) {
     try {
       const dbInqs = await db.getInquiries();
-      if (dbInqs) return res.json(dbInqs);
+      if (Array.isArray(dbInqs)) allInquiries = dbInqs;
     } catch (err) {
       console.warn('MySQL getInquiries notice, falling back:', err.message);
     }
   }
-  const inquiries = readJSON(INQUIRIES_FILE);
-  res.json(inquiries);
+
+  // Also read serverless / local file backups so no inquiry from any device is ever omitted
+  const fileInqs = readJSON(INQUIRIES_FILE, []);
+  const existingIds = new Set(allInquiries.map(i => i.id));
+  for (const item of fileInqs) {
+    if (!existingIds.has(item.id)) {
+      allInquiries.push(item);
+      existingIds.add(item.id);
+      // Opportunistically backfill to MySQL if now connected
+      if (db.isAvailable) {
+        try { await db.createInquiry(item); } catch (_) {}
+      }
+    }
+  }
+
+  allInquiries.sort((a, b) => new Date(b.date || b.created_at || 0) - new Date(a.date || a.created_at || 0));
+  res.json(allInquiries);
 });
 
 // POST new inquiry (Collector or Guest with Security Hardening & Catalog Verification)
 app.post(['/api/inquiries', '/inquiries'], inquiryRateLimiter, async (req, res) => {
-  // 1. Honeypot check
+  // 1. Decoy honeypot check (only reject if actual spam content exists)
   if (isHoneypotTriggered(req.body)) {
-    console.log('🛡️ [Security] Honeypot triggered in inquiry submission. Silently dropping bot payload.');
-    return res.status(200).json({ success: true, id: 'inq-' + Math.floor(1000 + Math.random() * 9000), status: 'Pending' });
+    const decoyVal = String(req.body.website_hp || req.body.gallery_curation_check || req.body.editorial_decoy_trap || '');
+    if (decoyVal.includes('http://') || decoyVal.includes('https://') || decoyVal.length > 60) {
+      console.log('🛡️ [Security] Automated spam payload detected in decoy field. Rejecting.');
+      return res.status(400).json({ error: 'Spam Detected', message: 'Automated submission rejected.' });
+    }
+    console.warn('Notice: Decoy field contained value (possible autofill); continuing with strict validation.');
   }
 
-  // 2. Time-gate check (minimum 1.5s human typing time)
-  if (isTimeGateFailed(req.body._ts || req.body.clientTimestamp, 1.5)) {
-    console.log('🛡️ [Security] Time-gate failed (< 1.5s). Silently dropping automated bot submission.');
-    return res.status(200).json({ success: true, id: 'inq-' + Math.floor(1000 + Math.random() * 9000), status: 'Pending' });
+  // 2. Human pacing check (log notice without silently dropping valid client inquiries)
+  if (isTimeGateFailed(req.body._ts || req.body.clientTimestamp, 0.4)) {
+    console.log('🛡️ [Security] Fast submission pace detected; proceeding with data verification.');
   }
 
   // 3. Input validation & sanitization
@@ -397,9 +426,9 @@ app.post(['/api/inquiries', '/inquiries'], inquiryRateLimiter, async (req, res) 
   const notes = sanitizeHtml(req.body.notes || '', 2000);
   const rawArtworkId = sanitizeText(req.body.artworkId || '', 64);
 
-  // 4. Duplicate submission check (prevents double-clicks & replay loops within 60s)
+  // 4. Duplicate submission check (prevents double-clicks within 15-second debounce window)
   const signatureKey = `${collectorEmail}:${rawArtworkId || 'general'}`;
-  if (isDuplicateSubmission(signatureKey, 60)) {
+  if (isDuplicateSubmission(signatureKey, 15)) {
     console.log(`🛡️ [Security] Duplicate inquiry suppressed for ${collectorEmail}`);
     return res.status(200).json({
       success: true,

@@ -9,7 +9,15 @@ let initPromise = null;
 
 // Determine connection config from environment or local defaults
 function getPoolConfig() {
-  const connectionUrl = process.env.DATABASE_URL || process.env.MYSQL_URL;
+  const connectionUrl = process.env.DATABASE_URL || 
+                        process.env.MYSQL_URL || 
+                        process.env.TIDB_URL || 
+                        process.env.JAWSDB_URL || 
+                        process.env.CLEARDB_DATABASE_URL;
+
+  const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+  const connLimit = isServerless ? 3 : 10;
+
   if (connectionUrl) {
     const isLocal = connectionUrl.includes('127.0.0.1') || connectionUrl.includes('localhost');
     const isCloud = !isLocal || connectionUrl.includes('ssl') || process.env.MYSQL_SSL === 'true';
@@ -17,26 +25,31 @@ function getPoolConfig() {
     return {
       uri: connectionUrl,
       waitForConnections: true,
-      connectionLimit: 10,
+      connectionLimit: connLimit,
       queueLimit: 0,
+      connectTimeout: 10000,
       enableKeepAlive: true,
       keepAliveInitialDelay: 10000,
       ssl: isCloud ? { rejectUnauthorized: false } : undefined
     };
   }
 
+  const host = process.env.MYSQL_HOST || '127.0.0.1';
+  const isCloudHost = host !== '127.0.0.1' && host !== 'localhost';
+
   return {
-    host: process.env.MYSQL_HOST || '127.0.0.1',
+    host,
     port: parseInt(process.env.MYSQL_PORT, 10) || 3306,
     user: process.env.MYSQL_USER || 'root',
     password: process.env.MYSQL_PASSWORD !== undefined ? process.env.MYSQL_PASSWORD : '',
     database: process.env.MYSQL_DATABASE || 'art_gallery_db',
     waitForConnections: true,
-    connectionLimit: 10,
+    connectionLimit: connLimit,
     queueLimit: 0,
+    connectTimeout: 10000,
     enableKeepAlive: true,
     keepAliveInitialDelay: 10000,
-    ssl: process.env.MYSQL_SSL === 'true' ? { rejectUnauthorized: false } : undefined
+    ssl: (isCloudHost || process.env.MYSQL_SSL === 'true') ? { rejectUnauthorized: false } : undefined
   };
 }
 
