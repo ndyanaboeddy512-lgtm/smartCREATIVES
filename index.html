@@ -90,12 +90,20 @@
 
           <div class="hero-content">
             <h1 class="hero-title" id="heroTitle">Night Shadows in Warm Earth</h1>
-            <div class="hero-artist" id="heroArtist">Eleanor Vance (2025)</div>
+            <div class="artwork-artist-row" style="margin-bottom: 1.25rem;">
+              <span class="artist-badge-prefix">Artist</span>
+              <strong class="artwork-artist-name" id="heroArtist" style="font-size: 1.15rem;">Eleanor Vance</strong>
+              <span class="artwork-year-tag" id="heroYear">(2025)</span>
+            </div>
             <p class="hero-statement" id="heroStatement">
               A stunning original painting featuring deep shadows and warm earth tones. Created with hand-mixed natural pigments on premium canvas.
             </p>
 
             <div class="hero-specs">
+              <div class="spec-item">
+                <span class="spec-label">Artist</span>
+                <span class="spec-value" id="heroArtistSpec" style="color: var(--accent-gold); font-weight: 600;">Eleanor Vance</span>
+              </div>
               <div class="spec-item">
                 <span class="spec-label">Medium</span>
                 <span class="spec-value" id="heroMedium">Oil & natural earth pigments on canvas</span>
@@ -233,7 +241,11 @@
           </div>
         </div>
 
-        <div style="font-size: 0.8rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px;" id="qvArtist">Artist</div>
+        <div class="artwork-artist-row" style="margin-bottom: 8px;">
+          <span class="artist-badge-prefix">Artist</span>
+          <strong class="artwork-artist-name" id="qvArtist" style="font-size: 1.05rem;">Artist</strong>
+          <span class="artwork-year-tag" id="qvYear"></span>
+        </div>
         <h3 style="font-size: 2rem; font-weight: 300; margin-bottom: 0.75rem;" id="qvTitle">Title</h3>
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; padding: 1.25rem 0; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); margin-bottom: 1.5rem;">
@@ -279,7 +291,10 @@
           <img id="modalArtworkThumb" src="" alt="Thumbnail" class="inquiry-piece-thumb">
           <div class="inquiry-piece-info">
             <h4 id="modalArtworkTitle">Piece Title</h4>
-            <p id="modalArtworkArtist">Artist Name</p>
+            <div class="artwork-artist-row" style="margin-top: 3px; margin-bottom: 3px;">
+              <span class="artist-badge-prefix">Artist</span>
+              <strong id="modalArtworkArtist" style="color: var(--text-primary); font-size: 0.95rem;">Artist Name</strong>
+            </div>
             <div id="modalArtworkPrice" style="font-weight: 600; color: var(--accent-gold); margin-top: 4px;">$0</div>
           </div>
         </div>
@@ -490,7 +505,11 @@
         heroImg.alt = heroArt.title;
       }
       if (heroTitle) heroTitle.textContent = heroArt.title;
-      if (heroArtist) heroArtist.textContent = `${heroArt.artist} (${heroArt.year || 2025})`;
+      if (heroArtist) heroArtist.textContent = heroArt.artist || '55 smartCREATIVES Studio';
+      const heroYearEl = document.getElementById('heroYear');
+      if (heroYearEl) heroYearEl.textContent = heroArt.year ? `(${heroArt.year})` : '';
+      const heroArtistSpec = document.getElementById('heroArtistSpec');
+      if (heroArtistSpec) heroArtistSpec.textContent = heroArt.artist || '55 smartCREATIVES Studio';
       if (heroStatement) heroStatement.textContent = heroArt.curatorialStatement || 'A curated 1-of-1 masterwork from the 55 smartCREATIVES contemporary archive.';
       if (heroMedium) heroMedium.textContent = heroArt.medium || 'Original Medium';
       if (heroDimensions) heroDimensions.textContent = heroArt.dimensions || '';
@@ -558,6 +577,7 @@
             <div class="artwork-image-container">
               <div class="card-badges">
                 <span class="status-badge ${statusClass}">${art.status === 'Sold' ? 'Sold' : art.status}</span>
+                <span class="artist-pill-badge">${art.artist || 'Original Piece'}</span>
               </div>
 
               <button class="btn-favorite-heart ${isFav ? 'active' : ''}" 
@@ -575,7 +595,11 @@
             </div>
 
             <div class="artwork-info">
-              <span class="artwork-artist-name">${art.artist} (${art.year || '2025'})</span>
+              <div class="artwork-artist-row">
+                <span class="artist-badge-prefix">Artist</span>
+                <strong class="artwork-artist-name">${art.artist || '55 smartCREATIVES Studio'}</strong>
+                <span class="artwork-year-tag">${art.year ? `(${art.year})` : ''}</span>
+              </div>
               <h3 class="artwork-card-title">
                 <a href="artwork.html?id=${art.id}">${art.title}</a>
               </h3>

@@ -650,11 +650,18 @@
       container.innerHTML = savedArtworks.map(art => `
         <article class="artwork-card" data-id="${art.id}">
           <div class="artwork-image-container">
+            <div class="card-badges">
+              <span class="artist-pill-badge">${art.artist || 'Original Piece'}</span>
+            </div>
             <button class="btn-favorite-heart active" title="Remove from Saved" onclick="removeWishlistItem('${art.id}')">♥</button>
             <img src="${art.image}" alt="${art.title}" onerror="this.src='images/art-01.jpg'">
           </div>
           <div class="artwork-info">
-            <span class="artwork-artist-name">${art.artist} (${art.year || '2025'})</span>
+            <div class="artwork-artist-row">
+              <span class="artist-badge-prefix">Artist</span>
+              <strong class="artwork-artist-name">${art.artist || '55 smartCREATIVES Studio'}</strong>
+              <span class="artwork-year-tag">${art.year ? `(${art.year})` : ''}</span>
+            </div>
             <h3 class="artwork-card-title"><a href="artwork.html?id=${art.id}">${art.title}</a></h3>
             <div class="artwork-meta-line">${art.medium} · ${art.dimensions}</div>
             <div class="artwork-pricing-row">

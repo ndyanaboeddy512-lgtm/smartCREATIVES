@@ -1,5 +1,69 @@
 [
   {
+    "id": "inq-8915",
+    "artworkId": "art-05",
+    "artworkTitle": "Architectural Steel & Stone",
+    "artworkArtist": "Kaito Moriyama",
+    "artworkPrice": 31000,
+    "artworkImage": "images/art-05.jpg",
+    "collectorName": "edson ndyanabo",
+    "collectorEmail": "ndyanaboeddy512@gmail.com",
+    "collectorPhone": "+250729974065",
+    "framePreference": "Integrated Steel Stand",
+    "notes": "",
+    "status": "Pending",
+    "opened": false,
+    "isCustomerSubmission": true,
+    "date": "2026-09-07T12:25:41.000Z",
+    "curatorNotes": "Inquiry received. Awaiting curator assignment.",
+    "generatedReply": null,
+    "emailDeliveryResult": {
+      "customerEmail": {
+        "success": false,
+        "error": {}
+      },
+      "adminEmail": {
+        "success": true,
+        "provider": "resend",
+        "id": "fac7943d-429d-47e0-b23a-62366638c73a"
+      }
+    },
+    "replySentAt": null,
+    "makeWebhookStatus": "pending"
+  },
+  {
+    "id": "inq-2071",
+    "artworkId": "art-mtkeap1c",
+    "artworkTitle": "Natural Wood Balance",
+    "artworkArtist": "Eddy",
+    "artworkPrice": 900,
+    "artworkImage": "images/artwork-1788371635007-145.jpg",
+    "collectorName": "Victoria Sterling",
+    "collectorEmail": "production.client.1788771493481@collector-art.org",
+    "collectorPhone": "+44 20 7946 0912",
+    "framePreference": "Natural Wood Stand",
+    "notes": "Testing database persistence and Make.com details query flow.",
+    "status": "Contacted",
+    "opened": false,
+    "isCustomerSubmission": true,
+    "date": "2026-09-07T08:58:13.000Z",
+    "curatorNotes": "Inquiry received. Awaiting curator assignment.",
+    "generatedReply": "Dear Victoria,\n\nThank you for inquiring about Natural Wood Balance (). Handcrafted from carved solid wood (64 × 84 × 67 cm), it includes bespoke museum crate courier delivery worldwide. We are delighted to answer any curatorial questions you may have.\n\nWarm regards,\nCurator Directorate\n55 smartCREATIVES",
+    "emailDeliveryResult": {
+      "customerEmail": {
+        "success": false,
+        "error": {}
+      },
+      "adminEmail": {
+        "success": true,
+        "provider": "resend",
+        "id": "147ca700-cf1f-421e-a523-f1bd54e81feb"
+      }
+    },
+    "replySentAt": "2026-09-07T08:59:11.782Z",
+    "makeWebhookStatus": "completed"
+  },
+  {
     "id": "inq-1841",
     "artworkId": "art-01",
     "artworkTitle": "Night Shadows in Warm Earth",

@@ -148,7 +148,11 @@
 
         <!-- Right Column: Curatorial Metadata & Acquisition -->
         <div class="detail-content">
-          <div class="detail-artist-line" id="detailArtist">Artist Name</div>
+          <div class="detail-artist-line" id="detailArtist">
+            <span class="detail-artist-badge">Artist</span>
+            <span class="detail-artist-name" id="detailArtistName">Artist Name</span>
+            <span class="detail-artist-year" id="detailArtistYear"></span>
+          </div>
           <h1 class="detail-title" id="detailTitle">Piece Title</h1>
 
           <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
@@ -182,6 +186,10 @@
 
           <!-- Key Specifications Grid -->
           <div class="hero-specs" style="margin-bottom: 2rem;">
+            <div class="spec-item">
+              <span class="spec-label">Artist</span>
+              <span class="spec-value" id="detailArtistSpec" style="color: var(--accent-gold); font-weight: 600;">Artist Name</span>
+            </div>
             <div class="spec-item">
               <span class="spec-label">Year Created</span>
               <span class="spec-value" id="detailYear">2025</span>
@@ -270,7 +278,10 @@
           <img id="modalArtworkThumb" src="" alt="Thumbnail" class="inquiry-piece-thumb">
           <div class="inquiry-piece-info">
             <h4 id="modalArtworkTitle">Piece Title</h4>
-            <p id="modalArtworkArtist">Artist Name</p>
+            <div class="artwork-artist-row" style="margin-top: 3px; margin-bottom: 3px;">
+              <span class="artist-badge-prefix">Artist</span>
+              <strong id="modalArtworkArtist" style="color: var(--text-primary); font-size: 0.95rem;">Artist Name</strong>
+            </div>
             <div id="modalArtworkPrice" style="font-weight: 600; color: var(--accent-gold); margin-top: 4px;">$0</div>
           </div>
         </div>
@@ -474,7 +485,10 @@
       // Populate DOM elements
       document.title = `${currentArtwork.title} by ${currentArtwork.artist} — 55 smartCREATIVES`;
       document.getElementById('breadcrumbTitle').textContent = currentArtwork.title;
-      document.getElementById('detailArtist').textContent = `${currentArtwork.artist} (b. ${currentArtwork.year || '2025'})`;
+      document.getElementById('detailArtistName').textContent = currentArtwork.artist || '55 smartCREATIVES Studio';
+      document.getElementById('detailArtistYear').textContent = currentArtwork.year ? `(${currentArtwork.year})` : '';
+      const detailArtistSpec = document.getElementById('detailArtistSpec');
+      if (detailArtistSpec) detailArtistSpec.textContent = currentArtwork.artist || '55 smartCREATIVES Studio';
       document.getElementById('detailTitle').textContent = currentArtwork.title;
       document.getElementById('detailYear').textContent = currentArtwork.year || '2025';
       document.getElementById('detailMedium').textContent = currentArtwork.medium;

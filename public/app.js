@@ -473,7 +473,7 @@ window.openInquiryModal = function(artworkId) {
   if (inqTs) inqTs.value = Date.now();
 
   document.getElementById('modalArtworkTitle').textContent = artwork.title;
-  document.getElementById('modalArtworkArtist').textContent = artwork.artist + (artwork.year ? `, ${artwork.year}` : '');
+  document.getElementById('modalArtworkArtist').textContent = (artwork.artist || '55 smartCREATIVES Studio') + (artwork.year ? ` (${artwork.year})` : '');
   document.getElementById('modalArtworkPrice').textContent = EddyStore.formatPrice(artwork.price);
   document.getElementById('modalArtworkThumb').src = artwork.image;
 
@@ -533,7 +533,9 @@ window.openQuickView = function(artworkId) {
 
   document.getElementById('qvThumb').src = artwork.image;
   document.getElementById('qvTitle').textContent = artwork.title;
-  document.getElementById('qvArtist').textContent = artwork.artist;
+  document.getElementById('qvArtist').textContent = artwork.artist || '55 smartCREATIVES Studio';
+  const qvYearEl = document.getElementById('qvYear');
+  if (qvYearEl) qvYearEl.textContent = artwork.year ? `(${artwork.year})` : '';
   document.getElementById('qvMedium').textContent = artwork.medium;
   document.getElementById('qvDimensions').textContent = artwork.dimensions;
   document.getElementById('qvPrice').textContent = EddyStore.formatPrice(artwork.price);

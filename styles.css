@@ -872,12 +872,54 @@ button, input, select, textarea {
   flex-direction: column;
 }
 
-.artwork-artist-name {
-  font-size: 0.78rem;
-  letter-spacing: 0.15em;
+.artwork-artist-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.artist-badge-prefix {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.65rem;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
+  color: var(--accent-gold);
+  font-weight: 700;
+  background: rgba(194, 165, 126, 0.12);
+  border: 1px solid rgba(194, 165, 126, 0.28);
+  padding: 1px 6px;
+  border-radius: 2px;
+  line-height: 1.2;
+}
+
+.artist-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: #f5f5f5;
+  background: rgba(18, 17, 16, 0.85);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 3px 8px;
+  border-radius: 2px;
+  font-weight: 500;
+}
+
+.artwork-artist-name {
+  font-size: 0.94rem;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-transform: none;
+}
+
+.artwork-year-tag {
+  font-size: 0.82rem;
   color: var(--text-muted);
-  margin-bottom: 4px;
 }
 
 .artwork-card-title {
@@ -1239,11 +1281,37 @@ button, input, select, textarea {
 }
 
 .detail-artist-line {
-  font-size: 0.85rem;
-  letter-spacing: 0.18em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.detail-artist-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
+  color: var(--accent-gold);
+  font-weight: 700;
+  background: rgba(194, 165, 126, 0.14);
+  border: 1px solid rgba(194, 165, 126, 0.32);
+  padding: 3px 9px;
+  border-radius: 2px;
+}
+
+.detail-artist-name {
+  font-size: 1.35rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  font-family: var(--font-serif);
+}
+
+.detail-artist-year {
+  font-size: 0.95rem;
   color: var(--text-muted);
-  margin-bottom: 8px;
 }
 
 .detail-title {
