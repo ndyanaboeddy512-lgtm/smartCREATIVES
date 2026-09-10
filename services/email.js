@@ -47,6 +47,7 @@ async function sendEmail({ to, subject, text, html, replyTo }) {
   const isProduction = Boolean(process.env.VERCEL || process.env.NODE_ENV === 'production');
 
   let resendError = null;
+  let smtpError = null;
 
   // 1. Resend API (Exclusive production delivery when verified)
   if (resendKey && !resendKey.includes('your_resend_api_key')) {
