@@ -1062,23 +1062,33 @@ const AdminApp = {
     const artwork = EddyStore.artworks.find(a => a.id === id);
     if (!artwork) return;
 
+    const previousStatus = artwork.status;
     artwork.status = newStatus;
     EddyStore.saveArtworksLocally();
 
     if (EddyStore.isBackendConnected) {
       try {
-        await fetch(`/api/artworks/${id}`, {
+        const res = await fetch(`/api/artworks/${id}`, {
           method: 'PUT',
           headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({ status: newStatus })
         });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.message || errData.error || `Server responded with ${res.status}`);
+        }
       } catch (err) {
-        console.warn('API status sync failed, saved locally');
+        console.error('Database artwork status update error:', err);
+        alert(`Failed to save status update to database: ${err.message}`);
+        artwork.status = previousStatus;
+        EddyStore.saveArtworksLocally();
+        this.renderInventoryTable();
+        return;
       }
     }
 
     this.renderStats();
-    this.showToast(`Status for "${artwork.title}" updated to ${newStatus}`);
+    this.showToast(`✓ Status for "${artwork.title}" permanently updated to ${newStatus}`);
   },
 
   async updateInquiryStatus(id, newStatus) {

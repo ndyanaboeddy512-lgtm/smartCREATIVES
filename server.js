@@ -197,8 +197,22 @@ app.get(['/admin', '/admin.html'], (req, res) => {
 
 // --- API ROUTES ---
 
+// Middleware: Ensure database connection pool is ready on cold starts
+app.use(['/api', '/artworks', '/inquiries', '/auth', '/upload'], async (req, res, next) => {
+  try {
+    await db.getPool();
+  } catch (err) {
+    console.warn('Database pool initialization notice:', err.message);
+  }
+  next();
+});
+
 // Production System & Health Status Check
-app.get(['/api/health', '/health'], (req, res) => {
+app.get(['/api/health', '/health'], async (req, res) => {
+  try {
+    await db.getPool();
+  } catch (e) {}
+
   const hasEmail = Boolean(process.env.RESEND_API_KEY || process.env.GMAIL_USER || process.env.SENDGRID_API_KEY);
   const envAudit = {
     DATABASE_URL: process.env.DATABASE_URL ? 'connected' : 'unconfigured',
@@ -224,30 +238,59 @@ app.get(['/api/health', '/health'], (req, res) => {
 });
 
 
-// GET all artworks
+// GET all artworks (Database is authoritative source of truth)
 app.get(['/api/artworks', '/artworks'], async (req, res) => {
-  if (db.isAvailable) {
-    try {
-      const artworks = await db.getArtworks();
-      if (Array.isArray(artworks)) return res.json(artworks);
-    } catch (err) {
-      console.warn('Database getArtworks notice, falling back:', err.message);
+  const isProduction = Boolean(process.env.VERCEL || process.env.NODE_ENV === 'production');
+
+  try {
+    const artworks = await db.getArtworks();
+    if (Array.isArray(artworks)) return res.json(artworks);
+  } catch (err) {
+    console.error('Database getArtworks error:', err.message);
+    if (isProduction) {
+      return res.status(503).json({
+        error: 'Database Error',
+        message: 'Failed to retrieve artworks from production database: ' + err.message
+      });
     }
   }
+
+  // In production, the cloud database is the ONLY source of truth. Do not fall back to ephemeral /tmp.
+  if (isProduction) {
+    return res.status(503).json({
+      error: 'Database Unavailable',
+      message: 'Production database is not connected. Artworks cannot be retrieved.'
+    });
+  }
+
   const artworks = readJSON(ARTWORKS_FILE);
   res.json(artworks);
 });
 
 // GET single artwork by ID
 app.get(['/api/artworks/:id', '/artworks/:id'], async (req, res) => {
-  if (db.isAvailable) {
-    try {
-      const artwork = await db.getArtworkById(req.params.id);
-      if (artwork) return res.json(artwork);
-    } catch (err) {
-      console.warn('Database getArtworkById notice, falling back:', err.message);
+  const isProduction = Boolean(process.env.VERCEL || process.env.NODE_ENV === 'production');
+
+  try {
+    const artwork = await db.getArtworkById(req.params.id);
+    if (artwork) return res.json(artwork);
+    if (artwork === null && db.isAvailable) {
+      return res.status(404).json({ error: 'Artwork not found' });
+    }
+  } catch (err) {
+    console.warn('Database getArtworkById notice, falling back:', err.message);
+    if (isProduction) {
+      return res.status(503).json({
+        error: 'Database Error',
+        message: 'Failed to query artwork from production database.'
+      });
     }
   }
+
+  if (isProduction) {
+    return res.status(404).json({ error: 'Artwork not found' });
+  }
+
   const artworks = readJSON(ARTWORKS_FILE);
   const artwork = artworks.find(a => a.id === req.params.id);
   if (!artwork) {
@@ -266,8 +309,9 @@ app.post(['/api/upload', '/upload'], authenticateAdmin, (req, res) => {
   res.json({ success: true, path: savedPath });
 });
 
-// POST new artwork (Admin protected)
+// POST new artwork (Admin protected - Permanently saved in database)
 app.post(['/api/artworks', '/artworks'], authenticateAdmin, async (req, res) => {
+  const isProduction = Boolean(process.env.VERCEL || process.env.NODE_ENV === 'production');
   let imagePath = req.body.image || 'images/art-01.jpg';
   if (imagePath.startsWith('data:image/')) {
     imagePath = saveBase64Image(imagePath);
@@ -291,18 +335,28 @@ app.post(['/api/artworks', '/artworks'], authenticateAdmin, async (req, res) => 
     highResZoom: req.body.highResZoom || imagePath
   };
 
-  let savedArtwork = newArtwork;
-  if (db.isAvailable) {
-    try {
-      const dbSaved = await db.createArtwork(newArtwork);
-      if (dbSaved) savedArtwork = dbSaved;
-    } catch (err) {
-      console.error('Database createArtwork error:', err.message);
-      if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
-        return res.status(500).json({ error: 'Database error', message: err.message });
-      }
+  // Authoritative Database Persistence
+  let savedArtwork = null;
+  try {
+    savedArtwork = await db.createArtwork(newArtwork);
+  } catch (err) {
+    console.error('Database createArtwork error:', err.message);
+    if (isProduction) {
+      return res.status(500).json({
+        error: 'Database Persistence Error',
+        message: 'Failed to permanently save artwork to database: ' + err.message
+      });
     }
   }
+
+  if (isProduction && !savedArtwork) {
+    return res.status(503).json({
+      error: 'Database Unavailable',
+      message: 'Could not connect to database to permanently save new artwork.'
+    });
+  }
+
+  if (!savedArtwork) savedArtwork = newArtwork;
 
   const artworks = readJSON(ARTWORKS_FILE);
   if (newArtwork.featured) {
@@ -314,8 +368,9 @@ app.post(['/api/artworks', '/artworks'], authenticateAdmin, async (req, res) => 
   res.status(201).json(savedArtwork);
 });
 
-// PUT update artwork (Admin protected)
+// PUT update artwork (Admin protected - Permanently updated in database)
 app.put(['/api/artworks/:id', '/artworks/:id'], authenticateAdmin, async (req, res) => {
+  const isProduction = Boolean(process.env.VERCEL || process.env.NODE_ENV === 'production');
   let updateData = { ...req.body };
   if (updateData.image && updateData.image.startsWith('data:image/')) {
     const savedPath = saveBase64Image(updateData.image);
@@ -324,15 +379,23 @@ app.put(['/api/artworks/:id', '/artworks/:id'], authenticateAdmin, async (req, r
   }
 
   let updatedArtwork = null;
-  if (db.isAvailable) {
-    try {
-      updatedArtwork = await db.updateArtwork(req.params.id, updateData);
-    } catch (err) {
-      console.error('Database updateArtwork error:', err.message);
-      if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
-        return res.status(500).json({ error: 'Database error', message: err.message });
-      }
+  try {
+    updatedArtwork = await db.updateArtwork(req.params.id, updateData);
+  } catch (err) {
+    console.error('Database updateArtwork error:', err.message);
+    if (isProduction) {
+      return res.status(500).json({
+        error: 'Database Persistence Error',
+        message: 'Failed to permanently update artwork in database: ' + err.message
+      });
     }
+  }
+
+  if (isProduction && !updatedArtwork) {
+    return res.status(404).json({
+      error: 'Artwork Not Found',
+      message: `Artwork ${req.params.id} does not exist in the database or could not be updated.`
+    });
   }
 
   const artworks = readJSON(ARTWORKS_FILE);
@@ -355,30 +418,38 @@ app.put(['/api/artworks/:id', '/artworks/:id'], authenticateAdmin, async (req, r
   res.json(updatedArtwork);
 });
 
-// DELETE artwork (Admin protected)
+// DELETE artwork (Admin protected - Permanently deleted from database)
 app.delete(['/api/artworks/:id', '/artworks/:id'], authenticateAdmin, async (req, res) => {
+  const isProduction = Boolean(process.env.VERCEL || process.env.NODE_ENV === 'production');
   let dbDeleted = false;
-  if (db.isAvailable) {
-    try {
-      dbDeleted = await db.deleteArtwork(req.params.id);
-    } catch (err) {
-      console.error('Database deleteArtwork error:', err.message);
-      if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
-        return res.status(500).json({ error: 'Database error', message: err.message });
-      }
+  try {
+    dbDeleted = await db.deleteArtwork(req.params.id);
+  } catch (err) {
+    console.error('Database deleteArtwork error:', err.message);
+    if (isProduction) {
+      return res.status(500).json({
+        error: 'Database Deletion Error',
+        message: 'Failed to permanently delete artwork from database: ' + err.message
+      });
     }
   }
 
-  let artworks = readJSON(ARTWORKS_FILE);
-  const initialLength = artworks.length;
-  artworks = artworks.filter(a => a.id !== req.params.id);
-  
-  if (artworks.length === initialLength && !db.isAvailable && !dbDeleted) {
-    return res.status(404).json({ error: 'Artwork not found' });
+  if (isProduction && !dbDeleted) {
+    return res.status(404).json({
+      error: 'Artwork Not Found',
+      message: `Artwork ${req.params.id} could not be found in database to delete.`
+    });
   }
 
+  let artworks = readJSON(ARTWORKS_FILE);
+  artworks = artworks.filter(a => a.id !== req.params.id);
   writeJSON(ARTWORKS_FILE, artworks);
-  res.json({ success: true, message: `Artwork ${req.params.id} deleted`, id: req.params.id });
+
+  res.json({
+    success: true,
+    message: `Artwork ${req.params.id} permanently deleted from database`,
+    id: req.params.id
+  });
 });
 
 // GET inquiries (Admin protected)
