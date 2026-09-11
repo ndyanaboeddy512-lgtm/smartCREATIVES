@@ -305,7 +305,22 @@ const EddyStore = {
   },
 
   saveArtworksLocally() {
-    localStorage.setItem('eddy_artworks', JSON.stringify(this.artworks));
+    try {
+      localStorage.setItem('eddy_artworks', JSON.stringify(this.artworks));
+    } catch (e) {
+      console.warn('LocalStorage artwork cache quota exceeded, caching lightweight catalog:', e.message);
+      try {
+        const lightweight = this.artworks.map(a => {
+          if (a.image && a.image.startsWith('data:image/')) {
+            return { ...a, image: 'images/art-01.jpg', highResZoom: 'images/art-01.jpg' };
+          }
+          return a;
+        });
+        localStorage.setItem('eddy_artworks', JSON.stringify(lightweight));
+      } catch (innerErr) {
+        console.warn('Could not cache artworks in localStorage:', innerErr.message);
+      }
+    }
     window.dispatchEvent(new CustomEvent('artworksUpdated', { detail: this.artworks }));
   },
 

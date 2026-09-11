@@ -479,7 +479,23 @@
       currentArtwork = EddyStore.getArtworkById(artworkId);
 
       if (!currentArtwork) {
-        currentArtwork = EddyStore.artworks[0];
+        if (EddyStore.artworks && EddyStore.artworks.length > 0) {
+          const noticeEl = document.createElement('div');
+          noticeEl.style.cssText = 'background: rgba(212,175,55,0.12); border: 1px solid var(--accent-gold); color: #fff; padding: 12px 20px; text-align: center; font-size: 0.85rem; letter-spacing: 0.05em; margin: 1.5rem auto; max-width: 1200px; border-radius: 2px;';
+          noticeEl.innerHTML = `<strong>CATALOG NOTICE:</strong> The requested artwork identifier (<em>${artworkId}</em>) has been archived or removed from the catalog. Viewing featured exhibition selection below. <a href="index.html#catalog" style="color: var(--accent-gold); margin-left: 8px; text-decoration: underline;">Browse Active Catalog &rarr;</a>`;
+          const mainEl = document.querySelector('main') || document.body;
+          mainEl.prepend(noticeEl);
+          currentArtwork = EddyStore.artworks[0];
+        } else {
+          document.body.innerHTML = `
+            <div style="min-height: 100vh; background: #0c0b0a; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem;">
+              <h1 style="font-family: 'Cinzel', serif; font-size: 2.2rem; margin-bottom: 1rem; color: #d4af37;">Artwork Not Found</h1>
+              <p style="color: #aaa; max-width: 500px; margin-bottom: 2rem;">This artwork has been archived or is no longer available in the active 55 smartCREATIVES catalog.</p>
+              <a href="index.html" style="display: inline-block; padding: 12px 28px; background: #d4af37; color: #000; font-weight: 600; text-decoration: none; letter-spacing: 0.1em; text-transform: uppercase;">Return to Gallery</a>
+            </div>
+          `;
+          return;
+        }
       }
 
       // Populate DOM elements

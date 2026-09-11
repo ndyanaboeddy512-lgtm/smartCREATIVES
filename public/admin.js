@@ -443,7 +443,51 @@ const AdminApp = {
     }
   },
 
-  handleImageFile(file) {
+  compressImageFile(file, maxWidth = 1600, quality = 0.82) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onerror = reject;
+        img.onload = () => {
+          let width = img.naturalWidth || img.width;
+          let height = img.naturalHeight || img.height;
+
+          // Downscale if exceeds max resolution while preserving aspect ratio
+          if (width > maxWidth || height > maxWidth) {
+            if (width > height) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            } else {
+              width = Math.round((width * maxWidth) / height);
+              height = maxWidth;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+          resolve({
+            dataUrl: compressedDataUrl,
+            width,
+            height,
+            estimatedBytes: Math.round((compressedDataUrl.length * 3) / 4)
+          });
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  },
+
+  async handleImageFile(file) {
     if (!file.type.startsWith('image/')) {
       alert('Please upload a valid photograph (JPG, PNG, WebP, GIF).');
       return;
@@ -456,22 +500,33 @@ const AdminApp = {
     const dropzone = document.getElementById('imageDropzone');
     
     if (nameEl) nameEl.textContent = file.name;
-    if (sizeEl) {
-      const sizeKb = file.size / 1024;
-      sizeEl.textContent = sizeKb > 1024 ? `${(sizeKb / 1024).toFixed(2)} MB` : `${sizeKb.toFixed(1)} KB`;
-    }
+    if (sizeEl) sizeEl.textContent = 'Optimizing for high-resolution display...';
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const base64 = e.target.result;
-      document.getElementById('artworkImageUrl').value = base64;
+    try {
+      const result = await this.compressImageFile(file);
+      document.getElementById('artworkImageUrl').value = result.dataUrl;
       const preview = document.getElementById('artworkImagePreview');
-      preview.src = base64;
+      preview.src = result.dataUrl;
       if (previewCard) previewCard.style.display = 'block';
       if (dropzone) dropzone.style.display = 'none';
-      this.showToast(`Selected "${file.name}" from device`);
-    };
-    reader.readAsDataURL(file);
+
+      const optKb = (result.estimatedBytes / 1024).toFixed(0);
+      if (sizeEl) sizeEl.textContent = `${optKb} KB (Optimized ${result.width}×${result.height})`;
+      this.showToast(`✓ Image optimized for high-res display (${optKb} KB)`);
+    } catch (err) {
+      console.warn('Image optimization notice, using direct preview:', err);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64 = e.target.result;
+        document.getElementById('artworkImageUrl').value = base64;
+        const preview = document.getElementById('artworkImagePreview');
+        preview.src = base64;
+        if (previewCard) previewCard.style.display = 'block';
+        if (dropzone) dropzone.style.display = 'none';
+        if (sizeEl) sizeEl.textContent = `${(file.size / 1024).toFixed(0)} KB`;
+      };
+      reader.readAsDataURL(file);
+    }
   },
 
   renderStats() {
@@ -1184,50 +1239,79 @@ const AdminApp = {
       EddyStore.artworks.forEach(a => { a.featured = false; });
     }
 
-    if (this.editingArtworkId) {
-      // Update existing product
-      const idx = EddyStore.artworks.findIndex(a => a.id === this.editingArtworkId);
-      if (idx > -1) {
-        EddyStore.artworks[idx] = { ...EddyStore.artworks[idx], ...payload };
-        EddyStore.saveArtworksLocally();
-
-        if (EddyStore.isBackendConnected) {
-          try {
-            await fetch(`/api/artworks/${this.editingArtworkId}`, {
-              method: 'PUT',
-              headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
-              body: JSON.stringify(payload)
-            });
-          } catch (e) {
-            console.warn('API update failed, saved locally');
-          }
-        }
-        this.showToast(`Updated artwork: "${title}"`);
-      }
-    } else {
-      // Add new product
-      const newId = 'art-' + Date.now().toString(36);
-      const newArtwork = { id: newId, ...payload };
-      EddyStore.artworks.unshift(newArtwork);
-      EddyStore.saveArtworksLocally();
-
-      if (EddyStore.isBackendConnected) {
-        try {
-          await fetch('/api/artworks', {
-            method: 'POST',
-            headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
-            body: JSON.stringify(newArtwork)
-          });
-        } catch (e) {
-          console.warn('API post failed, saved locally');
-        }
-      }
-      this.showToast(`Added new artwork: "${title}"`);
+    const submitBtn = document.querySelector('#artworkForm button[type="submit"]');
+    const origBtnText = submitBtn ? submitBtn.textContent : 'Save Artwork';
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = this.editingArtworkId ? 'Updating Masterwork...' : 'Publishing Masterwork...';
     }
 
-    this.closeArtworkModal();
-    this.renderStats();
-    this.renderInventoryTable();
+    try {
+      if (this.editingArtworkId) {
+        // Update existing product
+        const id = this.editingArtworkId;
+        let savedPiece = null;
+
+        if (EddyStore.isBackendConnected) {
+          const res = await fetch(`/api/artworks/${id}`, {
+            method: 'PUT',
+            headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
+            body: JSON.stringify(payload)
+          });
+
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.message || errData.error || `Server error ${res.status}`);
+          }
+          savedPiece = await res.json();
+        }
+
+        const idx = EddyStore.artworks.findIndex(a => a.id === id);
+        if (idx > -1) {
+          EddyStore.artworks[idx] = savedPiece || { ...EddyStore.artworks[idx], ...payload };
+          EddyStore.saveArtworksLocally();
+        }
+        this.showToast(`✓ Updated artwork: "${title}"`);
+      } else {
+        // Add new product
+        let savedArtwork = null;
+
+        if (EddyStore.isBackendConnected) {
+          const res = await fetch('/api/artworks', {
+            method: 'POST',
+            headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
+            body: JSON.stringify(payload)
+          });
+
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.message || errData.error || `Server error ${res.status}`);
+          }
+          savedArtwork = await res.json();
+        }
+
+        if (!savedArtwork) {
+          const newId = 'art-' + Date.now().toString(36);
+          savedArtwork = { id: newId, ...payload };
+        }
+
+        EddyStore.artworks.unshift(savedArtwork);
+        EddyStore.saveArtworksLocally();
+        this.showToast(`✓ Published new artwork: "${title}"`);
+      }
+
+      this.closeArtworkModal();
+      this.renderStats();
+      this.renderInventoryTable();
+    } catch (err) {
+      console.error('Save artwork error:', err);
+      alert(`Could not save artwork: ${err.message}`);
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = origBtnText;
+      }
+    }
   },
 
   // Delete product modal
@@ -1251,25 +1335,47 @@ const AdminApp = {
     if (!this.deletingArtworkId) return;
     const id = this.deletingArtworkId;
     const deletedPiece = EddyStore.artworks.find(a => a.id === id);
+    const btn = document.getElementById('btnConfirmDelete');
+    const originalText = btn ? btn.textContent : 'Confirm Delete';
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Deleting...';
+    }
 
-    EddyStore.artworks = EddyStore.artworks.filter(a => a.id !== id);
-    EddyStore.saveArtworksLocally();
-
-    if (EddyStore.isBackendConnected) {
-      try {
-        await fetch(`/api/artworks/${id}`, {
+    try {
+      if (EddyStore.isBackendConnected) {
+        const res = await fetch(`/api/artworks/${id}`, {
           method: 'DELETE',
           headers: this.getAuthHeaders()
         });
-      } catch (err) {
-        console.warn('API delete failed, deleted locally');
+
+        if (!res.ok) {
+          if (res.status === 401) {
+            alert('Your curator session has expired. Please refresh the page and sign in again.');
+            this.closeDeleteModal();
+            return;
+          }
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.message || errData.error || `Server error ${res.status}`);
+        }
+      }
+
+      EddyStore.artworks = EddyStore.artworks.filter(a => a.id !== id);
+      EddyStore.saveArtworksLocally();
+
+      this.closeDeleteModal();
+      this.renderStats();
+      this.renderInventoryTable();
+      this.showToast(`✓ Deleted artwork: "${deletedPiece ? deletedPiece.title : id}"`);
+    } catch (err) {
+      console.error('Delete artwork error:', err);
+      alert(`Could not delete artwork: ${err.message}`);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = originalText;
       }
     }
-
-    this.closeDeleteModal();
-    this.renderStats();
-    this.renderInventoryTable();
-    this.showToast(`Deleted artwork: "${deletedPiece ? deletedPiece.title : id}"`);
   },
 
   // --- Visitor Reviews & Testimonials Pipeline ---

@@ -134,6 +134,10 @@ function saveBase64Image(dataString) {
   if (!dataString || typeof dataString !== 'string' || !dataString.startsWith('data:image/')) {
     return dataString;
   }
+  // In serverless environments (Vercel/Lambda), filesystem is read-only, so preserve optimized data URI for database storage
+  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    return dataString;
+  }
   try {
     const matches = dataString.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
     if (!matches || matches.length !== 3) {
@@ -147,7 +151,7 @@ function saveBase64Image(dataString) {
     console.log(`✓ Saved uploaded image to disk: ${filePath}`);
     return `images/${fileName}`;
   } catch (err) {
-    console.error('Error saving image to disk:', err);
+    console.warn('Filesystem read-only or notice saving image to disk, persisting data URI:', err.message);
     return dataString;
   }
 }
@@ -193,30 +197,22 @@ app.get(['/admin', '/admin.html'], (req, res) => {
 
 // --- API ROUTES ---
 
-// Health check & Environment Audit
-app.get(['/api/health', '/health'], async (req, res) => {
-  const pool = await db.getPool();
-  const hasEmail = Boolean(
-    process.env.RESEND_API_KEY || 
-    (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) || 
-    process.env.SENDGRID_API_KEY
-  );
-
+// Production System & Health Status Check
+app.get(['/api/health', '/health'], (req, res) => {
+  const hasEmail = Boolean(process.env.RESEND_API_KEY || process.env.GMAIL_USER || process.env.SENDGRID_API_KEY);
   const envAudit = {
-    DATABASE_URL: db.isAvailable ? 'connected' : ((process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.POSTGRES_HOST) ? 'configured_but_unreachable' : 'missing'),
-    RESEND_API_KEY: Boolean(process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('your_resend')) ? 'configured' : 'missing',
-    RESEND_VERIFIED: Boolean(process.env.RESEND_VERIFIED === 'true') ? 'enabled' : 'disabled',
-    EMAIL_FROM: Boolean(process.env.EMAIL_FROM && !process.env.EMAIL_FROM.includes('@resend.dev')) ? 'verified_domain' : 'default_sandbox',
-    ADMIN_EMAIL: Boolean(process.env.ADMIN_EMAIL) ? 'configured' : 'default',
-    MAKE_INQUIRY_WEBHOOK_URL: Boolean(process.env.MAKE_INQUIRY_WEBHOOK_URL && !process.env.MAKE_INQUIRY_WEBHOOK_URL.includes('your_make')) ? 'configured' : 'missing',
-    MAKE_WEBHOOK_SECRET: Boolean(process.env.MAKE_WEBHOOK_SECRET) ? 'configured' : 'missing',
-    SITE_URL: Boolean(process.env.SITE_URL) ? 'configured' : 'default'
+    DATABASE_URL: process.env.DATABASE_URL ? 'connected' : 'unconfigured',
+    POSTGRES_HOST: process.env.POSTGRES_HOST ? 'configured' : 'unconfigured',
+    RESEND_API_KEY: process.env.RESEND_API_KEY ? 'configured' : 'unconfigured',
+    GMAIL_USER: process.env.GMAIL_USER ? 'configured' : 'unconfigured',
+    MAKE_INQUIRY_WEBHOOK_URL: process.env.MAKE_INQUIRY_WEBHOOK_URL ? 'configured' : 'unconfigured',
+    EMAIL_FROM: process.env.EMAIL_FROM || 'Curator Directorate default'
   };
 
   res.json({
-    status: 'ok',
-    gallery: '55 smartCREATIVES — Editorial Fine Art',
-    database: db.isAvailable ? (db.isPg ? 'postgres' : 'mysql') : 'unavailable',
+    status: 'operational',
+    service: '55 smartCREATIVES Production API',
+    database: db.isAvailable ? (db.isPostgres ? 'postgres' : 'mysql') : 'ephemeral-local',
     siteUrl: SITE_URL,
     emailService: hasEmail ? 'configured' : 'simulated',
     emailProvider: process.env.RESEND_API_KEY ? 'resend' : (process.env.GMAIL_USER ? 'gmail_smtp' : (process.env.SENDGRID_API_KEY ? 'sendgrid' : 'simulated')),
@@ -233,9 +229,9 @@ app.get(['/api/artworks', '/artworks'], async (req, res) => {
   if (db.isAvailable) {
     try {
       const artworks = await db.getArtworks();
-      if (artworks && artworks.length > 0) return res.json(artworks);
+      if (Array.isArray(artworks)) return res.json(artworks);
     } catch (err) {
-      console.warn('MySQL getArtworks notice, falling back:', err.message);
+      console.warn('Database getArtworks notice, falling back:', err.message);
     }
   }
   const artworks = readJSON(ARTWORKS_FILE);
@@ -249,7 +245,7 @@ app.get(['/api/artworks/:id', '/artworks/:id'], async (req, res) => {
       const artwork = await db.getArtworkById(req.params.id);
       if (artwork) return res.json(artwork);
     } catch (err) {
-      console.warn('MySQL getArtworkById notice, falling back:', err.message);
+      console.warn('Database getArtworkById notice, falling back:', err.message);
     }
   }
   const artworks = readJSON(ARTWORKS_FILE);
@@ -301,7 +297,10 @@ app.post(['/api/artworks', '/artworks'], authenticateAdmin, async (req, res) => 
       const dbSaved = await db.createArtwork(newArtwork);
       if (dbSaved) savedArtwork = dbSaved;
     } catch (err) {
-      console.warn('MySQL createArtwork notice:', err.message);
+      console.error('Database createArtwork error:', err.message);
+      if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+        return res.status(500).json({ error: 'Database error', message: err.message });
+      }
     }
   }
 
@@ -329,7 +328,10 @@ app.put(['/api/artworks/:id', '/artworks/:id'], authenticateAdmin, async (req, r
     try {
       updatedArtwork = await db.updateArtwork(req.params.id, updateData);
     } catch (err) {
-      console.warn('MySQL updateArtwork notice:', err.message);
+      console.error('Database updateArtwork error:', err.message);
+      if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+        return res.status(500).json({ error: 'Database error', message: err.message });
+      }
     }
   }
 
@@ -355,11 +357,15 @@ app.put(['/api/artworks/:id', '/artworks/:id'], authenticateAdmin, async (req, r
 
 // DELETE artwork (Admin protected)
 app.delete(['/api/artworks/:id', '/artworks/:id'], authenticateAdmin, async (req, res) => {
+  let dbDeleted = false;
   if (db.isAvailable) {
     try {
-      await db.deleteArtwork(req.params.id);
+      dbDeleted = await db.deleteArtwork(req.params.id);
     } catch (err) {
-      console.warn('MySQL deleteArtwork notice:', err.message);
+      console.error('Database deleteArtwork error:', err.message);
+      if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+        return res.status(500).json({ error: 'Database error', message: err.message });
+      }
     }
   }
 
@@ -367,12 +373,12 @@ app.delete(['/api/artworks/:id', '/artworks/:id'], authenticateAdmin, async (req
   const initialLength = artworks.length;
   artworks = artworks.filter(a => a.id !== req.params.id);
   
-  if (artworks.length === initialLength && !db.isAvailable) {
+  if (artworks.length === initialLength && !db.isAvailable && !dbDeleted) {
     return res.status(404).json({ error: 'Artwork not found' });
   }
 
   writeJSON(ARTWORKS_FILE, artworks);
-  res.json({ success: true, message: `Artwork ${req.params.id} deleted` });
+  res.json({ success: true, message: `Artwork ${req.params.id} deleted`, id: req.params.id });
 });
 
 // GET inquiries (Admin protected)

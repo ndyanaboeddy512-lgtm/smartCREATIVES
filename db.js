@@ -226,8 +226,8 @@ async function createTables() {
         faq_info JSONB NULL,
         images JSONB NULL,
         featured BOOLEAN NOT NULL DEFAULT FALSE,
-        image VARCHAR(500) NOT NULL,
-        high_res_zoom VARCHAR(500) NULL,
+        image TEXT NOT NULL,
+        high_res_zoom TEXT NULL,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
@@ -314,7 +314,9 @@ async function createTables() {
       "ALTER TABLE artworks ADD COLUMN IF NOT EXISTS description TEXT NULL",
       "ALTER TABLE artworks ADD COLUMN IF NOT EXISTS shipping_details TEXT NULL",
       "ALTER TABLE artworks ADD COLUMN IF NOT EXISTS faq_info JSONB NULL",
-      "ALTER TABLE artworks ADD COLUMN IF NOT EXISTS images JSONB NULL"
+      "ALTER TABLE artworks ADD COLUMN IF NOT EXISTS images JSONB NULL",
+      "ALTER TABLE artworks ALTER COLUMN image TYPE TEXT",
+      "ALTER TABLE artworks ALTER COLUMN high_res_zoom TYPE TEXT"
     ];
     for (const q of pgMigrations) {
       try { await pool.query(q); } catch (e) {}
@@ -341,8 +343,8 @@ async function createTables() {
         faq_info JSON NULL,
         images JSON NULL,
         featured BOOLEAN NOT NULL DEFAULT FALSE,
-        image VARCHAR(500) NOT NULL,
-        high_res_zoom VARCHAR(500) NULL,
+        image MEDIUMTEXT NOT NULL,
+        high_res_zoom MEDIUMTEXT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         INDEX idx_status (status),
