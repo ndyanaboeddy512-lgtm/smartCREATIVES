@@ -104,12 +104,12 @@ async function sendEmail({ to, subject, text, html, replyTo }) {
       });
 
       const info = await transporter.sendMail({
-        from: `55 smartCREATIVES <${smtpUser}>`,
+        from: `"55 smartCREATIVES" <${smtpUser}>`,
         to,
         subject,
         text,
         html,
-        replyTo: replyTo || undefined
+        replyTo: replyTo && replyTo !== smtpUser ? replyTo : undefined
       });
       console.log(`✓ [Gmail SMTP Email Sent] to: ${to} | Subject: "${subject}" | id: ${info.messageId}`);
       return { success: true, provider: 'smtp', id: info.messageId };
@@ -243,10 +243,22 @@ async function sendCustomerConfirmation(inquiry) {
 </html>
 `;
 
+  const plainText = `55 smartCREATIVES • CREATIVE PLATFORM • CURATOR DIRECTORATE
+
+Hello ${collectorName},
+
+${exactMessage}
+
+Artwork in Review: "${artworkTitle}"
+${inquiry.framePreference ? `Framing: ${inquiry.framePreference}\n` : ''}${inquiry.notes ? `Your Message: "${inquiry.notes}"\n` : ''}
+View Artwork Online: ${artworkLink}
+
+55 smartCREATIVES • Reference: ${inquiry.id || 'INQ'}`;
+
   return sendEmail({
     to: customerEmail,
     subject,
-    text: exactMessage,
+    text: plainText,
     html: htmlBody,
     replyTo: adminEmail
   });
