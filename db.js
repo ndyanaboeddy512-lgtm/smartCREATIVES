@@ -1109,6 +1109,7 @@ module.exports = {
   getPool,
   get isAvailable() { return isAvailable; },
   get isPg() { return isPostgres; },
+  get isPostgres() { return isPostgres; },
   get pool() { return pool; },
   execute,
   getArtworks,
