@@ -624,6 +624,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         collectorEmail: sanitizeHTML(document.getElementById('inquiryEmail').value.trim()),
         collectorPhone: sanitizeHTML(document.getElementById('inquiryPhone').value.trim()),
         framePreference: document.getElementById('inquiryFraming').value,
+        notes: sanitizeHTML(document.getElementById('inquiryNotes')?.value?.trim() || ''),
         _ts: (document.getElementById('inquiryTimestamp')?.value) || (Date.now() - 3000),
         website_hp: document.getElementById('inquiryHoneypot')?.value || document.getElementById('inquiryWebsiteHp')?.value || ''
       };
