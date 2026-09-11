@@ -19,7 +19,7 @@
       </a>
 
       <nav class="nav-desktop">
-        <a href="index.html#exhibition" class="nav-link">Featured Art</a>
+        <a href="index.html#collection" class="nav-link">Featured Art</a>
         <a href="index.html#catalog" class="nav-link active">Gallery</a>
         <a href="index.html#reviews" class="nav-link">Reviews</a>
         <a href="index.html#salon" class="nav-link">Book a Viewing</a>
@@ -57,7 +57,7 @@
       <button class="mobile-nav-close" id="mobileNavClose" aria-label="Close Navigation">&times;</button>
     </div>
     <nav class="mobile-nav-links">
-      <a href="index.html#exhibition" class="mobile-nav-link">Featured Art</a>
+      <a href="index.html#collection" class="mobile-nav-link">Featured Art</a>
       <a href="index.html#catalog" class="mobile-nav-link">All Artworks</a>
       <a href="index.html#reviews" class="mobile-nav-link">Collector Reviews</a>
       <a href="index.html#salon" class="mobile-nav-link">Book a Viewing</a>
@@ -424,7 +424,7 @@
         <div class="footer-col">
           <h4>Navigation</h4>
           <ul class="footer-links">
-            <li><a href="index.html#exhibition">Current Exhibition</a></li>
+            <li><a href="index.html#collection">55 smartCREATIVES Collection</a></li>
             <li><a href="index.html#catalog">Full Catalog</a></li>
             <li><a href="auth.html">Collector Portal</a></li>
             <li><a href="index.html#salon">Book a Viewing</a></li>
@@ -482,7 +482,7 @@
         if (EddyStore.artworks && EddyStore.artworks.length > 0) {
           const noticeEl = document.createElement('div');
           noticeEl.style.cssText = 'background: rgba(212,175,55,0.12); border: 1px solid var(--accent-gold); color: #fff; padding: 12px 20px; text-align: center; font-size: 0.85rem; letter-spacing: 0.05em; margin: 1.5rem auto; max-width: 1200px; border-radius: 2px;';
-          noticeEl.innerHTML = `<strong>CATALOG NOTICE:</strong> The requested artwork identifier (<em>${artworkId}</em>) has been archived or removed from the catalog. Viewing featured exhibition selection below. <a href="index.html#catalog" style="color: var(--accent-gold); margin-left: 8px; text-decoration: underline;">Browse Active Catalog &rarr;</a>`;
+          noticeEl.innerHTML = `<strong>CATALOG NOTICE:</strong> The requested artwork identifier (<em>${artworkId}</em>) has been archived or removed from the catalog. Viewing featured 55 smartCREATIVES collection below. <a href="index.html#catalog" style="color: var(--accent-gold); margin-left: 8px; text-decoration: underline;">Browse Active Catalog &rarr;</a>`;
           const mainEl = document.querySelector('main') || document.body;
           mainEl.prepend(noticeEl);
           currentArtwork = EddyStore.artworks[0];
@@ -491,7 +491,7 @@
             <div style="min-height: 100vh; background: #0c0b0a; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem;">
               <h1 style="font-family: 'Cinzel', serif; font-size: 2.2rem; margin-bottom: 1rem; color: #d4af37;">Artwork Not Found</h1>
               <p style="color: #aaa; max-width: 500px; margin-bottom: 2rem;">This artwork has been archived or is no longer available in the active 55 smartCREATIVES catalog.</p>
-              <a href="index.html" style="display: inline-block; padding: 12px 28px; background: #d4af37; color: #000; font-weight: 600; text-decoration: none; letter-spacing: 0.1em; text-transform: uppercase;">Return to Gallery</a>
+              <a href="index.html" style="display: inline-block; padding: 12px 28px; background: #d4af37; color: #000; font-weight: 600; text-decoration: none; letter-spacing: 0.1em; text-transform: uppercase;">Return to 55 smartCREATIVES</a>
             </div>
           `;
           return;

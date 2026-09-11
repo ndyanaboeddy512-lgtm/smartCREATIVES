@@ -1,7 +1,7 @@
 {
-  "name": "55-smartcreatives-art-gallery",
+  "name": "55-smartcreatives",
   "version": "1.0.0",
-  "description": "Editorial Luxury Art Gallery & Curated Exhibition Platform",
+  "description": "55 smartCREATIVES — Editorial Luxury Art Gallery & Curated Editions Platform",
   "main": "server.js",
   "type": "commonjs",
   "scripts": {

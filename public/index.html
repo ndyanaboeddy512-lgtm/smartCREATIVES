@@ -19,7 +19,7 @@
       </a>
 
       <nav class="nav-desktop">
-        <a href="#exhibition" class="nav-link">Featured Art</a>
+        <a href="#collection" class="nav-link">Featured Art</a>
         <a href="#catalog" class="nav-link active">Gallery</a>
         <a href="#reviews" class="nav-link">Collector Reviews</a>
         <a href="#salon" class="nav-link">Book a Viewing</a>
@@ -59,7 +59,7 @@
       <button class="mobile-nav-close" id="mobileNavClose" aria-label="Close Navigation">&times;</button>
     </div>
     <nav class="mobile-nav-links">
-      <a href="#exhibition" class="mobile-nav-link">Featured Art</a>
+      <a href="#collection" class="mobile-nav-link">Featured Art</a>
       <a href="#catalog" class="mobile-nav-link">All Artworks</a>
       <a href="#reviews" class="mobile-nav-link">Collector Reviews</a>
       <a href="#salon" class="mobile-nav-link">Book a Viewing</a>
@@ -76,8 +76,8 @@
   </div>
 
   <main>
-    <!-- Hero Exhibition Spotlight -->
-    <section class="hero-exhibition" id="exhibition">
+    <!-- Hero 55 smartCREATIVES Spotlight -->
+    <section class="hero-collection" id="collection">
       <div class="container">
         <div class="hero-grid" id="heroSpotlightContainer">
           <!-- Dynamically populated from app.js / first featured artwork -->
@@ -210,7 +210,7 @@
     </section>
 
     <!-- Private Consultation & Inquiries Banner -->
-    <section class="hero-exhibition" id="salon" style="background: var(--bg-secondary); border-top: 1px solid var(--border-subtle);">
+    <section class="hero-collection" id="salon" style="background: var(--bg-secondary); border-top: 1px solid var(--border-subtle);">
       <div class="container" style="text-align: center; max-width: 860px; padding: 5rem 1.5rem;">
         <span class="tracking-wide" style="color: var(--accent-gold); display: block; margin-bottom: 1rem;">Art Consultation & Delivery</span>
         <h2 style="font-size: clamp(2.4rem, 4vw, 3.4rem); font-weight: 300; margin-bottom: 1.5rem;">Personalized Service For Your Home & Office</h2>
@@ -437,7 +437,7 @@
         <div class="footer-col">
           <h4>Navigation</h4>
           <ul class="footer-links">
-            <li><a href="#exhibition">Featured Art</a></li>
+            <li><a href="#collection">Featured Art</a></li>
             <li><a href="#catalog">All Artworks</a></li>
             <li><a href="auth.html">My Account</a></li>
             <li><a href="#salon">Book a Viewing</a></li>
@@ -456,7 +456,7 @@
 
         <div class="footer-col">
           <h4>Newsletter</h4>
-          <p>Get notified when new original artworks and exhibitions are released.</p>
+          <p>Get notified when new original artworks and 55 smartCREATIVES collections are released.</p>
           <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Thank you for subscribing to 55 smartCREATIVES updates.'); this.reset();">
             <input type="email" class="newsletter-input" placeholder="Your email address" required>
             <button type="submit" class="newsletter-submit">Subscribe</button>
@@ -479,7 +479,6 @@
   <script src="app.js"></script>
   <script>
     // Gallery Grid Renderer & Filter Engine
-    let currentCat    // Exhibition State
     let currentCategory = 'all';
     let currentStatus = 'all';
     let currentSort = 'featured';

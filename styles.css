@@ -429,9 +429,9 @@ button, input, select, textarea {
 }
 
 /* ==========================================================================
-   Hero Section & Exhibition Spotlight
+   Hero Section & 55 smartCREATIVES Spotlight
    ========================================================================== */
-.hero-exhibition {
+.hero-collection {
   padding: clamp(3rem, 6vw, 5.5rem) 0 3.5rem;
   border-bottom: 1px solid var(--border-subtle);
 }
@@ -2365,7 +2365,7 @@ textarea.form-control {
     display: none;
   }
 
-  .hero-exhibition {
+  .hero-collection {
     padding: 2rem 0 2.5rem;
   }
 
