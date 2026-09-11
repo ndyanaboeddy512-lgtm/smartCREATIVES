@@ -44,10 +44,10 @@
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/ndyanaboeddy512-lgtm/55-smartcreatives.git
+git clone https://github.com/ndyanaboeddy512-lgtm/smartCREATIVES.git
 
 # Enter project directory
-cd 55-smartcreatives
+cd smartCREATIVES
 
 # Install dependencies
 npm install
@@ -71,7 +71,7 @@ The server will start at: `http://localhost:3000`
 
 ## Project Structure
 ```
-55-smartcreatives/
+smartCREATIVES/
 ├── index.html          # Public gallery landing & studio spotlight
 ├── artwork.html        # Optical loupe inspector & room view
 ├── auth.html           # Collector portal, inquiry tracking & wishlist
