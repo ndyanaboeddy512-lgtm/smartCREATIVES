@@ -57,10 +57,11 @@ const AdminApp = {
       this.fetchReviews();
     }
 
-    // Auto-poll inquiries every 8 seconds so customer submissions appear in real time
+    // Auto-poll inquiries & reviews every 8 seconds so customer submissions appear in real time
     setInterval(() => {
       if (this.isLoggedIn) {
         this.refreshInquiries();
+        this.fetchReviews();
       }
     }, 8000);
   },
@@ -535,6 +536,7 @@ const AdminApp = {
     const availableValue = availableWorks.reduce((acc, curr) => acc + (curr.price || 0), 0);
     const pendingInquiries = EddyStore.inquiries.filter(i => i.status === 'Pending').length;
     const soldCount = EddyStore.artworks.filter(a => a.status === 'Sold').length;
+    const totalReviews = (this.reviews || []).length;
     const pendingReviews = (this.reviews || []).filter(r => (r.status || 'pending').toLowerCase() === 'pending').length;
 
     const totalEl = document.getElementById('statTotalArtworks');
@@ -546,9 +548,9 @@ const AdminApp = {
     const soldEl = document.getElementById('statSoldCount');
     if (soldEl) soldEl.textContent = soldCount;
     const revEl = document.getElementById('statPendingReviews');
-    if (revEl) revEl.textContent = pendingReviews;
+    if (revEl) revEl.textContent = totalReviews;
     const tabRevEl = document.getElementById('tabReviewsPendingCount');
-    if (tabRevEl) tabRevEl.textContent = pendingReviews;
+    if (tabRevEl) tabRevEl.textContent = pendingReviews > 0 ? `${totalReviews} (${pendingReviews})` : totalReviews;
   },
 
   renderInventoryTable(filterTerm = '', statusFilter = 'all') {
@@ -1412,6 +1414,24 @@ const AdminApp = {
     this.renderStats();
   },
 
+  handleIncomingReview(review) {
+    if (!review || !review.id) return;
+    if (!Array.isArray(this.reviews)) this.reviews = [];
+    const exists = this.reviews.some(r => r.id === review.id);
+    if (!exists) {
+      this.reviews.unshift(review);
+      this.reviews.sort((a, b) => new Date(b.createdAt || b.created_at || 0) - new Date(a.createdAt || a.created_at || 0));
+      this.showToast(`★ New testimonial received from ${review.authorName}`);
+      const statusSelect = document.getElementById('reviewsStatusFilter');
+      const searchInput = document.getElementById('reviewsSearch');
+      this.renderReviewsTable(
+        searchInput ? searchInput.value.toLowerCase().trim() : '',
+        statusSelect ? statusSelect.value : 'all'
+      );
+      this.renderStats();
+    }
+  },
+
   filterReviews() {
     const searchInput = document.getElementById('reviewsSearch');
     const statusSelect = document.getElementById('reviewsStatusFilter');
@@ -1425,6 +1445,7 @@ const AdminApp = {
     if (!tbody) return;
 
     let items = Array.isArray(this.reviews) ? [...this.reviews] : [];
+    items.sort((a, b) => new Date(b.createdAt || b.created_at || 0) - new Date(a.createdAt || a.created_at || 0));
 
     if (filterTerm) {
       items = items.filter(r => 
@@ -1455,7 +1476,8 @@ const AdminApp = {
       const status = (rev.status || 'pending').toLowerCase();
       const rating = parseInt(rev.rating, 10) || 5;
       const stars = '★'.repeat(Math.max(1, Math.min(5, rating))) + '☆'.repeat(Math.max(0, 5 - rating));
-      const dateStr = rev.created_at ? new Date(rev.created_at).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recent';
+      const rawDate = rev.createdAt || rev.created_at;
+      const dateStr = rawDate ? new Date(rawDate).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recent';
 
       let statusBadge = '';
       if (status === 'approved') {
@@ -1589,3 +1611,25 @@ window.togglePasswordVisibility = function(inputId, btnEl) {
     if (btnEl) btnEl.innerHTML = '👁 Show';
   }
 };
+
+// Native real-time cross-tab sync for Curator Dashboard
+const adminReviewSyncChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('55_smartcreatives_reviews') : null;
+
+if (adminReviewSyncChannel) {
+  adminReviewSyncChannel.onmessage = (event) => {
+    if (event.data && event.data.type === 'NEW_REVIEW' && event.data.review) {
+      AdminApp.handleIncomingReview(event.data.review);
+    }
+  };
+}
+
+window.addEventListener('storage', (e) => {
+  if (e.key === '55_smartcreatives_latest_review' && e.newValue) {
+    try {
+      const payload = JSON.parse(e.newValue);
+      if (payload && payload.review) {
+        AdminApp.handleIncomingReview(payload.review);
+      }
+    } catch (err) {}
+  }
+});

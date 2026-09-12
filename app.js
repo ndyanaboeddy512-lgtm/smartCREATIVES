@@ -377,6 +377,9 @@ const EddyStore = {
     } catch (e) {
       console.warn('Notice loading reviews from server', e);
     }
+    if (Array.isArray(this.reviews)) {
+      this.reviews.sort((a, b) => new Date(b.createdAt || b.created_at || 0) - new Date(a.createdAt || a.created_at || 0));
+    }
     window.dispatchEvent(new CustomEvent('reviewsLoaded', { detail: this.reviews }));
     return this.reviews;
   },
@@ -677,46 +680,135 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Visitor Review Form Submission
   const reviewForm = document.getElementById('visitorReviewForm');
   if (reviewForm) {
+    let isSubmittingReview = false;
+
     reviewForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const submitBtn = reviewForm.querySelector('button[type="submit"]');
-      const originalText = submitBtn.innerHTML;
-      submitBtn.innerHTML = 'Submitting Testimonial...';
-      submitBtn.disabled = true;
+      if (isSubmittingReview) return; // Prevent double submit
+
+      const submitBtn = document.getElementById('reviewSubmitBtn') || reviewForm.querySelector('button[type="submit"]');
+      const errorBox = document.getElementById('reviewFormError');
+      if (errorBox) {
+        errorBox.style.display = 'none';
+        errorBox.textContent = '';
+      }
+
+      // Input extraction
+      const rawName = document.getElementById('reviewAuthorName').value.trim();
+      const rawEmail = document.getElementById('reviewAuthorEmail').value.trim();
+      const rawLocation = document.getElementById('reviewAuthorLocation')?.value.trim() || '';
+      const ratingVal = parseInt(document.getElementById('reviewRatingSelect').value, 10) || 5;
+      const rawComment = document.getElementById('reviewComment').value.trim();
+      const artworkId = document.getElementById('reviewArtworkId')?.value || null;
+      const timestamp = document.getElementById('reviewTimestamp')?.value || Date.now();
+      const honeypot = document.getElementById('reviewHoneypot')?.value || '';
+
+      // Client-side field validation
+      if (rawName.length < 2) {
+        if (errorBox) {
+          errorBox.textContent = 'Please enter your full name (at least 2 characters).';
+          errorBox.style.display = 'block';
+        }
+        return;
+      }
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailPattern.test(rawEmail)) {
+        if (errorBox) {
+          errorBox.textContent = 'Please enter a valid email address.';
+          errorBox.style.display = 'block';
+        }
+        return;
+      }
+      if (isNaN(ratingVal) || ratingVal < 1 || ratingVal > 5) {
+        if (errorBox) {
+          errorBox.textContent = 'Please select a valid rating between 1 and 5 stars.';
+          errorBox.style.display = 'block';
+        }
+        return;
+      }
+      if (rawComment.length < 10) {
+        if (errorBox) {
+          errorBox.textContent = 'Please share a testimonial with at least 10 characters.';
+          errorBox.style.display = 'block';
+        }
+        return;
+      }
 
       const reviewData = {
-        authorName: sanitizeHTML(document.getElementById('reviewAuthorName').value.trim()),
-        authorEmail: sanitizeHTML(document.getElementById('reviewAuthorEmail').value.trim()),
-        authorLocation: sanitizeHTML(document.getElementById('reviewAuthorLocation').value.trim()),
-        rating: parseInt(document.getElementById('reviewRatingSelect').value, 10) || 5,
-        comment: sanitizeHTML(document.getElementById('reviewComment').value.trim()),
-        artworkId: document.getElementById('reviewArtworkId')?.value || null,
-        _ts: document.getElementById('reviewTimestamp')?.value || Date.now(),
-        website_hp: document.getElementById('reviewHoneypot')?.value || ''
+        authorName: sanitizeHTML(rawName),
+        authorEmail: sanitizeHTML(rawEmail),
+        authorLocation: sanitizeHTML(rawLocation),
+        rating: ratingVal,
+        comment: sanitizeHTML(rawComment),
+        artworkId: artworkId,
+        _ts: timestamp,
+        website_hp: honeypot
       };
 
-      try {
-        await EddyStore.addReview(reviewData);
+      isSubmittingReview = true;
+      const originalText = submitBtn ? submitBtn.innerHTML : 'Submit Testimonial';
+      if (submitBtn) {
+        submitBtn.innerHTML = 'Publishing Testimonial...';
+        submitBtn.disabled = true;
+      }
 
-        const modalBody = document.querySelector('#reviewModal .modal-body');
-        if (modalBody) {
-          modalBody.innerHTML = `
-            <div style="text-align: center; padding: 2.5rem 1rem;">
-              <div style="width: 60px; height: 60px; border-radius: 50%; background: #FAF8F5; border: 1px solid var(--accent-gold); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: var(--accent-gold); font-size: 1.5rem;">★</div>
-              <h3 style="font-size: 1.8rem; margin-bottom: 0.75rem;">Testimonial Received</h3>
-              <p style="font-size: 0.95rem; color: var(--text-secondary); max-width: 440px; margin: 0 auto 1.5rem; line-height: 1.6;">
-                Thank you, <strong>${reviewData.authorName}</strong>. Your testimonial has been submitted to the curatorial directorate and will appear in our public accolades following curatorial review.
-              </p>
-              <button onclick="window.closeReviewModal(); window.location.reload();" class="btn-primary">
-                Return to Gallery
-              </button>
-            </div>
-          `;
+      try {
+        const result = await EddyStore.addReview(reviewData);
+        const publishedReview = (result && result.review) ? result.review : {
+          id: 'rev-' + Date.now(),
+          ...reviewData,
+          status: 'approved',
+          createdAt: new Date().toISOString()
+        };
+
+        // 1. Immediately insert into local store (newest first) without page refresh
+        if (!Array.isArray(EddyStore.reviews)) EddyStore.reviews = [];
+        const alreadyExists = EddyStore.reviews.some(r => r.id === publishedReview.id);
+        if (!alreadyExists) {
+          EddyStore.reviews.unshift(publishedReview);
         }
+        EddyStore.reviews.sort((a, b) => new Date(b.createdAt || b.created_at || 0) - new Date(a.createdAt || a.created_at || 0));
+
+        // 2. Instantly update UI on public site
+        if (typeof window.renderTestimonials === 'function') {
+          window.renderTestimonials();
+        }
+        window.dispatchEvent(new CustomEvent('reviewsLoaded', { detail: EddyStore.reviews }));
+
+        // 3. Real-time broadcast to all other open pages and admin dashboard
+        if (typeof window.broadcastNewReview === 'function') {
+          window.broadcastNewReview(publishedReview);
+        }
+
+        // 4. Show friendly in-modal confirmation
+        const formContainer = document.getElementById('reviewFormContainer');
+        const successState = document.getElementById('reviewSuccessState');
+        const successMsg = document.getElementById('reviewSuccessMsg');
+
+        if (successMsg) {
+          successMsg.innerHTML = `Thank you, <strong>${escapeHTML(publishedReview.authorName)}</strong>! Your testimonial has been published and is now live on our accolades gallery.`;
+        }
+        if (formContainer && successState) {
+          formContainer.style.display = 'none';
+          successState.style.display = 'block';
+        }
+
+        // Reset inputs for next time
+        reviewForm.reset();
       } catch (err) {
-        alert(err.message || 'Could not submit testimonial. Please try again.');
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
+        // Do NOT display review on failure; show helpful error and allow retry
+        if (errorBox) {
+          errorBox.textContent = err.message || 'Could not publish testimonial. Please check your connection and try again.';
+          errorBox.style.display = 'block';
+        } else {
+          alert(err.message || 'Could not publish testimonial. Please try again.');
+        }
+      } finally {
+        isSubmittingReview = false;
+        if (submitBtn) {
+          submitBtn.innerHTML = originalText;
+          submitBtn.disabled = false;
+        }
       }
     });
   }
@@ -782,10 +874,93 @@ window.togglePasswordVisibility = function(inputId, btnEl) {
   }
 };
 
+// --- Visitor Review Real-Time Sync & Modal Engine ---
+
+// Native cross-tab broadcast channel
+const reviewSyncChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('55_smartcreatives_reviews') : null;
+
+window.broadcastNewReview = function(review) {
+  if (!review || !review.id) return;
+  if (reviewSyncChannel) {
+    try {
+      reviewSyncChannel.postMessage({ type: 'NEW_REVIEW', review });
+    } catch (e) {}
+  }
+  try {
+    localStorage.setItem('55_smartcreatives_latest_review', JSON.stringify({
+      review,
+      timestamp: Date.now()
+    }));
+  } catch (e) {}
+};
+
+function handleIncomingRealtimeReview(newReview) {
+  if (!newReview || !newReview.id) return;
+  if (!Array.isArray(EddyStore.reviews)) EddyStore.reviews = [];
+  const exists = EddyStore.reviews.some(r => r.id === newReview.id);
+  if (!exists) {
+    EddyStore.reviews.unshift(newReview);
+    EddyStore.reviews.sort((a, b) => new Date(b.createdAt || b.created_at || 0) - new Date(a.createdAt || a.created_at || 0));
+    window.dispatchEvent(new CustomEvent('reviewsLoaded', { detail: EddyStore.reviews }));
+    if (typeof window.renderTestimonials === 'function') {
+      window.renderTestimonials();
+    }
+  }
+}
+
+if (reviewSyncChannel) {
+  reviewSyncChannel.onmessage = (event) => {
+    if (event.data && event.data.type === 'NEW_REVIEW' && event.data.review) {
+      handleIncomingRealtimeReview(event.data.review);
+    }
+  };
+}
+
+window.addEventListener('storage', (e) => {
+  if (e.key === '55_smartcreatives_latest_review' && e.newValue) {
+    try {
+      const payload = JSON.parse(e.newValue);
+      if (payload && payload.review) {
+        handleIncomingRealtimeReview(payload.review);
+      }
+    } catch (err) {}
+  }
+});
+
+window.resetReviewForm = function() {
+  const formContainer = document.getElementById('reviewFormContainer');
+  const successState = document.getElementById('reviewSuccessState');
+  const errorBox = document.getElementById('reviewFormError');
+  const form = document.getElementById('visitorReviewForm');
+  if (form) form.reset();
+  if (errorBox) {
+    errorBox.style.display = 'none';
+    errorBox.textContent = '';
+  }
+  const tsInput = document.getElementById('reviewTimestamp');
+  if (tsInput) tsInput.value = Date.now();
+  if (formContainer && successState) {
+    formContainer.style.display = 'block';
+    successState.style.display = 'none';
+  }
+};
+
+window.viewPublishedReview = function() {
+  window.closeReviewModal();
+  const section = document.getElementById('reviews');
+  if (section) {
+    section.scrollIntoView({ behavior: 'smooth' });
+  } else {
+    window.location.href = 'index.html#reviews';
+  }
+};
+
 // Global Visitor Review Modal Handlers
 window.openReviewModal = function(artworkId = null, artworkTitle = null) {
   const modal = document.getElementById('reviewModal');
   if (!modal) return;
+
+  window.resetReviewForm();
 
   const inArtworkId = document.getElementById('reviewArtworkId');
   if (inArtworkId) inArtworkId.value = artworkId || '';
@@ -803,10 +978,6 @@ window.openReviewModal = function(artworkId = null, artworkTitle = null) {
     }
   }
 
-  // Set client time-gate timestamp
-  const tsInput = document.getElementById('reviewTimestamp');
-  if (tsInput) tsInput.value = Date.now();
-
   modal.classList.add('active');
   document.body.style.overflow = 'hidden';
 };
@@ -819,7 +990,7 @@ window.closeReviewModal = function() {
   }
 };
 
-// Render Public Approved Testimonials
+// Render Public Approved Testimonials (newest first)
 window.renderTestimonials = function(containerId = 'testimonialsGrid') {
   const container = document.getElementById(containerId);
   if (!container) return;
@@ -838,6 +1009,9 @@ window.renderTestimonials = function(containerId = 'testimonialsGrid') {
     `;
     return;
   }
+
+  // Ensure newest testimonials appear first
+  reviews.sort((a, b) => new Date(b.createdAt || b.created_at || 0) - new Date(a.createdAt || a.created_at || 0));
 
   container.innerHTML = reviews.map(r => {
     const starCount = Math.max(1, Math.min(5, parseInt(r.rating, 10) || 5));

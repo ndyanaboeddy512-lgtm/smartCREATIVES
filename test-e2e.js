@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Comprehensive Automated End-to-End Test Suite
  * 55 smartCREATIVES — Editorial Luxury Art Gallery
  */
@@ -188,7 +188,7 @@ async function runTests() {
   assert(badRev.status === 400,
     'POST /api/reviews rejects invalid rating or short comment with 400 Bad Request');
 
-  // Test 14: Valid Review submission (must be forced to "pending")
+  // Test 14: Valid Review submission (immediately published with status 'approved')
   const validRev = await request('/api/reviews', {
     method: 'POST',
     body: JSON.stringify({
@@ -202,38 +202,52 @@ async function runTests() {
       _ts: Date.now() - 5000
     })
   });
-  assert(validRev.status === 201 && validRev.data.review && validRev.data.review.status === 'pending',
-    'POST /api/reviews creates review with status FORCED to "pending"');
+  assert(validRev.status === 201 && validRev.data.review && validRev.data.review.status === 'approved',
+    'POST /api/reviews saves and immediately publishes review with status "approved"');
   createdReviewId = validRev.data.review.id;
 
-  // Test 15: Public reviews do NOT show the new pending review
+  // Test 15: Public reviews IMMEDIATELY show the new review (newest first, without manual approval)
   const pubRevAfter = await request('/api/reviews');
-  const foundPendingInPublic = pubRevAfter.data.some(r => r.id === createdReviewId);
-  assert(!foundPendingInPublic,
-    'GET /api/reviews DOES NOT show the newly created pending review on public gallery');
+  const foundInPublic = pubRevAfter.data.some(r => r.id === createdReviewId);
+  const isFirstItem = pubRevAfter.data[0] && pubRevAfter.data[0].id === createdReviewId;
+  assert(pubRevAfter.status === 200 && foundInPublic,
+    'GET /api/reviews IMMEDIATELY displays the newly created review publicly without admin approval');
+  assert(isFirstItem,
+    'GET /api/reviews sorts newest reviews first');
 
-  // Test 16: Admin reviews endpoint shows the pending review
+  // Test 16: Admin reviews endpoint immediately displays the review
   const adminRev = await request('/api/admin/reviews', {
     headers: { 'Authorization': `Bearer ${adminToken}` }
   });
-  const foundInAdmin = adminRev.data.some(r => r.id === createdReviewId && r.status === 'pending');
+  const foundInAdmin = adminRev.data.some(r => r.id === createdReviewId && r.status === 'approved');
   assert(adminRev.status === 200 && foundInAdmin,
-    'GET /api/admin/reviews shows the new review waiting in the pending moderation queue');
+    'GET /api/admin/reviews immediately shows the new approved review in the curatorial dashboard');
 
-  // Test 17: Admin approves the review
-  const approveRes = await request(`/api/admin/reviews/${createdReviewId}`, {
+  // Test 17: Duplicate submission prevention within 60 seconds
+  const dupRev = await request('/api/reviews', {
+    method: 'POST',
+    body: JSON.stringify({
+      authorName: 'Hélène de Saint-Germain',
+      authorEmail: 'helene.saintgermain@artparis.fr',
+      authorLocation: 'Paris, France',
+      rating: 5,
+      comment: 'An exquisite acquisition experience. The oil texture and museum-grade framing exceeded all curatorial expectations.',
+      artworkId: realArt.id,
+      artworkTitle: realArt.title,
+      _ts: Date.now() - 5000
+    })
+  });
+  assert(dupRev.status === 409,
+    'POST /api/reviews rejects duplicate submission from same email/comment with 409 Conflict');
+
+  // Test 18: Admin unpublishes the review (transitions to 'rejected')
+  const unpublishRes = await request(`/api/admin/reviews/${createdReviewId}`, {
     method: 'PATCH',
     headers: { 'Authorization': `Bearer ${adminToken}` },
-    body: JSON.stringify({ status: 'approved' })
+    body: JSON.stringify({ status: 'rejected' })
   });
-  assert(approveRes.status === 200 && approveRes.data.review && approveRes.data.review.status === 'approved',
-    `PATCH /api/admin/reviews/${createdReviewId} successfully transitions status to "approved"`);
-
-  // Test 18: Public reviews NOW includes the approved review
-  const pubRevApproved = await request('/api/reviews');
-  const foundApprovedInPublic = pubRevApproved.data.some(r => r.id === createdReviewId && r.status === 'approved');
-  assert(foundApprovedInPublic,
-    'GET /api/reviews NOW displays the approved review publicly on the gallery');
+  assert(unpublishRes.status === 200 && unpublishRes.data.review && unpublishRes.data.review.status === 'rejected',
+    `PATCH /api/admin/reviews/${createdReviewId} successfully allows curator to unpublish review`);
 
   // Test 19: Admin deletes the test review to leave data clean
   const delRev = await request(`/api/admin/reviews/${createdReviewId}`, {

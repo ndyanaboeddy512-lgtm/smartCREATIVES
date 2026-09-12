@@ -1155,6 +1155,17 @@ app.get(['/api/reviews', '/reviews'], async (req, res) => {
   res.json(approved);
 });
 
+// Map to prevent duplicate review submissions: key -> timestamp
+const recentReviewSubmissions = new Map();
+
+// Periodic prune of duplicate review cache (older than 2 minutes)
+setInterval(() => {
+  const cutoff = Date.now() - 120000;
+  for (const [key, ts] of recentReviewSubmissions.entries()) {
+    if (ts < cutoff) recentReviewSubmissions.delete(key);
+  }
+}, 60000);
+
 // POST submit a new visitor review (Public with Rate Limiting & Anti-Spam)
 app.post(['/api/reviews', '/reviews'], reviewRateLimiter, async (req, res) => {
   // 1. Honeypot check
@@ -1162,7 +1173,7 @@ app.post(['/api/reviews', '/reviews'], reviewRateLimiter, async (req, res) => {
     console.log('🛡️ [Security] Honeypot triggered in review submission. Silently dropping bot payload.');
     return res.status(201).json({
       success: true,
-      message: 'Thank you for your testimonial. It has been received and will be displayed following curatorial review.'
+      message: 'Thank you! Your testimonial has been received.'
     });
   }
 
@@ -1171,7 +1182,7 @@ app.post(['/api/reviews', '/reviews'], reviewRateLimiter, async (req, res) => {
     console.log('🛡️ [Security] Time-gate failed in review (< 1.5s). Silently dropping bot payload.');
     return res.status(201).json({
       success: true,
-      message: 'Thank you for your testimonial. It has been received and will be displayed following curatorial review.'
+      message: 'Thank you! Your testimonial has been received.'
     });
   }
 
@@ -1202,6 +1213,16 @@ app.post(['/api/reviews', '/reviews'], reviewRateLimiter, async (req, res) => {
     return res.status(400).json({ error: 'Validation Error', message: 'Your review comment must be at least 10 characters.' });
   }
 
+  // 4. Duplicate prevention check (within 60 seconds)
+  const dupKey = `${authorEmail}:${comment.toLowerCase().replace(/\s+/g, ' ').slice(0, 120)}`;
+  const lastSubTime = recentReviewSubmissions.get(dupKey);
+  if (lastSubTime && (Date.now() - lastSubTime < 60000)) {
+    return res.status(409).json({
+      error: 'Duplicate Submission',
+      message: 'A testimonial with identical content from your email was just received. It is already live in the gallery.'
+    });
+  }
+
   const rawArtworkId = sanitizeText(req.body.artworkId || '', 64);
   let verifiedArtworkTitle = null;
   if (rawArtworkId) {
@@ -1229,37 +1250,55 @@ app.post(['/api/reviews', '/reviews'], reviewRateLimiter, async (req, res) => {
     authorLocation: authorLocation || 'Collector',
     rating: ratingInt,
     comment,
-    status: 'pending', // Unconditionally pending! Client can NEVER force approved
+    status: 'approved', // Valid reviews appear automatically and immediately!
     createdAt: now,
-    reviewedAt: null
+    reviewedAt: now
   };
 
   let savedReview = newReview;
   if (db.isAvailable) {
     try {
       const dbSaved = await db.createReview(newReview);
-      if (dbSaved) savedReview = dbSaved;
-      console.log(`✓ Review submitted: ${savedReview.id} from ${savedReview.authorName} (status: pending)`);
+      if (!dbSaved) throw new Error('Database createReview returned null');
+      savedReview = dbSaved;
+      console.log(`✓ Review saved to database & auto-published: ${savedReview.id} from ${savedReview.authorName} (status: approved)`);
     } catch (err) {
-      console.warn('MySQL createReview notice:', err.message);
+      console.error('Database createReview error:', err.message);
+      if (Boolean(process.env.VERCEL || process.env.NODE_ENV === 'production')) {
+        return res.status(500).json({
+          error: 'Database Error',
+          message: 'Failed to persist your review to the database. Please try again.'
+        });
+      }
     }
   }
 
+  // Record submission to prevent duplicate clicks within 60s
+  recentReviewSubmissions.set(dupKey, Date.now());
+
   // Update JSON mirror
   const reviews = readJSON(REVIEWS_FILE, []);
+  const existingIdx = reviews.findIndex(r => r.id === savedReview.id);
+  if (existingIdx >= 0) reviews.splice(existingIdx, 1);
   reviews.unshift(savedReview);
+  reviews.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
   writeJSON(REVIEWS_FILE, reviews);
 
   res.status(201).json({
     success: true,
-    message: 'Thank you for your testimonial. It has been received and will be displayed following curatorial review.',
+    message: 'Thank you! Your testimonial has been published live to the gallery.',
     review: {
       id: savedReview.id,
+      artworkId: savedReview.artworkId,
+      artworkTitle: savedReview.artworkTitle,
       authorName: savedReview.authorName,
+      authorEmail: savedReview.authorEmail,
       authorLocation: savedReview.authorLocation,
       rating: savedReview.rating,
       comment: savedReview.comment,
-      status: 'pending'
+      status: 'approved',
+      createdAt: savedReview.createdAt,
+      reviewedAt: savedReview.reviewedAt
     }
   });
 });
@@ -1360,8 +1399,8 @@ function startServer(portToTry) {
   });
 }
 
-// In standard Node environment, start the listener. In Vercel serverless, export the app handler.
-if (!process.env.VERCEL) {
+// In standard Node environment, start the listener if run directly. In Vercel serverless, export the app handler.
+if (!process.env.VERCEL && require.main === module) {
   startServer(PORT);
 }
 

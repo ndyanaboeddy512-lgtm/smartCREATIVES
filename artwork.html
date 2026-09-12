@@ -352,63 +352,80 @@
         <div>
           <span class="tracking-wide" style="color: var(--accent-gold); display: block; margin-bottom: 4px;">Collector Accolade</span>
           <h3>Share Your Gallery Experience</h3>
-          <p>Your review will be catalogued and displayed following curatorial review.</p>
+          <p>Share your reflections on 55 smartCREATIVES. Valid testimonials appear live on our accolades gallery.</p>
         </div>
         <button class="modal-close-btn" onclick="window.closeReviewModal()">&times;</button>
       </div>
 
       <div class="modal-body">
-        <div id="reviewPieceNotice" style="display: none; padding: 0.75rem 1rem; background: var(--bg-secondary); border-left: 3px solid var(--accent-gold); font-size: 0.88rem; margin-bottom: 1.5rem;"></div>
-
-        <form id="visitorReviewForm">
-          <input type="hidden" id="reviewArtworkId">
-          <input type="hidden" id="reviewArtworkTitle">
-
-          <!-- Security Honeypot and Time-gate fields -->
-          <div class="honeypot-field" aria-hidden="true" style="display:none !important; position:absolute; left:-9999px;">
-            <label for="reviewHoneypot">Do not fill this field</label>
-            <input type="text" id="reviewHoneypot" name="website_hp" tabindex="-1" autocomplete="off">
-            <input type="hidden" id="reviewTimestamp" name="_ts">
+        <!-- Success State Container -->
+        <div id="reviewSuccessState" style="display: none; text-align: center; padding: 2.5rem 1rem;">
+          <div style="width: 60px; height: 60px; border-radius: 50%; background: #FAF8F5; border: 1px solid var(--accent-gold); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: var(--accent-gold); font-size: 1.5rem;">★</div>
+          <h3 style="font-size: 1.8rem; margin-bottom: 0.75rem;">Testimonial Published</h3>
+          <p id="reviewSuccessMsg" style="font-size: 0.95rem; color: var(--text-secondary); max-width: 440px; margin: 0 auto 1.5rem; line-height: 1.6;">
+            Your testimonial has been published live and is now visible on our accolades gallery.
+          </p>
+          <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <button type="button" onclick="window.location.href='index.html#reviews'" class="btn-primary">View in Gallery</button>
+            <button type="button" onclick="window.resetReviewForm()" class="btn-secondary" style="font-size: 0.82rem; padding: 0.5rem 1rem;">Write Another</button>
           </div>
+        </div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label for="reviewAuthorName">Your Full Name *</label>
-              <input type="text" id="reviewAuthorName" class="form-control" placeholder="e.g. Laurent Mercier" required maxlength="60">
+        <!-- Form State Container -->
+        <div id="reviewFormContainer">
+          <div id="reviewFormError" style="display: none; background: rgba(220, 53, 69, 0.1); border: 1px solid #dc3545; color: #ff6b6b; padding: 0.75rem 1rem; border-radius: 4px; margin-bottom: 1.25rem; font-size: 0.88rem;"></div>
+          <div id="reviewPieceNotice" style="display: none; padding: 0.75rem 1rem; background: var(--bg-secondary); border-left: 3px solid var(--accent-gold); font-size: 0.88rem; margin-bottom: 1.5rem;"></div>
+
+          <form id="visitorReviewForm">
+            <input type="hidden" id="reviewArtworkId">
+            <input type="hidden" id="reviewArtworkTitle">
+
+            <!-- Security Honeypot and Time-gate fields -->
+            <div class="honeypot-field" aria-hidden="true" style="display:none !important; position:absolute; left:-9999px;">
+              <label for="reviewHoneypot">Do not fill this field</label>
+              <input type="text" id="reviewHoneypot" name="website_hp" tabindex="-1" autocomplete="off">
+              <input type="hidden" id="reviewTimestamp" name="_ts">
             </div>
-            <div class="form-group">
-              <label for="reviewAuthorEmail">Your Email Address *</label>
-              <input type="email" id="reviewAuthorEmail" class="form-control" placeholder="name@email.com" required>
-            </div>
-          </div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label for="reviewAuthorLocation">Your Location (City, Country)</label>
-              <input type="text" id="reviewAuthorLocation" class="form-control" placeholder="e.g. Geneva, Switzerland" maxlength="100">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="reviewAuthorName">Your Full Name *</label>
+                <input type="text" id="reviewAuthorName" class="form-control" placeholder="e.g. Laurent Mercier" required maxlength="60">
+              </div>
+              <div class="form-group">
+                <label for="reviewAuthorEmail">Your Email Address *</label>
+                <input type="email" id="reviewAuthorEmail" class="form-control" placeholder="name@email.com" required>
+              </div>
             </div>
-            <div class="form-group">
-              <label for="reviewRatingSelect">Curatorial Rating *</label>
-              <select id="reviewRatingSelect" class="form-control" required>
-                <option value="5" selected>★★★★★ (5 Stars — Masterwork Experience)</option>
-                <option value="4">★★★★☆ (4 Stars — Highly Recommended)</option>
-                <option value="3">★★★☆☆ (3 Stars — Satisfactory)</option>
-                <option value="2">★★☆☆☆ (2 Stars — Needs Refinement)</option>
-                <option value="1">★☆☆☆☆ (1 Star — Unsatisfactory)</option>
-              </select>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="reviewAuthorLocation">Your Location (City, Country)</label>
+                <input type="text" id="reviewAuthorLocation" class="form-control" placeholder="e.g. Geneva, Switzerland" maxlength="100">
+              </div>
+              <div class="form-group">
+                <label for="reviewRatingSelect">Curatorial Rating *</label>
+                <select id="reviewRatingSelect" class="form-control" required>
+                  <option value="5" selected>★★★★★ (5 Stars — Masterwork Experience)</option>
+                  <option value="4">★★★★☆ (4 Stars — Highly Recommended)</option>
+                  <option value="3">★★★☆☆ (3 Stars — Satisfactory)</option>
+                  <option value="2">★★☆☆☆ (2 Stars — Needs Refinement)</option>
+                  <option value="1">★☆☆☆☆ (1 Star — Unsatisfactory)</option>
+                </select>
+              </div>
             </div>
-          </div>
 
-          <div class="form-group">
-            <label for="reviewComment">Your Testimonial / Reflection *</label>
-            <textarea id="reviewComment" class="form-control" rows="4" placeholder="Share your experience regarding our artwork quality, framing, curatorial advisory, or delivery." required minlength="10" maxlength="1000"></textarea>
-          </div>
+            <div class="form-group">
+              <label for="reviewComment">Your Testimonial / Reflection *</label>
+              <textarea id="reviewComment" class="form-control" rows="4" placeholder="Share your experience regarding our artwork quality, framing, curatorial advisory, or delivery." required minlength="10" maxlength="1000"></textarea>
+            </div>
 
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 2rem;">
-            <span style="font-size: 0.75rem; color: var(--text-muted);">Verified submissions undergo brief curatorial review.</span>
-            <button type="submit" class="btn-primary">Submit Testimonial</button>
-          </div>
-        </form>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 2rem;">
+              <span style="font-size: 0.75rem; color: var(--text-muted);">Published immediately upon submission.</span>
+              <button type="submit" class="btn-primary" id="reviewSubmitBtn">Submit Testimonial</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>

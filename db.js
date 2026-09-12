@@ -1048,13 +1048,16 @@ async function createReview(rev) {
   if (!p || !isAvailable) return null;
   const newId = rev.id || 'rev-' + Math.floor(1000 + Math.random() * 9000);
   const now = new Date();
+  const status = rev.status || 'approved';
+  const reviewedAt = status === 'approved' ? now : (rev.reviewedAt ? new Date(rev.reviewedAt) : null);
+
   await execute(
-    `INSERT INTO reviews (id, artwork_id, artwork_title, author_name, author_email, author_location, rating, comment, status, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)`,
+    `INSERT INTO reviews (id, artwork_id, artwork_title, author_name, author_email, author_location, rating, comment, status, created_at, reviewed_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       newId, rev.artworkId || null, rev.artworkTitle || null,
       rev.authorName, rev.authorEmail, rev.authorLocation || null,
-      rev.rating || 5, rev.comment, now
+      rev.rating || 5, rev.comment, status, now, reviewedAt
     ]
   );
   return {
@@ -1066,8 +1069,9 @@ async function createReview(rev) {
     authorLocation: rev.authorLocation || null,
     rating: rev.rating || 5,
     comment: rev.comment,
-    status: 'pending',
-    createdAt: now.toISOString()
+    status: status,
+    createdAt: now.toISOString(),
+    reviewedAt: reviewedAt ? reviewedAt.toISOString() : null
   };
 }
 
