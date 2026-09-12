@@ -110,19 +110,31 @@ const AdminApp = {
     const invBtn = document.getElementById('tabInventoryBtn');
     const inqBtn = document.getElementById('tabInquiriesBtn');
     const revBtn = document.getElementById('tabReviewsBtn');
+    const comBtn = document.getElementById('tabCommentsBtn');
+    const catBtn = document.getElementById('tabCataloguesBtn');
+    const artBtn = document.getElementById('tabArtistsBtn');
     const secBtn = document.getElementById('tabSecurityBtn');
     if (invBtn) invBtn.classList.toggle('active', tab === 'inventory');
     if (inqBtn) inqBtn.classList.toggle('active', tab === 'inquiries');
     if (revBtn) revBtn.classList.toggle('active', tab === 'reviews');
+    if (comBtn) comBtn.classList.toggle('active', tab === 'comments');
+    if (catBtn) catBtn.classList.toggle('active', tab === 'catalogues');
+    if (artBtn) artBtn.classList.toggle('active', tab === 'artists');
     if (secBtn) secBtn.classList.toggle('active', tab === 'security');
 
     const invSec = document.getElementById('viewInventorySection');
     const inqSec = document.getElementById('viewInquiriesSection');
     const revSec = document.getElementById('viewReviewsSection');
+    const comSec = document.getElementById('viewCommentsSection');
+    const catSec = document.getElementById('viewCataloguesSection');
+    const artSec = document.getElementById('viewArtistsSection');
     const secSec = document.getElementById('viewSecuritySection');
     if (invSec) invSec.style.display = tab === 'inventory' ? 'block' : 'none';
     if (inqSec) inqSec.style.display = tab === 'inquiries' ? 'block' : 'none';
     if (revSec) revSec.style.display = tab === 'reviews' ? 'block' : 'none';
+    if (comSec) comSec.style.display = tab === 'comments' ? 'block' : 'none';
+    if (catSec) catSec.style.display = tab === 'catalogues' ? 'block' : 'none';
+    if (artSec) artSec.style.display = tab === 'artists' ? 'block' : 'none';
     if (secSec) secSec.style.display = tab === 'security' ? 'block' : 'none';
 
     if (tab === 'inquiries') {
@@ -131,6 +143,12 @@ const AdminApp = {
       this.renderInventoryTable();
     } else if (tab === 'reviews') {
       this.fetchReviews();
+    } else if (tab === 'comments') {
+      this.fetchComments();
+    } else if (tab === 'catalogues') {
+      this.renderCataloguesTable();
+    } else if (tab === 'artists') {
+      this.renderArtistsTable();
     }
   },
 
@@ -584,6 +602,7 @@ const AdminApp = {
         <td>
           <strong>${item.title}</strong>
           ${item.featured ? `<span style="display:inline-block; font-size:0.62rem; background:rgba(194,165,126,0.2); color:var(--accent-gold); padding:2px 6px; border-radius:2px; margin-left:6px; letter-spacing:0.1em; text-transform:uppercase;">Hero Spotlight</span>` : ''}
+          ${(item.isArchived || item.is_archived) ? `<span style="display:inline-block; font-size:0.62rem; background:rgba(211,47,47,0.2); color:#ff6b6b; padding:2px 6px; border-radius:2px; margin-left:6px; letter-spacing:0.1em; text-transform:uppercase;">Archived</span>` : ''}
           <div style="font-size: 0.75rem; color: var(--text-inverse-muted); margin-top:2px;">Ref: ${item.id}</div>
         </td>
         <td>
@@ -609,6 +628,10 @@ const AdminApp = {
           <div style="display:flex; gap:6px; flex-wrap:wrap;">
             <button class="btn-admin-action edit" onclick="AdminApp.editArtwork('${item.id}')" title="Edit All Details & Price">Edit</button>
             <a href="artwork.html?id=${item.id}" target="_blank" class="btn-admin-action" style="background:#252422; color:#ccc; border:1px solid var(--border-dark);" title="Inspect Public Live View">Inspect ↗</a>
+            ${(item.isArchived || item.is_archived) 
+              ? `<button class="btn-admin-action" style="background:rgba(129,199,132,0.15); color:#81c784; border:1px solid #81c784;" onclick="AdminApp.restoreArtwork('${item.id}')" title="Restore to Active Catalog">Restore</button>`
+              : `<button class="btn-admin-action" style="background:#252422; color:#ffb74d; border:1px solid #ffb74d;" onclick="AdminApp.archiveArtwork('${item.id}')" title="Soft-Delete Archive">Archive</button>`
+            }
             <button class="btn-admin-action delete" onclick="AdminApp.openDeleteModal('${item.id}')" title="Permanently Remove from Catalog">Delete</button>
           </div>
         </td>
@@ -1157,6 +1180,13 @@ const AdminApp = {
     
     document.getElementById('artworkProvenance').value = artwork.provenance || '';
     document.getElementById('artworkStatement').value = artwork.curatorialStatement || '';
+    if (document.getElementById('artworkCulture')) document.getElementById('artworkCulture').value = artwork.culture || 'East African';
+    if (document.getElementById('artworkCountry')) document.getElementById('artworkCountry').value = artwork.country || 'Rwanda';
+    if (document.getElementById('artworkCatalogueId')) document.getElementById('artworkCatalogueId').value = artwork.catalogueId || '';
+    if (document.getElementById('artworkTheme')) document.getElementById('artworkTheme').value = artwork.theme || '';
+    if (document.getElementById('artworkStory')) document.getElementById('artworkStory').value = artwork.story || '';
+    if (document.getElementById('artworkSymbolism')) document.getElementById('artworkSymbolism').value = artwork.symbolism || '';
+
     document.getElementById('artworkImageUrl').value = artwork.image || '';
     document.getElementById('artworkFeatured').checked = Boolean(artwork.featured);
 
@@ -1189,6 +1219,12 @@ const AdminApp = {
     document.getElementById('artworkYear').value = new Date().getFullYear();
     document.getElementById('artworkFrameOptions').value = 'Floating Black Oak, Brushed Gold Brass, Natural Maple, Unframed';
     document.getElementById('artworkImageUrl').value = '';
+    if (document.getElementById('artworkCulture')) document.getElementById('artworkCulture').value = 'East African';
+    if (document.getElementById('artworkCountry')) document.getElementById('artworkCountry').value = 'Rwanda';
+    if (document.getElementById('artworkCatalogueId')) document.getElementById('artworkCatalogueId').value = '';
+    if (document.getElementById('artworkTheme')) document.getElementById('artworkTheme').value = 'Balance & Organic Heritage';
+    if (document.getElementById('artworkStory')) document.getElementById('artworkStory').value = '';
+    if (document.getElementById('artworkSymbolism')) document.getElementById('artworkSymbolism').value = '';
 
     const previewCard = document.getElementById('deviceUploadPreviewCard');
     const dropzone = document.getElementById('imageDropzone');
@@ -1217,6 +1253,12 @@ const AdminApp = {
     const frameOptionsRaw = document.getElementById('artworkFrameOptions').value.trim();
     const provenance = document.getElementById('artworkProvenance').value.trim();
     const curatorialStatement = document.getElementById('artworkStatement').value.trim();
+    const culture = (document.getElementById('artworkCulture') ? document.getElementById('artworkCulture').value.trim() : '') || 'East African';
+    const country = (document.getElementById('artworkCountry') ? document.getElementById('artworkCountry').value.trim() : '') || 'Rwanda';
+    const catalogueId = document.getElementById('artworkCatalogueId') ? document.getElementById('artworkCatalogueId').value : '';
+    const theme = (document.getElementById('artworkTheme') ? document.getElementById('artworkTheme').value.trim() : '') || 'Balance & Organic Heritage';
+    const story = (document.getElementById('artworkStory') ? document.getElementById('artworkStory').value.trim() : '') || curatorialStatement;
+    const symbolism = (document.getElementById('artworkSymbolism') ? document.getElementById('artworkSymbolism').value.trim() : '') || 'Organic materials, ancestral craftsmanship, and balance.';
     const image = document.getElementById('artworkImageUrl').value.trim() || 'images/art-01.jpg';
     const featured = document.getElementById('artworkFeatured').checked;
 
@@ -1241,6 +1283,12 @@ const AdminApp = {
       frameOptions,
       provenance,
       curatorialStatement,
+      culture,
+      country,
+      catalogueId: catalogueId || null,
+      theme,
+      story,
+      symbolism,
       image,
       highResZoom: image,
       featured
@@ -1565,6 +1613,182 @@ const AdminApp = {
     } catch (e) {
       alert('Network error deleting review');
     }
+  },
+
+  async archiveArtwork(id) {
+    if (!confirm('Archive (soft-delete) this artwork? It will be hidden from public active catalog but kept safe in the database.')) return;
+    try {
+      const res = await fetch(`/api/artworks/${encodeURIComponent(id)}/archive`, {
+        method: 'POST',
+        headers: this.getAuthHeaders({ 'Content-Type': 'application/json' })
+      });
+      if (res.ok) {
+        this.showToast('Artwork soft-deleted/archived successfully.');
+        const idx = EddyStore.artworks.findIndex(a => a.id === id);
+        if (idx > -1) {
+          EddyStore.artworks[idx].isArchived = true;
+          EddyStore.artworks[idx].is_archived = 1;
+        }
+        this.renderInventoryTable();
+        this.renderStats();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert(err.message || 'Failed to archive artwork');
+      }
+    } catch (e) {
+      alert('Network error archiving artwork');
+    }
+  },
+
+  async restoreArtwork(id) {
+    try {
+      const res = await fetch(`/api/artworks/${encodeURIComponent(id)}/restore`, {
+        method: 'POST',
+        headers: this.getAuthHeaders({ 'Content-Type': 'application/json' })
+      });
+      if (res.ok) {
+        this.showToast('Artwork restored to active collection.');
+        const idx = EddyStore.artworks.findIndex(a => a.id === id);
+        if (idx > -1) {
+          EddyStore.artworks[idx].isArchived = false;
+          EddyStore.artworks[idx].is_archived = 0;
+        }
+        this.renderInventoryTable();
+        this.renderStats();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert(err.message || 'Failed to restore artwork');
+      }
+    } catch (e) {
+      alert('Network error restoring artwork');
+    }
+  },
+
+  comments: [],
+
+  async fetchComments() {
+    try {
+      const res = await fetch('/api/comments');
+      if (res.ok) {
+        this.comments = await res.json();
+      }
+    } catch (e) {
+      console.warn('Error fetching comments in admin:', e);
+    }
+    const badge = document.getElementById('tabCommentsCount');
+    if (badge) badge.textContent = (this.comments || []).length;
+    this.renderCommentsTable();
+  },
+
+  renderCommentsTable(filterTerm = '') {
+    const tbody = document.getElementById('commentsTableBody');
+    if (!tbody) return;
+
+    let items = [...(this.comments || [])];
+    if (filterTerm) {
+      const s = filterTerm.toLowerCase();
+      items = items.filter(c => 
+        (c.author_name || '').toLowerCase().includes(s) ||
+        (c.comment_text || '').toLowerCase().includes(s) ||
+        (c.feeling || '').toLowerCase().includes(s) ||
+        (c.artwork_id || '').toLowerCase().includes(s)
+      );
+    }
+
+    if (items.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 2rem; color: var(--text-inverse-muted);">No visitor reflections recorded yet.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = items.map(com => {
+      const dateStr = new Date(com.created_at || com.createdAt || Date.now()).toLocaleDateString();
+      const art = EddyStore.getArtworkById(com.artwork_id);
+      const artTitle = art ? art.title : (com.artwork_id || 'Artwork');
+
+      return `
+        <tr>
+          <td style="font-size: 0.8rem; color: var(--text-inverse-muted);">${dateStr}</td>
+          <td>
+            <strong><a href="artwork.html?id=${com.artwork_id}" target="_blank" style="color: var(--accent-gold); text-decoration: underline;">${artTitle}</a></strong>
+            <div style="font-size: 0.72rem; color: var(--text-inverse-muted);">${com.artwork_id}</div>
+          </td>
+          <td>
+            <strong>${com.author_name || 'Anonymous'}</strong>
+            <div style="font-size: 0.75rem; color: var(--text-inverse-muted);">${com.author_location || ''}</div>
+          </td>
+          <td>
+            <span style="display:inline-block; font-size: 0.72rem; padding: 2px 8px; border-radius: 2px; background: rgba(194,165,126,0.15); color: var(--accent-gold); border: 1px solid var(--accent-gold);">
+              ${com.feeling || 'Reflection'}
+            </span>
+          </td>
+          <td style="max-width: 280px; font-size: 0.85rem; color: #ddd; line-height: 1.5;">
+            "${com.comment_text || ''}"
+          </td>
+          <td>
+            <button class="btn-admin-action delete" onclick="AdminApp.deleteComment('${com.id}')" title="Delete this reflection">Delete</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  },
+
+  async deleteComment(id) {
+    if (!confirm('Permanently remove this visitor reflection?')) return;
+    try {
+      const res = await fetch(`/api/comments/${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: this.getAuthHeaders()
+      });
+      if (res.ok) {
+        this.showToast('Reflection removed.');
+        this.comments = this.comments.filter(c => c.id !== id);
+        this.renderCommentsTable();
+        const badge = document.getElementById('tabCommentsCount');
+        if (badge) badge.textContent = this.comments.length;
+      } else {
+        alert('Failed to delete comment');
+      }
+    } catch (e) {
+      alert('Network error deleting comment');
+    }
+  },
+
+  renderCataloguesTable() {
+    const tbody = document.getElementById('cataloguesTableBody');
+    if (!tbody) return;
+    const cats = EddyStore.catalogues || [];
+    tbody.innerHTML = cats.map(cat => {
+      const count = (EddyStore.artworks || []).filter(a => a.catalogueId === cat.id).length;
+      return `
+        <tr>
+          <td><img src="${cat.coverImage}" alt="${cat.title}" class="admin-table-thumb"></td>
+          <td><strong style="color: var(--accent-gold);">${cat.id}</strong></td>
+          <td><strong>${cat.title}</strong></td>
+          <td><span style="font-size: 0.8rem; color: #ccc;">${cat.tradition}</span></td>
+          <td style="max-width: 320px; font-size: 0.82rem; color: var(--text-inverse-muted);">${cat.story}</td>
+          <td><strong style="color: var(--accent-gold);">${count} Works</strong></td>
+        </tr>
+      `;
+    }).join('');
+  },
+
+  renderArtistsTable() {
+    const tbody = document.getElementById('artistsTableBody');
+    if (!tbody) return;
+    const artists = EddyStore.artists || [];
+    tbody.innerHTML = artists.map(art => {
+      const count = (EddyStore.artworks || []).filter(a => (a.artist || '').toLowerCase() === (art.name || '').toLowerCase()).length;
+      return `
+        <tr>
+          <td><img src="${art.avatar}" alt="${art.name}" class="admin-table-thumb" style="border-radius: 50%;"></td>
+          <td><strong style="color: var(--accent-gold);">${art.name}</strong></td>
+          <td>${art.discipline || 'Master Artist'}</td>
+          <td>${art.country}</td>
+          <td style="max-width: 300px; font-size: 0.82rem; font-style: italic; color: #ccc;">"${art.statement || ''}"</td>
+          <td><strong style="color: var(--accent-gold);">${count} Masterworks</strong></td>
+        </tr>
+      `;
+    }).join('');
   },
 
   // Toast Notification System

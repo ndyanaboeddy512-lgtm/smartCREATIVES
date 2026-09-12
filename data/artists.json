@@ -1,0 +1,110 @@
+[
+  {
+    "id": "artist-eddy",
+    "name": "Eddy",
+    "country": "Rwanda",
+    "style": "Contemporary African Sculpture & Raw Organic Hardwood",
+    "statement": "In every salvaged trunk and root lies a dormant ancestral posture. My hands do not invent form; they listen until the tree reveals its sacred balance.",
+    "bio": "Eddy is an acclaimed contemporary master sculptor based in Kigali, Rwanda. Sourcing indigenous hardwoods, eucalyptus roots, and volcanic mountain basalt, his monolithic works merge ancestral Great Lakes architecture with minimalist international balance.",
+    "meanings": "His interlocking curved forms evoke the unbroken covenants of communal solidarity, representing continuous spiritual lineage through changing eras.",
+    "socialLinks": {
+      "instagram": "@eddy.smartcreatives",
+      "email": "eddy@smartcreatives.art",
+      "studio": "Kigali Atelier & Workshop, Rwanda"
+    },
+    "image": "images/artwork-1788371635007-145.jpg",
+    "coverImage": "images/artwork-1788371635007-145.jpg",
+    "archivedAt": null,
+    "createdAt": "2026-09-12T19:16:22.665Z"
+  },
+  {
+    "id": "artist-eleanor",
+    "name": "Eleanor Vance",
+    "country": "Kenya / Rwanda",
+    "style": "Primitive Mineral Pigment & Monumental Oil Folios",
+    "statement": "Pigment is not decorative color; it is pulverized geological time. To paint is to uncover the light buried inside the mountain.",
+    "bio": "Working across East Africa and Europe, Eleanor Vance grinds raw volcanic clays, charred charcoal, and natural acacia resins directly in her studio. Her large-scale canvases hang in prominent international private collections.",
+    "meanings": "The deep horizontal sedimentations evoke ancient horizons where earth and celestial twilight meet, inviting contemplative quietude.",
+    "socialLinks": {
+      "instagram": "@eleanorvance.art",
+      "email": "eleanor@smartcreatives.art",
+      "studio": "Nairobi Studio & Kigali Residency"
+    },
+    "image": "images/art-01.jpg",
+    "coverImage": "images/art-06.jpg",
+    "archivedAt": null,
+    "createdAt": "2026-09-12T19:16:22.666Z"
+  },
+  {
+    "id": "artist-mateo",
+    "name": "Mateo Rossi",
+    "country": "Italy",
+    "style": "Lost-Wax Bronze & Hand-Hewn Carrara Marble",
+    "statement": "Sculpture is the sacred discipline of subtraction: removing everything accidental until only the eternal soul of the stone remains.",
+    "bio": "Hailing from Pietrasanta, Mateo Rossi carries forward centuries of Tuscan foundry craftsmanship, infusing classical geometries with organic, wind-weathered forms.",
+    "meanings": "The central negative spaces in his bronzes represent the inner stillness required to perceive ancient wisdom.",
+    "socialLinks": {
+      "instagram": "@mateorossi.scultura",
+      "email": "mateo@smartcreatives.art",
+      "studio": "Pietrasanta Studio, Tuscany"
+    },
+    "image": "images/art-02.jpg",
+    "coverImage": "images/art-07.jpg",
+    "archivedAt": null,
+    "createdAt": "2026-09-12T19:16:22.666Z"
+  },
+  {
+    "id": "artist-soren",
+    "name": "Soren Lindqvist",
+    "country": "Sweden",
+    "style": "Mineral Plaster Relief & Unrefined Flax Weaving",
+    "statement": "Silence has a texture. In the slight ridge of lime and the roughness of raw flax, we perceive the quiet architecture of time.",
+    "bio": "Soren Lindqvist constructs architectural wall reliefs and textile monographs using pulverized quartz, aged slaked lime, and hand-spun linen.",
+    "meanings": "His stepped horizontal ridges capture shifting daylight, transforming each piece into an atmospheric sundial.",
+    "socialLinks": {
+      "instagram": "@sorenlindqvist.relief",
+      "email": "soren@smartcreatives.art",
+      "studio": "Stockholm Atelier, Sweden"
+    },
+    "image": "images/art-03.jpg",
+    "coverImage": "images/art-08.jpg",
+    "archivedAt": null,
+    "createdAt": "2026-09-12T19:16:22.666Z"
+  },
+  {
+    "id": "artist-clara",
+    "name": "Clara Beauchamp",
+    "country": "France",
+    "style": "Raw Terracotta Clays & Ochre Field Compositions",
+    "statement": "Clay is humanity's oldest parchment. When we touch unrefined earth, we reconnect with the first fires of creation.",
+    "bio": "Clara Beauchamp harvests natural earth pigments and terracotta clays across southern France, building tactile impasto compositions on unbleached linen.",
+    "meanings": "Her warm geometric planes invoke ancient hearth stones and the enduring warmth of domestic sanctuaries.",
+    "socialLinks": {
+      "instagram": "@clarabeauchamp.art",
+      "email": "clara@smartcreatives.art",
+      "studio": "Provence Studio & Paris Atelier"
+    },
+    "image": "images/art-04.jpg",
+    "coverImage": "images/art-04.jpg",
+    "archivedAt": null,
+    "createdAt": "2026-09-12T19:16:22.666Z"
+  },
+  {
+    "id": "artist-kaito",
+    "name": "Kaito Moriyama",
+    "country": "Japan",
+    "style": "Forge-Blackened Carbon Steel & Fractured Basalt",
+    "statement": "Iron and stone are cosmic kin. In their dialogue between brutal weight and refined edge, we discover enduring balance.",
+    "bio": "Working from Kyoto, Kaito Moriyama crafts monolithic architectural sculptures that balance hot-rolled blackened steel plates with raw volcanic basalt.",
+    "meanings": "The sharp contrast between polished geometry and fractured volcanic rock explores the interplay of transient humanity and primordial nature.",
+    "socialLinks": {
+      "instagram": "@kaitomoriyama.studio",
+      "email": "kaito@smartcreatives.art",
+      "studio": "Kyoto Atelier, Japan"
+    },
+    "image": "images/art-05.jpg",
+    "coverImage": "images/art-05.jpg",
+    "archivedAt": null,
+    "createdAt": "2026-09-12T19:16:22.666Z"
+  }
+]

@@ -228,6 +228,15 @@ async function createTables() {
         featured BOOLEAN NOT NULL DEFAULT FALSE,
         image TEXT NOT NULL,
         high_res_zoom TEXT NULL,
+        culture VARCHAR(255) DEFAULT 'East African Heritage',
+        country VARCHAR(255) DEFAULT 'Rwanda',
+        catalogue_id VARCHAR(64) NULL,
+        theme VARCHAR(255) NULL,
+        symbolism TEXT NULL,
+        story TEXT NULL,
+        archived_at TIMESTAMP WITH TIME ZONE NULL,
+        sort_order INT DEFAULT 0,
+        is_published BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
@@ -305,6 +314,53 @@ async function createTables() {
       );
     `);
 
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS artists (
+        id VARCHAR(64) PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        country VARCHAR(255) DEFAULT 'Rwanda',
+        style VARCHAR(255) DEFAULT 'Fine Art',
+        statement TEXT NULL,
+        bio TEXT NULL,
+        meanings TEXT NULL,
+        social_links JSONB NULL,
+        image TEXT NULL,
+        cover_image TEXT NULL,
+        archived_at TIMESTAMP WITH TIME ZONE NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS catalogues (
+        id VARCHAR(64) PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        slug VARCHAR(255) NULL,
+        cover_image TEXT NOT NULL,
+        theme VARCHAR(255) NULL,
+        narrative TEXT NULL,
+        artwork_ids JSONB NULL,
+        archived_at TIMESTAMP WITH TIME ZONE NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS comments (
+        id VARCHAR(64) PRIMARY KEY,
+        artwork_id VARCHAR(64) NOT NULL,
+        author_name VARCHAR(255) NOT NULL,
+        author_email VARCHAR(255) NULL,
+        feeling VARCHAR(128) NULL,
+        interpretation TEXT NOT NULL,
+        status VARCHAR(32) NOT NULL DEFAULT 'published',
+        archived_at TIMESTAMP WITH TIME ZONE NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     // Auto-migrate column additions for PostgreSQL
     const pgMigrations = [
       "ALTER TABLE inquiries ADD COLUMN IF NOT EXISTS generated_reply TEXT NULL",
@@ -316,7 +372,16 @@ async function createTables() {
       "ALTER TABLE artworks ADD COLUMN IF NOT EXISTS faq_info JSONB NULL",
       "ALTER TABLE artworks ADD COLUMN IF NOT EXISTS images JSONB NULL",
       "ALTER TABLE artworks ALTER COLUMN image TYPE TEXT",
-      "ALTER TABLE artworks ALTER COLUMN high_res_zoom TYPE TEXT"
+      "ALTER TABLE artworks ALTER COLUMN high_res_zoom TYPE TEXT",
+      "ALTER TABLE artworks ADD COLUMN IF NOT EXISTS culture VARCHAR(255) DEFAULT 'East African Heritage'",
+      "ALTER TABLE artworks ADD COLUMN IF NOT EXISTS country VARCHAR(255) DEFAULT 'Rwanda'",
+      "ALTER TABLE artworks ADD COLUMN IF NOT EXISTS catalogue_id VARCHAR(64) NULL",
+      "ALTER TABLE artworks ADD COLUMN IF NOT EXISTS theme VARCHAR(255) NULL",
+      "ALTER TABLE artworks ADD COLUMN IF NOT EXISTS symbolism TEXT NULL",
+      "ALTER TABLE artworks ADD COLUMN IF NOT EXISTS story TEXT NULL",
+      "ALTER TABLE artworks ADD COLUMN IF NOT EXISTS archived_at TIMESTAMP WITH TIME ZONE NULL",
+      "ALTER TABLE artworks ADD COLUMN IF NOT EXISTS sort_order INT DEFAULT 0",
+      "ALTER TABLE artworks ADD COLUMN IF NOT EXISTS is_published BOOLEAN DEFAULT TRUE"
     ];
     for (const q of pgMigrations) {
       try { await pool.query(q); } catch (e) {}
@@ -345,10 +410,20 @@ async function createTables() {
         featured BOOLEAN NOT NULL DEFAULT FALSE,
         image MEDIUMTEXT NOT NULL,
         high_res_zoom MEDIUMTEXT NULL,
+        culture VARCHAR(255) DEFAULT 'East African Heritage',
+        country VARCHAR(255) DEFAULT 'Rwanda',
+        catalogue_id VARCHAR(64) NULL,
+        theme VARCHAR(255) NULL,
+        symbolism TEXT NULL,
+        story TEXT NULL,
+        archived_at TIMESTAMP NULL,
+        sort_order INT DEFAULT 0,
+        is_published BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         INDEX idx_status (status),
-        INDEX idx_featured (featured)
+        INDEX idx_featured (featured),
+        INDEX idx_archived (archived_at)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `;
 
@@ -430,11 +505,65 @@ async function createTables() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `;
 
+    const artistsTable = `
+      CREATE TABLE IF NOT EXISTS artists (
+        id VARCHAR(64) PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        country VARCHAR(255) DEFAULT 'Rwanda',
+        style VARCHAR(255) DEFAULT 'Fine Art',
+        statement TEXT NULL,
+        bio TEXT NULL,
+        meanings TEXT NULL,
+        social_links JSON NULL,
+        image MEDIUMTEXT NULL,
+        cover_image MEDIUMTEXT NULL,
+        archived_at TIMESTAMP NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_artist_archived (archived_at)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `;
+
+    const cataloguesTable = `
+      CREATE TABLE IF NOT EXISTS catalogues (
+        id VARCHAR(64) PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        slug VARCHAR(255) NULL,
+        cover_image MEDIUMTEXT NOT NULL,
+        theme VARCHAR(255) NULL,
+        narrative TEXT NULL,
+        artwork_ids JSON NULL,
+        archived_at TIMESTAMP NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_catalogue_archived (archived_at)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `;
+
+    const commentsTable = `
+      CREATE TABLE IF NOT EXISTS comments (
+        id VARCHAR(64) PRIMARY KEY,
+        artwork_id VARCHAR(64) NOT NULL,
+        author_name VARCHAR(255) NOT NULL,
+        author_email VARCHAR(255) NULL,
+        feeling VARCHAR(128) NULL,
+        interpretation TEXT NOT NULL,
+        status VARCHAR(32) NOT NULL DEFAULT 'published',
+        archived_at TIMESTAMP NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_comment_artwork (artwork_id),
+        INDEX idx_comment_status (status)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `;
+
     await pool.query(artworksTable);
     await pool.query(inquiriesTable);
     await pool.query(usersTable);
     await pool.query(adminsTable);
     await pool.query(reviewsTable);
+    await pool.query(artistsTable);
+    await pool.query(cataloguesTable);
+    await pool.query(commentsTable);
 
     // Auto-migrate column additions for MySQL
     const mysqlMigrations = [
@@ -445,7 +574,16 @@ async function createTables() {
       "ALTER TABLE artworks ADD COLUMN description TEXT NULL",
       "ALTER TABLE artworks ADD COLUMN shipping_details TEXT NULL",
       "ALTER TABLE artworks ADD COLUMN faq_info JSON NULL",
-      "ALTER TABLE artworks ADD COLUMN images JSON NULL"
+      "ALTER TABLE artworks ADD COLUMN images JSON NULL",
+      "ALTER TABLE artworks ADD COLUMN culture VARCHAR(255) DEFAULT 'East African Heritage'",
+      "ALTER TABLE artworks ADD COLUMN country VARCHAR(255) DEFAULT 'Rwanda'",
+      "ALTER TABLE artworks ADD COLUMN catalogue_id VARCHAR(64) NULL",
+      "ALTER TABLE artworks ADD COLUMN theme VARCHAR(255) NULL",
+      "ALTER TABLE artworks ADD COLUMN symbolism TEXT NULL",
+      "ALTER TABLE artworks ADD COLUMN story TEXT NULL",
+      "ALTER TABLE artworks ADD COLUMN archived_at TIMESTAMP NULL",
+      "ALTER TABLE artworks ADD COLUMN sort_order INT DEFAULT 0",
+      "ALTER TABLE artworks ADD COLUMN is_published BOOLEAN DEFAULT TRUE"
     ];
     for (const q of mysqlMigrations) {
       try { await pool.query(q); } catch (e) {}
@@ -474,13 +612,19 @@ async function seedIfEmpty() {
       for (const a of artworks) {
         if (isPostgres) {
           await execute(
-            `INSERT INTO artworks (id, title, artist, year, medium, dimensions, price, status, framing, frame_options, provenance, curatorial_statement, description, shipping_details, faq_info, images, featured, image, high_res_zoom)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `INSERT INTO artworks (id, title, artist, year, medium, dimensions, price, status, framing, frame_options, provenance, curatorial_statement, description, shipping_details, faq_info, images, featured, image, high_res_zoom, culture, country, catalogue_id, theme, symbolism, story, sort_order, is_published)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
              ON CONFLICT (id) DO UPDATE SET 
                description = COALESCE(artworks.description, EXCLUDED.description),
                shipping_details = COALESCE(artworks.shipping_details, EXCLUDED.shipping_details),
                faq_info = COALESCE(artworks.faq_info, EXCLUDED.faq_info),
-               images = COALESCE(artworks.images, EXCLUDED.images)`,
+               images = COALESCE(artworks.images, EXCLUDED.images),
+               culture = COALESCE(artworks.culture, EXCLUDED.culture),
+               country = COALESCE(artworks.country, EXCLUDED.country),
+               catalogue_id = COALESCE(artworks.catalogue_id, EXCLUDED.catalogue_id),
+               theme = COALESCE(artworks.theme, EXCLUDED.theme),
+               symbolism = COALESCE(artworks.symbolism, EXCLUDED.symbolism),
+               story = COALESCE(artworks.story, EXCLUDED.story)`,
             [
               a.id, a.title, a.artist || '55 smartCREATIVES Studio',
               a.year || 2026, a.medium || 'Fine Art', a.dimensions || 'Custom Size',
@@ -488,18 +632,27 @@ async function seedIfEmpty() {
               JSON.stringify(a.frameOptions || []), a.provenance || '',
               a.curatorialStatement || '', a.description || '', a.shippingDetails || '',
               JSON.stringify(a.faq || []), JSON.stringify(a.images || [a.image]),
-              Boolean(a.featured), a.image, a.highResZoom || a.image
+              Boolean(a.featured), a.image, a.highResZoom || a.image,
+              a.culture || 'East African Heritage', a.country || 'Rwanda', a.catalogueId || null,
+              a.theme || 'Heritage & Earth', a.symbolism || '', a.story || '',
+              a.sortOrder || 0, a.isPublished !== false
             ]
           );
         } else {
           await execute(
-            `INSERT INTO artworks (id, title, artist, year, medium, dimensions, price, status, framing, frame_options, provenance, curatorial_statement, description, shipping_details, faq_info, images, featured, image, high_res_zoom)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `INSERT INTO artworks (id, title, artist, year, medium, dimensions, price, status, framing, frame_options, provenance, curatorial_statement, description, shipping_details, faq_info, images, featured, image, high_res_zoom, culture, country, catalogue_id, theme, symbolism, story, sort_order, is_published)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
              ON DUPLICATE KEY UPDATE 
                description = COALESCE(description, VALUES(description)),
                shipping_details = COALESCE(shipping_details, VALUES(shipping_details)),
                faq_info = COALESCE(faq_info, VALUES(faq_info)),
-               images = COALESCE(images, VALUES(images))`,
+               images = COALESCE(images, VALUES(images)),
+               culture = COALESCE(culture, VALUES(culture)),
+               country = COALESCE(country, VALUES(country)),
+               catalogue_id = COALESCE(catalogue_id, VALUES(catalogue_id)),
+               theme = COALESCE(theme, VALUES(theme)),
+               symbolism = COALESCE(symbolism, VALUES(symbolism)),
+               story = COALESCE(story, VALUES(story))`,
             [
               a.id, a.title, a.artist || '55 smartCREATIVES Studio',
               a.year || 2026, a.medium || 'Fine Art', a.dimensions || 'Custom Size',
@@ -507,7 +660,10 @@ async function seedIfEmpty() {
               JSON.stringify(a.frameOptions || []), a.provenance || '',
               a.curatorialStatement || '', a.description || '', a.shippingDetails || '',
               JSON.stringify(a.faq || []), JSON.stringify(a.images || [a.image]),
-              a.featured ? 1 : 0, a.image, a.highResZoom || a.image
+              a.featured ? 1 : 0, a.image, a.highResZoom || a.image,
+              a.culture || 'East African Heritage', a.country || 'Rwanda', a.catalogueId || null,
+              a.theme || 'Heritage & Earth', a.symbolism || '', a.story || '',
+              a.sortOrder || 0, a.isPublished !== false ? 1 : 0
             ]
           );
         }
@@ -597,6 +753,68 @@ async function seedIfEmpty() {
       }
       console.log(`✓ Seeded ${reviews.length} reviews into database`);
     }
+
+    // 6. Seed Artists
+    const { rows: artistCountRows } = await execute('SELECT COUNT(*) as count FROM artists');
+    const artistCount = parseInt(artistCountRows[0].count, 10);
+    if (artistCount === 0 && fs.existsSync(path.join(dataDir, 'artists.json'))) {
+      const artists = JSON.parse(fs.readFileSync(path.join(dataDir, 'artists.json'), 'utf-8'));
+      for (const ar of artists) {
+        const conflictClause = isPostgres ? 'ON CONFLICT (id) DO NOTHING' : 'ON DUPLICATE KEY UPDATE name=VALUES(name)';
+        await execute(
+          `INSERT INTO artists (id, name, country, style, statement, bio, meanings, social_links, image, cover_image)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+           ${conflictClause}`,
+          [
+            ar.id, ar.name, ar.country || 'Rwanda', ar.style || 'Fine Art',
+            ar.statement || '', ar.bio || '', ar.meanings || '',
+            JSON.stringify(ar.socialLinks || {}), ar.image || '', ar.coverImage || ''
+          ]
+        );
+      }
+      console.log(`✓ Seeded ${artists.length} artists into database`);
+    }
+
+    // 7. Seed Catalogues
+    const { rows: catCountRows } = await execute('SELECT COUNT(*) as count FROM catalogues');
+    const catCount = parseInt(catCountRows[0].count, 10);
+    if (catCount === 0 && fs.existsSync(path.join(dataDir, 'catalogues.json'))) {
+      const catalogues = JSON.parse(fs.readFileSync(path.join(dataDir, 'catalogues.json'), 'utf-8'));
+      for (const c of catalogues) {
+        const conflictClause = isPostgres ? 'ON CONFLICT (id) DO NOTHING' : 'ON DUPLICATE KEY UPDATE title=VALUES(title)';
+        await execute(
+          `INSERT INTO catalogues (id, title, slug, cover_image, theme, narrative, artwork_ids)
+           VALUES (?, ?, ?, ?, ?, ?, ?)
+           ${conflictClause}`,
+          [
+            c.id, c.title, c.slug || '', c.coverImage,
+            c.theme || '', c.narrative || '', JSON.stringify(c.artworkIds || [])
+          ]
+        );
+      }
+      console.log(`✓ Seeded ${catalogues.length} catalogues into database`);
+    }
+
+    // 8. Seed Comments
+    const { rows: comCountRows } = await execute('SELECT COUNT(*) as count FROM comments');
+    const comCount = parseInt(comCountRows[0].count, 10);
+    if (comCount === 0 && fs.existsSync(path.join(dataDir, 'comments.json'))) {
+      const comments = JSON.parse(fs.readFileSync(path.join(dataDir, 'comments.json'), 'utf-8'));
+      for (const cm of comments) {
+        const conflictClause = isPostgres ? 'ON CONFLICT (id) DO NOTHING' : 'ON DUPLICATE KEY UPDATE interpretation=VALUES(interpretation)';
+        await execute(
+          `INSERT INTO comments (id, artwork_id, author_name, author_email, feeling, interpretation, status, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+           ${conflictClause}`,
+          [
+            cm.id, cm.artworkId, cm.authorName, cm.authorEmail || null,
+            cm.feeling || 'Reflection', cm.interpretation, cm.status || 'published',
+            cm.createdAt ? new Date(cm.createdAt) : new Date()
+          ]
+        );
+      }
+      console.log(`✓ Seeded ${comments.length} visitor comments into database`);
+    }
   } catch (e) {
     console.warn('Notice during database initial seeding:', e.message);
   }
@@ -625,14 +843,76 @@ function mapArtworkRow(r) {
     images: typeof r.images === 'string' ? JSON.parse(r.images) : (r.images || (r.image ? [r.image] : [])),
     featured: Boolean(r.featured),
     image: r.image,
-    highResZoom: r.high_res_zoom || r.image
+    highResZoom: r.high_res_zoom || r.image,
+    culture: r.culture || 'East African Heritage',
+    country: r.country || 'Rwanda',
+    catalogueId: r.catalogue_id || null,
+    theme: r.theme || 'Heritage & Earth',
+    symbolism: r.symbolism || '',
+    story: r.story || '',
+    archivedAt: r.archived_at || null,
+    sortOrder: r.sort_order !== undefined ? r.sort_order : 0,
+    isPublished: r.is_published !== undefined ? Boolean(r.is_published) : true
   };
 }
 
-async function getArtworks() {
+async function getArtworks(options = {}) {
   const p = await getPool();
   if (!p || !isAvailable) return null;
-  const { rows } = await execute('SELECT * FROM artworks ORDER BY created_at DESC');
+
+  let whereClauses = [];
+  let params = [];
+
+  if (!options.includeArchived) {
+    whereClauses.push('(archived_at IS NULL)');
+  }
+  if (options.artist) {
+    whereClauses.push('LOWER(artist) = LOWER(?)');
+    params.push(options.artist);
+  }
+  if (options.culture) {
+    whereClauses.push('LOWER(culture) = LOWER(?)');
+    params.push(options.culture);
+  }
+  if (options.country) {
+    whereClauses.push('LOWER(country) = LOWER(?)');
+    params.push(options.country);
+  }
+  if (options.catalogueId) {
+    whereClauses.push('catalogue_id = ?');
+    params.push(options.catalogueId);
+  }
+  if (options.theme) {
+    whereClauses.push('LOWER(theme) LIKE LOWER(?)');
+    params.push('%' + options.theme + '%');
+  }
+  if (options.medium) {
+    whereClauses.push('LOWER(medium) LIKE LOWER(?)');
+    params.push('%' + options.medium + '%');
+  }
+  if (options.year) {
+    whereClauses.push('year = ?');
+    params.push(parseInt(options.year, 10));
+  }
+  if (options.status && options.status !== 'all') {
+    whereClauses.push('status = ?');
+    params.push(options.status);
+  }
+  if (options.search) {
+    whereClauses.push('(LOWER(title) LIKE LOWER(?) OR LOWER(artist) LIKE LOWER(?) OR LOWER(medium) LIKE LOWER(?) OR LOWER(culture) LIKE LOWER(?))');
+    const s = '%' + options.search + '%';
+    params.push(s, s, s, s);
+  }
+
+  let orderClause = 'ORDER BY featured DESC, created_at DESC';
+  if (options.sort === 'price-asc') orderClause = 'ORDER BY price ASC';
+  else if (options.sort === 'price-desc') orderClause = 'ORDER BY price DESC';
+  else if (options.sort === 'year-desc') orderClause = 'ORDER BY year DESC';
+  else if (options.sort === 'title-asc') orderClause = 'ORDER BY title ASC';
+
+  const whereSql = whereClauses.length > 0 ? ('WHERE ' + whereClauses.join(' AND ')) : '';
+  const sql = `SELECT * FROM artworks ${whereSql} ${orderClause}`;
+  const { rows } = await execute(sql, params);
   return rows.map(mapArtworkRow);
 }
 
@@ -651,17 +931,20 @@ async function createArtwork(artwork) {
     await execute('UPDATE artworks SET featured = FALSE');
   }
   await execute(
-    `INSERT INTO artworks (id, title, artist, year, medium, dimensions, price, status, framing, frame_options, provenance, curatorial_statement, description, shipping_details, faq_info, images, featured, image, high_res_zoom)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO artworks (id, title, artist, year, medium, dimensions, price, status, framing, frame_options, provenance, curatorial_statement, description, shipping_details, faq_info, images, featured, image, high_res_zoom, culture, country, catalogue_id, theme, symbolism, story, sort_order, is_published)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
-      artwork.id, artwork.title, artwork.artist,
-      artwork.year, artwork.medium, artwork.dimensions,
-      artwork.price, artwork.status || 'Available', artwork.framing,
-      JSON.stringify(artwork.frameOptions || []), artwork.provenance,
-      artwork.curatorialStatement, artwork.description || '', artwork.shippingDetails || '',
+      artwork.id, artwork.title, artwork.artist || '55 smartCREATIVES Studio',
+      artwork.year || 2026, artwork.medium || 'Fine Art', artwork.dimensions || 'Curated Scale',
+      artwork.price || 0, artwork.status || 'Available', artwork.framing || 'Included Framing',
+      JSON.stringify(artwork.frameOptions || []), artwork.provenance || '',
+      artwork.curatorialStatement || '', artwork.description || '', artwork.shippingDetails || '',
       JSON.stringify(artwork.faq || []), JSON.stringify(artwork.images || (artwork.image ? [artwork.image] : [])),
       isPostgres ? Boolean(artwork.featured) : (artwork.featured ? 1 : 0),
-      artwork.image, artwork.highResZoom || artwork.image
+      artwork.image, artwork.highResZoom || artwork.image,
+      artwork.culture || 'East African Heritage', artwork.country || 'Rwanda', artwork.catalogueId || null,
+      artwork.theme || 'Heritage & Earth', artwork.symbolism || '', artwork.story || '',
+      artwork.sortOrder || 0, artwork.isPublished !== false
     ]
   );
   return getArtworkById(artwork.id);
@@ -684,7 +967,9 @@ async function updateArtwork(id, updates) {
        title = ?, artist = ?, year = ?, medium = ?, dimensions = ?, price = ?,
        status = ?, framing = ?, frame_options = ?, provenance = ?, curatorial_statement = ?,
        description = ?, shipping_details = ?, faq_info = ?, images = ?,
-       featured = ?, image = ?, high_res_zoom = ?
+       featured = ?, image = ?, high_res_zoom = ?,
+       culture = ?, country = ?, catalogue_id = ?, theme = ?, symbolism = ?, story = ?,
+       sort_order = ?, is_published = ?
      WHERE id = ?`,
     [
       merged.title, merged.artist, merged.year, merged.medium, merged.dimensions,
@@ -692,10 +977,27 @@ async function updateArtwork(id, updates) {
       merged.provenance, merged.curatorialStatement, merged.description || '',
       merged.shippingDetails || '', JSON.stringify(merged.faq || []), JSON.stringify(merged.images || (merged.image ? [merged.image] : [])),
       isPostgres ? Boolean(merged.featured) : (merged.featured ? 1 : 0),
-      merged.image, merged.highResZoom || merged.image, id
+      merged.image, merged.highResZoom || merged.image,
+      merged.culture || 'East African Heritage', merged.country || 'Rwanda', merged.catalogueId || null,
+      merged.theme || 'Heritage & Earth', merged.symbolism || '', merged.story || '',
+      merged.sortOrder || 0, merged.isPublished !== false, id
     ]
   );
   return getArtworkById(id);
+}
+
+async function archiveArtwork(id) {
+  const p = await getPool();
+  if (!p || !isAvailable) return false;
+  const { rowCount } = await execute('UPDATE artworks SET archived_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
+  return rowCount > 0;
+}
+
+async function restoreArtwork(id) {
+  const p = await getPool();
+  if (!p || !isAvailable) return false;
+  const { rowCount } = await execute('UPDATE artworks SET archived_at = NULL WHERE id = ?', [id]);
+  return rowCount > 0;
 }
 
 async function deleteArtwork(id) {
@@ -1108,6 +1410,257 @@ async function deleteReview(id) {
   return rowCount > 0;
 }
 
+// --- ARTISTS REPOSITORY ---
+
+function mapArtistRow(r) {
+  if (!r) return null;
+  return {
+    id: r.id,
+    name: r.name,
+    country: r.country || 'Rwanda',
+    style: r.style || 'Fine Art',
+    statement: r.statement || '',
+    bio: r.bio || '',
+    meanings: r.meanings || '',
+    socialLinks: typeof r.social_links === 'string' ? JSON.parse(r.social_links) : (r.social_links || {}),
+    image: r.image || '',
+    coverImage: r.cover_image || r.image || '',
+    archivedAt: r.archived_at || null,
+    createdAt: r.created_at ? new Date(r.created_at).toISOString() : new Date().toISOString()
+  };
+}
+
+async function getArtists(options = {}) {
+  const p = await getPool();
+  if (!p || !isAvailable) return null;
+  const sql = options.includeArchived
+    ? 'SELECT * FROM artists ORDER BY created_at ASC'
+    : 'SELECT * FROM artists WHERE archived_at IS NULL ORDER BY created_at ASC';
+  const { rows } = await execute(sql);
+  return rows.map(mapArtistRow);
+}
+
+async function getArtistById(id) {
+  const p = await getPool();
+  if (!p || !isAvailable) return null;
+  const { rows } = await execute('SELECT * FROM artists WHERE id = ?', [id]);
+  if (rows.length === 0) return null;
+  return mapArtistRow(rows[0]);
+}
+
+async function createArtist(artist) {
+  const p = await getPool();
+  if (!p || !isAvailable) return null;
+  await execute(
+    `INSERT INTO artists (id, name, country, style, statement, bio, meanings, social_links, image, cover_image)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      artist.id, artist.name, artist.country || 'Rwanda', artist.style || 'Fine Art',
+      artist.statement || '', artist.bio || '', artist.meanings || '',
+      JSON.stringify(artist.socialLinks || {}), artist.image || '', artist.coverImage || ''
+    ]
+  );
+  return getArtistById(artist.id);
+}
+
+async function updateArtist(id, updates) {
+  const p = await getPool();
+  if (!p || !isAvailable) return null;
+  const existing = await getArtistById(id);
+  if (!existing) return null;
+  const m = { ...existing, ...updates };
+  await execute(
+    `UPDATE artists SET 
+       name = ?, country = ?, style = ?, statement = ?, bio = ?, meanings = ?,
+       social_links = ?, image = ?, cover_image = ?
+     WHERE id = ?`,
+    [
+      m.name, m.country, m.style, m.statement, m.bio, m.meanings,
+      JSON.stringify(m.socialLinks || {}), m.image, m.coverImage, id
+    ]
+  );
+  return getArtistById(id);
+}
+
+async function archiveArtist(id) {
+  const p = await getPool();
+  if (!p || !isAvailable) return false;
+  const { rowCount } = await execute('UPDATE artists SET archived_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
+  return rowCount > 0;
+}
+
+async function restoreArtist(id) {
+  const p = await getPool();
+  if (!p || !isAvailable) return false;
+  const { rowCount } = await execute('UPDATE artists SET archived_at = NULL WHERE id = ?', [id]);
+  return rowCount > 0;
+}
+
+async function deleteArtist(id) {
+  const p = await getPool();
+  if (!p || !isAvailable) return false;
+  const { rowCount } = await execute('DELETE FROM artists WHERE id = ?', [id]);
+  return rowCount > 0;
+}
+
+// --- CATALOGUES REPOSITORY ---
+
+function mapCatalogueRow(r) {
+  if (!r) return null;
+  return {
+    id: r.id,
+    title: r.title,
+    slug: r.slug || '',
+    coverImage: r.cover_image,
+    theme: r.theme || '',
+    narrative: r.narrative || '',
+    artworkIds: typeof r.artwork_ids === 'string' ? JSON.parse(r.artwork_ids) : (r.artwork_ids || []),
+    archivedAt: r.archived_at || null,
+    createdAt: r.created_at ? new Date(r.created_at).toISOString() : new Date().toISOString()
+  };
+}
+
+async function getCatalogues(options = {}) {
+  const p = await getPool();
+  if (!p || !isAvailable) return null;
+  const sql = options.includeArchived
+    ? 'SELECT * FROM catalogues ORDER BY created_at ASC'
+    : 'SELECT * FROM catalogues WHERE archived_at IS NULL ORDER BY created_at ASC';
+  const { rows } = await execute(sql);
+  return rows.map(mapCatalogueRow);
+}
+
+async function getCatalogueById(id) {
+  const p = await getPool();
+  if (!p || !isAvailable) return null;
+  const { rows } = await execute('SELECT * FROM catalogues WHERE id = ?', [id]);
+  if (rows.length === 0) return null;
+  return mapCatalogueRow(rows[0]);
+}
+
+async function createCatalogue(cat) {
+  const p = await getPool();
+  if (!p || !isAvailable) return null;
+  await execute(
+    `INSERT INTO catalogues (id, title, slug, cover_image, theme, narrative, artwork_ids)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [
+      cat.id, cat.title, cat.slug || '', cat.coverImage,
+      cat.theme || '', cat.narrative || '', JSON.stringify(cat.artworkIds || [])
+    ]
+  );
+  return getCatalogueById(cat.id);
+}
+
+async function updateCatalogue(id, updates) {
+  const p = await getPool();
+  if (!p || !isAvailable) return null;
+  const existing = await getCatalogueById(id);
+  if (!existing) return null;
+  const m = { ...existing, ...updates };
+  await execute(
+    `UPDATE catalogues SET 
+       title = ?, slug = ?, cover_image = ?, theme = ?, narrative = ?, artwork_ids = ?
+     WHERE id = ?`,
+    [
+      m.title, m.slug, m.coverImage, m.theme, m.narrative,
+      JSON.stringify(m.artworkIds || []), id
+    ]
+  );
+  return getCatalogueById(id);
+}
+
+async function archiveCatalogue(id) {
+  const p = await getPool();
+  if (!p || !isAvailable) return false;
+  const { rowCount } = await execute('UPDATE catalogues SET archived_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
+  return rowCount > 0;
+}
+
+async function restoreCatalogue(id) {
+  const p = await getPool();
+  if (!p || !isAvailable) return false;
+  const { rowCount } = await execute('UPDATE catalogues SET archived_at = NULL WHERE id = ?', [id]);
+  return rowCount > 0;
+}
+
+async function deleteCatalogue(id) {
+  const p = await getPool();
+  if (!p || !isAvailable) return false;
+  const { rowCount } = await execute('DELETE FROM catalogues WHERE id = ?', [id]);
+  return rowCount > 0;
+}
+
+// --- VISITOR INTERPRETATIONS & COMMENTS REPOSITORY ---
+
+function mapCommentRow(r) {
+  if (!r) return null;
+  return {
+    id: r.id,
+    artworkId: r.artwork_id,
+    authorName: r.author_name,
+    authorEmail: r.author_email || null,
+    feeling: r.feeling || 'Reflection',
+    interpretation: r.interpretation,
+    status: r.status || 'published',
+    archivedAt: r.archived_at || null,
+    createdAt: r.created_at ? new Date(r.created_at).toISOString() : new Date().toISOString()
+  };
+}
+
+async function getArtworkComments(artworkId, options = {}) {
+  const p = await getPool();
+  if (!p || !isAvailable) return null;
+  let sql = 'SELECT * FROM comments WHERE artwork_id = ?';
+  let params = [artworkId];
+  if (!options.includeArchived) {
+    sql += " AND archived_at IS NULL AND status = 'published'";
+  }
+  sql += ' ORDER BY created_at DESC';
+  const { rows } = await execute(sql, params);
+  return rows.map(mapCommentRow);
+}
+
+async function getAllComments(options = {}) {
+  const p = await getPool();
+  if (!p || !isAvailable) return null;
+  const sql = options.includeArchived
+    ? 'SELECT * FROM comments ORDER BY created_at DESC'
+    : "SELECT * FROM comments WHERE archived_at IS NULL ORDER BY created_at DESC";
+  const { rows } = await execute(sql);
+  return rows.map(mapCommentRow);
+}
+
+async function createArtworkComment(c) {
+  const p = await getPool();
+  if (!p || !isAvailable) return null;
+  await execute(
+    `INSERT INTO comments (id, artwork_id, author_name, author_email, feeling, interpretation, status, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      c.id, c.artworkId, c.authorName, c.authorEmail || null,
+      c.feeling || 'Reflection', c.interpretation, c.status || 'published',
+      c.createdAt ? new Date(c.createdAt) : new Date()
+    ]
+  );
+  const { rows } = await execute('SELECT * FROM comments WHERE id = ?', [c.id]);
+  return rows.length > 0 ? mapCommentRow(rows[0]) : null;
+}
+
+async function updateCommentStatus(id, status) {
+  const p = await getPool();
+  if (!p || !isAvailable) return false;
+  const { rowCount } = await execute('UPDATE comments SET status = ? WHERE id = ?', [status, id]);
+  return rowCount > 0;
+}
+
+async function deleteComment(id) {
+  const p = await getPool();
+  if (!p || !isAvailable) return false;
+  const { rowCount } = await execute('DELETE FROM comments WHERE id = ?', [id]);
+  return rowCount > 0;
+}
+
 module.exports = {
   initDatabase,
   getPool,
@@ -1120,6 +1673,8 @@ module.exports = {
   getArtworkById,
   createArtwork,
   updateArtwork,
+  archiveArtwork,
+  restoreArtwork,
   deleteArtwork,
   getInquiries,
   getInquiryById,
@@ -1141,5 +1696,24 @@ module.exports = {
   getAllReviews,
   createReview,
   updateReviewStatus,
-  deleteReview
+  deleteReview,
+  getArtists,
+  getArtistById,
+  createArtist,
+  updateArtist,
+  archiveArtist,
+  restoreArtist,
+  deleteArtist,
+  getCatalogues,
+  getCatalogueById,
+  createCatalogue,
+  updateCatalogue,
+  archiveCatalogue,
+  restoreCatalogue,
+  deleteCatalogue,
+  getArtworkComments,
+  getAllComments,
+  createArtworkComment,
+  updateCommentStatus,
+  deleteComment
 };

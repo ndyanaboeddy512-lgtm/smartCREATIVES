@@ -30,15 +30,25 @@
       </a>
 
       <nav class="nav-desktop">
-        <a href="index.html#collection" class="nav-link">Spotlight</a>
-        <a href="index.html#philosophy" class="nav-link">Philosophy</a>
-        <a href="index.html#catalog" class="nav-link active">Archive</a>
+        <a href="index.html" class="nav-link">Codex Entry</a>
+        <a href="gallery.html" class="nav-link">All Artworks</a>
+        <a href="catalogues.html" class="nav-link">Story Collections</a>
+        <a href="artist.html" class="nav-link">Artist Studios</a>
         <a href="index.html#reviews" class="nav-link">Accolades</a>
-        <a href="index.html#salon" class="nav-link">Atelier</a>
-        <a href="auth.html" class="nav-link">Patron Portal</a>
+        <a href="auth.html" class="nav-link">Patron Sanctuary</a>
       </nav>
 
       <div class="header-tools">
+        <!-- Ambient Sound Toggle -->
+        <button id="ambientSoundToggle" class="ambient-sound-btn" aria-label="Toggle Archive Ambience" title="Toggle Ancient Ambient Soundscape (Muted by default)">
+          <span class="sound-bars">
+            <span class="sound-bar"></span>
+            <span class="sound-bar"></span>
+            <span class="sound-bar"></span>
+          </span>
+          <span id="ambientSoundText">Archive Sound</span>
+        </button>
+
         <div class="currency-selector" title="Select Display Currency">
           <button class="currency-btn active" data-curr="USD">USD</button>
           <button class="currency-btn" data-curr="RWF">RWF</button>
@@ -69,12 +79,12 @@
       <button class="mobile-nav-close" id="mobileNavClose" aria-label="Close Navigation">&times;</button>
     </div>
     <nav class="mobile-nav-links">
-      <a href="index.html#collection" class="mobile-nav-link">Spotlight</a>
-      <a href="index.html#philosophy" class="mobile-nav-link">Philosophy</a>
-      <a href="index.html#catalog" class="mobile-nav-link">Monographic Archive</a>
-      <a href="index.html#reviews" class="mobile-nav-link">Collector Reviews</a>
-      <a href="index.html#salon" class="mobile-nav-link">Atelier Booking</a>
-      <a href="auth.html" class="mobile-nav-link">Patron Portal</a>
+      <a href="index.html" class="mobile-nav-link">Codex Entry</a>
+      <a href="gallery.html" class="mobile-nav-link">All Artworks</a>
+      <a href="catalogues.html" class="mobile-nav-link">Story Collections</a>
+      <a href="artist.html" class="mobile-nav-link">Artist Studios</a>
+      <a href="index.html#reviews" class="mobile-nav-link">Collector Accolades</a>
+      <a href="auth.html" class="mobile-nav-link">Patron Sanctuary</a>
       <a href="auth.html#wishlist" class="mobile-nav-link">Saved Masterworks</a>
     </nav>
     <div class="mobile-nav-footer">
@@ -168,6 +178,13 @@
           </div>
           <h1 class="detail-title" id="detailTitle">Piece Title</h1>
 
+          <!-- Ancient Monographic Badges -->
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem;">
+            <span id="detailCultureBadge" class="manuscript-stamp" style="font-size: 0.7rem; padding: 2px 8px;">Tradition</span>
+            <span id="detailCountryBadge" class="manuscript-stamp" style="font-size: 0.7rem; padding: 2px 8px; border-color: var(--accent-gold); color: var(--accent-gold);">Origin</span>
+            <a id="detailCatalogueBadge" href="catalogues.html" class="manuscript-stamp" style="font-size: 0.7rem; padding: 2px 8px; border-color: var(--pigment-patina); color: var(--pigment-patina); text-decoration: none;">Collection Monograph</a>
+          </div>
+
           <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
             <span id="detailStatusBadge" class="status-badge available">Available</span>
             <span style="font-size: 0.8rem; color: var(--text-muted); font-style: italic;">Original 1-of-1 Artwork</span>
@@ -216,8 +233,12 @@
               <span class="spec-value" id="detailDimensions">180 × 140 cm</span>
             </div>
             <div class="spec-item">
-              <span class="spec-label">Authenticity</span>
-              <span class="spec-value" style="color: var(--accent-gold);">100% Original & Signed</span>
+              <span class="spec-label">Tradition & Origin</span>
+              <span class="spec-value" id="detailOriginSpec" style="color: var(--accent-gold);">East African · Rwanda</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-label">Curatorial Theme</span>
+              <span class="spec-value" id="detailThemeSpec">Organic Balance</span>
             </div>
           </div>
 
@@ -231,6 +252,26 @@
               </button>
               <div class="accordion-content" id="detailStatement">
                 Description text...
+              </div>
+            </div>
+
+            <div class="accordion-item open">
+              <button class="accordion-trigger">
+                <span>Sacred Story & Mythos</span>
+                <span>+</span>
+              </button>
+              <div class="accordion-content" id="detailStory" style="font-family: var(--font-editorial); line-height: 1.8; color: #EDE8DF;">
+                Narrative text...
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <button class="accordion-trigger">
+                <span>Esoteric Symbolism & Motifs</span>
+                <span>+</span>
+              </button>
+              <div class="accordion-content" id="detailSymbolism" style="font-family: var(--font-editorial); line-height: 1.8; color: #EDE8DF;">
+                Symbolism text...
               </div>
             </div>
 
@@ -270,6 +311,97 @@
         </div>
 
       </div>
+
+      <!-- Visitor Interpretations & Reflections Section -->
+      <section class="artwork-interpretations-section" style="margin-top: 5rem; padding-top: 4rem; border-top: 1px dashed var(--border-gold-subtle);">
+        <div style="max-width: 860px; margin: 0 auto;">
+          
+          <div style="text-align: center; margin-bottom: 3rem;">
+            <span class="manuscript-stamp" style="font-size: 0.7rem; padding: 3px 12px; margin-bottom: 0.75rem;">VISITOR INSIGHTS · HERMENEUTIC REGISTRY</span>
+            <h2 style="font-family: var(--font-display); font-size: clamp(1.8rem, 3.5vw, 2.5rem); color: var(--text-primary); margin-bottom: 0.75rem;">
+              Sacred Interpretations & Reflections
+            </h2>
+            <p style="color: var(--text-secondary); font-size: 1rem; max-width: 620px; margin: 0 auto; line-height: 1.6; font-family: var(--font-editorial);">
+              What do you see, feel, or believe when contemplating this masterwork? Inscribe your interpretation into the permanent gallery archives.
+            </p>
+          </div>
+
+          <!-- Interpretation Input Box (Aged Parchment Card) -->
+          <div class="deckle-card" style="background: rgba(14, 24, 18, 0.8); border: 1px solid var(--border-gold-subtle); padding: 2.25rem; border-radius: 4px; margin-bottom: 3.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
+              <h3 style="font-family: var(--font-display); font-size: 1.3rem; color: var(--accent-gold);">
+                Inscribe Your Reflection
+              </h3>
+              <span style="font-size: 0.72rem; color: var(--pigment-cinnabar); font-family: var(--font-cursive);">✦ Recorded Instantly in DB</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+              Share your personal interpretation—what emotions, ancestral memories, or meanings surface for you?
+            </p>
+
+            <div id="reflectionAlert" style="display: none; padding: 0.8rem 1.2rem; margin-bottom: 1.5rem; border-radius: 2px; font-size: 0.88rem;"></div>
+
+            <form id="artworkInterpretationForm">
+              <!-- Anti-bot honeypot and time-gate -->
+              <input type="hidden" id="reflectionTs" name="_ts" value="">
+              <div style="display:none !important; position:absolute; left:-9999px;">
+                <input type="text" id="reflectionHp" name="website_hp" tabindex="-1" autocomplete="off">
+              </div>
+
+              <!-- Feeling Pills Selector -->
+              <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 8px;">
+                  What Feeling Does This Awaken?
+                </label>
+                <div class="feeling-pills-selector" id="feelingPillsContainer" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <button type="button" class="feeling-pill active" data-feeling="Awe">✦ Awe</button>
+                  <button type="button" class="feeling-pill" data-feeling="Mystery">𓋹 Mystery</button>
+                  <button type="button" class="feeling-pill" data-feeling="Reverence">⚚ Reverence</button>
+                  <button type="button" class="feeling-pill" data-feeling="Solitude">🍂 Solitude</button>
+                  <button type="button" class="feeling-pill" data-feeling="Transcendence">✧ Transcendence</button>
+                  <button type="button" class="feeling-pill" data-feeling="Kinship">⚭ Kinship</button>
+                </div>
+                <input type="hidden" id="reflectionFeeling" value="Awe">
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="reflectionAuthor">Your Name / Moniker *</label>
+                  <input type="text" id="reflectionAuthor" class="form-control" placeholder="e.g. S. Laurent" required maxlength="60">
+                </div>
+                <div class="form-group">
+                  <label for="reflectionLocation">City or Origin</label>
+                  <input type="text" id="reflectionLocation" class="form-control" placeholder="e.g. Kigali, Rwanda" maxlength="80">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="reflectionText">Your Reflection or Meaning *</label>
+                <textarea id="reflectionText" class="form-control" rows="4" placeholder="Describe what you see in the brushstrokes, the raw wood grain, or the spatial silence. What story unfolds for you?" required minlength="8" maxlength="1200"></textarea>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+                <span style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-cursive);">Preserved immediately in the permanent codex ledger.</span>
+                <button type="submit" class="btn-primary" id="btnSubmitReflection">✦ Record Interpretation</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Live Interpretations Feed -->
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1.5rem;">
+              <h3 style="font-family: var(--font-display); font-size: 1.35rem; color: var(--text-primary);">
+                Visitor Reflections Archive
+              </h3>
+              <span id="reflectionsCountBadge" style="font-size: 0.82rem; color: var(--accent-gold); font-family: var(--font-roman);">0 Inscribed</span>
+            </div>
+
+            <div id="reflectionsFeed" style="display: flex; flex-direction: column; gap: 1.25rem;">
+              <!-- Dynamically populated from /api/comments -->
+            </div>
+          </div>
+
+        </div>
+      </section>
 
     </div>
   </main>
@@ -544,6 +676,32 @@
       document.getElementById('detailProvenance').textContent = currentArtwork.provenance;
       document.getElementById('detailFramingIncluded').textContent = currentArtwork.framing || 'Museum Framing Included';
 
+      // Culture, Country & Collection Monograph
+      const cultureBadge = document.getElementById('detailCultureBadge');
+      if (cultureBadge) cultureBadge.textContent = currentArtwork.culture || 'Fine Art';
+      const countryBadge = document.getElementById('detailCountryBadge');
+      if (countryBadge) countryBadge.textContent = currentArtwork.country || 'International';
+      const catalogueBadge = document.getElementById('detailCatalogueBadge');
+      if (catalogueBadge) {
+        if (currentArtwork.catalogueId) {
+          catalogueBadge.href = `catalogues.html?id=${encodeURIComponent(currentArtwork.catalogueId)}`;
+          catalogueBadge.textContent = 'Part of Monographic Series ↗';
+          catalogueBadge.style.display = 'inline-block';
+        } else {
+          catalogueBadge.style.display = 'none';
+        }
+      }
+      const originSpec = document.getElementById('detailOriginSpec');
+      if (originSpec) originSpec.textContent = `${currentArtwork.culture || 'Fine Art'}${currentArtwork.country ? ' · ' + currentArtwork.country : ''}`;
+      const themeSpec = document.getElementById('detailThemeSpec');
+      if (themeSpec) themeSpec.textContent = currentArtwork.theme || 'Organic Heritage';
+
+      // Sacred Story & Symbolism
+      const storyEl = document.getElementById('detailStory');
+      if (storyEl) storyEl.textContent = currentArtwork.story || currentArtwork.curatorialStatement || 'Narrative inscribed in permanent gallery accession archives.';
+      const symbolismEl = document.getElementById('detailSymbolism');
+      if (symbolismEl) symbolismEl.textContent = currentArtwork.symbolism || 'Geometric balance, ancient earth pigments, and natural equilibrium.';
+
       // Price & Status
       renderPrice();
       const statusBadge = document.getElementById('detailStatusBadge');
@@ -577,9 +735,162 @@
         updateWishlistButton(favBtn);
       };
 
+      // Set timestamp for anti-bot
+      const refTs = document.getElementById('reflectionTs');
+      if (refTs) refTs.value = Date.now();
+
+      // Load Visitor Reflections
+      loadArtworkInterpretations(currentArtwork.id);
+
       // Initialize Optical Loupe
       initOpticalLoupe();
     }
+
+    // Visitor Reflections System
+    let currentArtworkReflections = [];
+
+    async function loadArtworkInterpretations(artworkId) {
+      const feed = document.getElementById('reflectionsFeed');
+      const badge = document.getElementById('reflectionsCountBadge');
+      if (!feed) return;
+
+      feed.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; font-style: italic;">Accessing archival reflections...</div>';
+
+      try {
+        currentArtworkReflections = await EddyStore.fetchComments(artworkId);
+      } catch (e) {
+        console.warn('Could not load comments from server', e);
+      }
+
+      renderReflectionsList(currentArtworkReflections);
+    }
+
+    function renderReflectionsList(list) {
+      const feed = document.getElementById('reflectionsFeed');
+      const badge = document.getElementById('reflectionsCountBadge');
+      if (!feed) return;
+
+      if (!list || list.length === 0) {
+        feed.innerHTML = `
+          <div style="padding: 2rem; text-align: center; background: rgba(14,24,18,0.4); border: 1px dashed rgba(197,160,89,0.2); border-radius: 4px;">
+            <p style="font-family: var(--font-cursive); font-size: 1.1rem; color: var(--accent-gold); margin-bottom: 0.5rem;">No interpretations recorded yet for this piece.</p>
+            <p style="font-size: 0.82rem; color: var(--text-muted);">Be the first patron to inscribe what you see, feel, or believe.</p>
+          </div>
+        `;
+        if (badge) badge.textContent = '0 Inscribed';
+        return;
+      }
+
+      if (badge) badge.textContent = `${list.length} Inscribed`;
+
+      feed.innerHTML = list.map(ref => {
+        const dateStr = ref.created_at || ref.createdAt || new Date().toISOString();
+        const formattedDate = new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        const feeling = ref.feeling || 'Reflection';
+        const locationText = ref.location ? ` · ${sanitizeHTML(ref.location)}` : '';
+
+        return `
+          <div class="reflection-card">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+              <div>
+                <strong style="color: var(--text-primary); font-size: 0.95rem; font-family: var(--font-roman);">${sanitizeHTML(ref.author_name || ref.author || 'Anonymous Patron')}</strong>
+                <span style="font-size: 0.78rem; color: var(--text-muted);">${locationText}</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="manuscript-stamp" style="font-size: 0.65rem; padding: 1px 7px;">${sanitizeHTML(feeling)}</span>
+                <span style="font-size: 0.72rem; color: var(--text-muted);">${formattedDate}</span>
+              </div>
+            </div>
+            <p style="font-family: var(--font-editorial); font-size: 0.98rem; line-height: 1.7; color: #EDE8DF; margin: 0;">
+              ${sanitizeHTML(ref.comment_text || ref.content || '')}
+            </p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Wire feeling pill selection
+    document.addEventListener('click', (e) => {
+      const pill = e.target.closest('.feeling-pill');
+      if (!pill) return;
+      document.querySelectorAll('.feeling-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      const feelingInput = document.getElementById('reflectionFeeling');
+      if (feelingInput) feelingInput.value = pill.dataset.feeling || 'Awe';
+    });
+
+    // Form submission
+    document.addEventListener('DOMContentLoaded', () => {
+      const reflectionForm = document.getElementById('artworkInterpretationForm');
+      if (reflectionForm) {
+        reflectionForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+
+          const alertBox = document.getElementById('reflectionAlert');
+          const submitBtn = document.getElementById('btnSubmitReflection');
+          const author = document.getElementById('reflectionAuthor').value.trim();
+          const location = document.getElementById('reflectionLocation').value.trim();
+          const text = document.getElementById('reflectionText').value.trim();
+          const feeling = document.getElementById('reflectionFeeling').value;
+          const hp = document.getElementById('reflectionHp').value;
+          const ts = document.getElementById('reflectionTs').value;
+
+          if (!author || !text) {
+            alertBox.style.display = 'block';
+            alertBox.style.background = 'rgba(220,53,69,0.15)';
+            alertBox.style.color = '#ff6b6b';
+            alertBox.style.border = '1px solid #dc3545';
+            alertBox.textContent = 'Please provide both your name and reflection.';
+            return;
+          }
+
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Inscribing...';
+
+          try {
+            const newComment = await EddyStore.addComment({
+              artwork_id: currentArtwork ? currentArtwork.id : 'art-01',
+              author_name: author,
+              author_location: location,
+              feeling: feeling,
+              comment_text: text,
+              website_hp: hp,
+              _ts: ts
+            });
+
+            // Optimistic / Real-time prepend into feed
+            currentArtworkReflections.unshift(newComment);
+            renderReflectionsList(currentArtworkReflections);
+
+            // Show ancient confirmation seal
+            alertBox.style.display = 'block';
+            alertBox.style.background = 'rgba(197, 160, 89, 0.15)';
+            alertBox.style.color = 'var(--accent-gold)';
+            alertBox.style.border = '1px solid var(--accent-gold)';
+            alertBox.innerHTML = '✦ <strong>Interpretation Inscribed:</strong> Your reflection is permanently saved in the gallery registry and visible immediately.';
+
+            reflectionForm.reset();
+            // Restore timestamp and feeling
+            const refTs = document.getElementById('reflectionTs');
+            if (refTs) refTs.value = Date.now();
+            document.querySelectorAll('.feeling-pill').forEach((p, idx) => {
+              p.classList.toggle('active', idx === 0);
+            });
+            document.getElementById('reflectionFeeling').value = 'Awe';
+
+          } catch (err) {
+            alertBox.style.display = 'block';
+            alertBox.style.background = 'rgba(220,53,69,0.15)';
+            alertBox.style.color = '#ff6b6b';
+            alertBox.style.border = '1px solid #dc3545';
+            alertBox.textContent = err.message || 'Failed to record reflection. Please try again.';
+          } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '✦ Record Interpretation';
+          }
+        });
+      }
+    });
 
     function renderPrice() {
       if (currentArtwork) {

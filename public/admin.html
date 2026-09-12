@@ -150,8 +150,17 @@
           <button class="admin-tab-btn" id="tabReviewsBtn" onclick="AdminApp.switchTab('reviews')">
             ⭐ Visitor Reviews (<span id="tabReviewsPendingCount">0</span>)
           </button>
+          <button class="admin-tab-btn" id="tabCommentsBtn" onclick="AdminApp.switchTab('comments')">
+            ✦ Visitor Reflections (<span id="tabCommentsCount">0</span>)
+          </button>
           <button class="admin-tab-btn" id="tabInventoryBtn" onclick="AdminApp.switchTab('inventory')">
             🎨 Artworks & Inventory
+          </button>
+          <button class="admin-tab-btn" id="tabCataloguesBtn" onclick="AdminApp.switchTab('catalogues')">
+            📚 Story Collections
+          </button>
+          <button class="admin-tab-btn" id="tabArtistsBtn" onclick="AdminApp.switchTab('artists')">
+            🧑‍🎨 Artist Studios
           </button>
           <button class="admin-tab-btn" id="tabSecurityBtn" onclick="AdminApp.switchTab('security')">
             🔑 Change Password & Settings
@@ -327,6 +336,112 @@
           </div>
         </div>
 
+        <!-- VIEW: Visitor Interpretations & Reflections -->
+        <div id="viewCommentsSection" class="admin-panel-card" style="display: none;">
+          <div class="admin-panel-header" style="flex-wrap: wrap; gap: 1rem; align-items: flex-start;">
+            <div>
+              <h3>Visitor Interpretations & Reflections</h3>
+              <p style="color: var(--text-inverse-muted); font-size: 0.85rem;">
+                Patron impressions, emotional responses, and meanings submitted on artwork dossiers. Stored permanently in the database.
+              </p>
+            </div>
+            <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+              <input type="text" id="commentsSearch" class="form-control" style="width: 200px; padding: 6px 12px; font-size: 0.82rem; background: #121211; color: #fff; border-color: var(--border-dark);" placeholder="Search author, reflection...">
+              <button class="btn-secondary" style="color: #fff; border-color: var(--border-dark); font-size: 0.78rem; padding: 7px 14px; display: inline-flex; align-items: center; gap: 6px;" onclick="AdminApp.fetchComments(); AdminApp.showToast('Reflections refreshed');">
+                ↻ Refresh
+              </button>
+            </div>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Artwork</th>
+                  <th>Author / Location</th>
+                  <th>Feeling Evoked</th>
+                  <th>Interpretation / Reflection</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="commentsTableBody">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- VIEW: Story Collections Monographs -->
+        <div id="viewCataloguesSection" class="admin-panel-card" style="display: none;">
+          <div class="admin-panel-header" style="flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <h3>Story Collections & Monographs</h3>
+              <p style="color: var(--text-inverse-muted); font-size: 0.85rem;">
+                Civilizational and thematic collections connecting artworks into cohesive curatorial movements.
+              </p>
+            </div>
+            <div>
+              <a href="catalogues.html" target="_blank" class="btn-secondary" style="color: var(--accent-gold); border-color: var(--border-gold); font-size: 0.78rem; padding: 6px 14px;">
+                View Public Monographic Series ↗
+              </a>
+            </div>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Cover</th>
+                  <th>ID / Code</th>
+                  <th>Title</th>
+                  <th>Tradition</th>
+                  <th>Narrative Thesis</th>
+                  <th>Registered Pieces</th>
+                </tr>
+              </thead>
+              <tbody id="cataloguesTableBody">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- VIEW: Master Artists & Atelier Studios -->
+        <div id="viewArtistsSection" class="admin-panel-card" style="display: none;">
+          <div class="admin-panel-header" style="flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <h3>Resident Atelier Artists</h3>
+              <p style="color: var(--text-inverse-muted); font-size: 0.85rem;">
+                Master artists and sculptors contributing to the 55 smartCREATIVES archive.
+              </p>
+            </div>
+            <div>
+              <a href="artist.html" target="_blank" class="btn-secondary" style="color: var(--accent-gold); border-color: var(--border-gold); font-size: 0.78rem; padding: 6px 14px;">
+                View Atelier Guild ↗
+              </a>
+            </div>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Portrait</th>
+                  <th>Artist Name</th>
+                  <th>Discipline</th>
+                  <th>Origin / Atelier</th>
+                  <th>Manifesto Statement</th>
+                  <th>Works in Collection</th>
+                </tr>
+              </thead>
+              <tbody id="artistsTableBody">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- VIEW 3: Admin Profile & Security Settings -->
         <div id="viewSecuritySection" class="admin-panel-card" style="display: none; padding: 2.5rem; max-width: 650px; margin: 0 auto 3rem;">
           <div style="margin-bottom: 2rem;">
@@ -453,6 +568,33 @@
             </div>
           </div>
 
+          <div class="form-row">
+            <div class="form-group">
+              <label style="color: #ccc;">Culture & Civilizational Tradition</label>
+              <input type="text" id="artworkCulture" class="form-control" style="background: #121211; color: #fff; border-color: var(--border-dark);" placeholder="e.g. East African, Anglo-Celtic, Greco-Roman">
+            </div>
+            <div class="form-group">
+              <label style="color: #ccc;">Country of Origin</label>
+              <input type="text" id="artworkCountry" class="form-control" style="background: #121211; color: #fff; border-color: var(--border-dark);" placeholder="e.g. Rwanda, United Kingdom, Italy">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label style="color: #ccc;">Story Collection Monograph</label>
+              <select id="artworkCatalogueId" class="form-control" style="background: #121211; color: #fff; border-color: var(--border-dark);">
+                <option value="">— Standalone Work (No Collection) —</option>
+                <option value="cat-01">Roots of the Great Rift (cat-01)</option>
+                <option value="cat-02">Fragments of Antiquity (cat-02)</option>
+                <option value="cat-03">Silence & Void (cat-03)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label style="color: #ccc;">Curatorial Theme</label>
+              <input type="text" id="artworkTheme" class="form-control" style="background: #121211; color: #fff; border-color: var(--border-dark);" placeholder="e.g. Balance & Organic Heritage">
+            </div>
+          </div>
+
           <div class="form-group">
             <label style="color: #ccc;">Available Frame Options (Comma Separated)</label>
             <input type="text" id="artworkFrameOptions" class="form-control" style="background: #121211; color: #fff; border-color: var(--border-dark);" placeholder="Floating Black Oak, Brushed Gold Brass, Natural Maple, Unframed">
@@ -541,6 +683,16 @@
           <div class="form-group">
             <label style="color: #ccc;">Artwork Description</label>
             <textarea id="artworkStatement" class="form-control" style="background: #121211; color: #fff; border-color: var(--border-dark);" placeholder="Description of the artwork, materials, colors, and textures."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label style="color: #ccc;">Sacred Narrative & Codex Story</label>
+            <textarea id="artworkStory" class="form-control" style="background: #121211; color: #fff; border-color: var(--border-dark);" placeholder="The ancient mythos, story, or meditation behind this artwork."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label style="color: #ccc;">Esoteric Symbolism & Motifs</label>
+            <textarea id="artworkSymbolism" class="form-control" style="background: #121211; color: #fff; border-color: var(--border-dark);" placeholder="Symbolism of materials, gestures, geometry, and pigments."></textarea>
           </div>
 
           <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; background: #121211; padding: 10px 14px; border: 1px solid var(--border-dark); border-radius: 2px;">

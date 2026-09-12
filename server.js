@@ -66,6 +66,9 @@ const INQUIRIES_FILE = path.join(DATA_DIR, 'inquiries.json');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const ADMIN_FILE = path.join(DATA_DIR, 'admin.json');
 const REVIEWS_FILE = path.join(DATA_DIR, 'reviews.json');
+const ARTISTS_FILE = path.join(DATA_DIR, 'artists.json');
+const CATALOGUES_FILE = path.join(DATA_DIR, 'catalogues.json');
+const COMMENTS_FILE = path.join(DATA_DIR, 'comments.json');
 
 // Ensure data directory exists
 if (!fs.existsSync(DATA_DIR)) {
@@ -181,6 +184,27 @@ app.get(['/artwork', '/artwork.html'], (req, res) => {
   res.sendFile(file);
 });
 
+app.get(['/gallery', '/gallery.html'], (req, res) => {
+  const file = fs.existsSync(path.join(__dirname, 'gallery.html'))
+    ? path.join(__dirname, 'gallery.html')
+    : path.join(process.cwd(), 'gallery.html');
+  res.sendFile(file);
+});
+
+app.get(['/catalogues', '/catalogues.html', '/collection', '/collections'], (req, res) => {
+  const file = fs.existsSync(path.join(__dirname, 'catalogues.html'))
+    ? path.join(__dirname, 'catalogues.html')
+    : path.join(process.cwd(), 'catalogues.html');
+  res.sendFile(file);
+});
+
+app.get(['/artist', '/artist.html', '/artists'], (req, res) => {
+  const file = fs.existsSync(path.join(__dirname, 'artist.html'))
+    ? path.join(__dirname, 'artist.html')
+    : path.join(process.cwd(), 'artist.html');
+  res.sendFile(file);
+});
+
 app.get(['/auth', '/auth.html'], (req, res) => {
   const file = fs.existsSync(path.join(__dirname, 'auth.html'))
     ? path.join(__dirname, 'auth.html')
@@ -198,7 +222,7 @@ app.get(['/admin', '/admin.html'], (req, res) => {
 // --- API ROUTES ---
 
 // Middleware: Ensure database connection pool is ready on cold starts
-app.use(['/api', '/artworks', '/inquiries', '/auth', '/upload'], async (req, res, next) => {
+app.use(['/api', '/artworks', '/inquiries', '/auth', '/upload', '/artists', '/catalogues', '/comments'], async (req, res, next) => {
   try {
     await db.getPool();
   } catch (err) {
@@ -238,12 +262,25 @@ app.get(['/api/health', '/health'], async (req, res) => {
 });
 
 
-// GET all artworks (Database is authoritative source of truth)
+// GET all artworks (Database is authoritative source of truth with multi-filter support)
 app.get(['/api/artworks', '/artworks'], async (req, res) => {
   const isProduction = Boolean(process.env.VERCEL || process.env.NODE_ENV === 'production');
+  const options = {
+    includeArchived: req.query.includeArchived === 'true',
+    artist: req.query.artist,
+    culture: req.query.culture,
+    country: req.query.country,
+    catalogueId: req.query.catalogueId || req.query.catalogue || req.query.collection,
+    theme: req.query.theme,
+    medium: req.query.medium,
+    year: req.query.year,
+    search: req.query.search || req.query.q,
+    status: req.query.status,
+    sort: req.query.sort
+  };
 
   try {
-    const artworks = await db.getArtworks();
+    const artworks = await db.getArtworks(options);
     if (Array.isArray(artworks)) return res.json(artworks);
   } catch (err) {
     console.error('Database getArtworks error:', err.message);
@@ -263,7 +300,49 @@ app.get(['/api/artworks', '/artworks'], async (req, res) => {
     });
   }
 
-  const artworks = readJSON(ARTWORKS_FILE);
+  let artworks = readJSON(ARTWORKS_FILE);
+  if (!options.includeArchived) {
+    artworks = artworks.filter(a => !a.archivedAt && !a.archived && !a.isArchived && !a.is_archived);
+  }
+  if (options.artist) {
+    artworks = artworks.filter(a => (a.artist || '').toLowerCase() === options.artist.toLowerCase());
+  }
+  if (options.culture) {
+    artworks = artworks.filter(a => (a.culture || '').toLowerCase() === options.culture.toLowerCase());
+  }
+  if (options.country) {
+    artworks = artworks.filter(a => (a.country || '').toLowerCase() === options.country.toLowerCase());
+  }
+  if (options.catalogueId) {
+    artworks = artworks.filter(a => a.catalogueId === options.catalogueId);
+  }
+  if (options.theme) {
+    artworks = artworks.filter(a => (a.theme || '').toLowerCase().includes(options.theme.toLowerCase()));
+  }
+  if (options.medium) {
+    artworks = artworks.filter(a => (a.medium || '').toLowerCase().includes(options.medium.toLowerCase()));
+  }
+  if (options.year) {
+    artworks = artworks.filter(a => parseInt(a.year, 10) === parseInt(options.year, 10));
+  }
+  if (options.status && options.status !== 'all') {
+    artworks = artworks.filter(a => (a.status || '').toLowerCase() === options.status.toLowerCase());
+  }
+  if (options.search) {
+    const s = options.search.toLowerCase();
+    artworks = artworks.filter(a =>
+      (a.title || '').toLowerCase().includes(s) ||
+      (a.artist || '').toLowerCase().includes(s) ||
+      (a.medium || '').toLowerCase().includes(s) ||
+      (a.culture || '').toLowerCase().includes(s)
+    );
+  }
+
+  if (options.sort === 'price-asc') artworks.sort((a, b) => (a.price || 0) - (b.price || 0));
+  else if (options.sort === 'price-desc') artworks.sort((a, b) => (b.price || 0) - (a.price || 0));
+  else if (options.sort === 'year-desc') artworks.sort((a, b) => (b.year || 0) - (a.year || 0));
+  else if (options.sort === 'title-asc') artworks.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+
   res.json(artworks);
 });
 
@@ -330,6 +409,14 @@ app.post(['/api/artworks', '/artworks'], authenticateAdmin, async (req, res) => 
     frameOptions: req.body.frameOptions || ['Floating Charcoal Oak', 'Brushed Gilded Brass', 'Natural Scandinavian Maple', 'Unframed Gallery Linen'],
     provenance: req.body.provenance || 'Direct studio accession. 1-of-1 original archive.',
     curatorialStatement: req.body.curatorialStatement || 'An original creation exploring balance, light, and materiality.',
+    culture: req.body.culture || 'East African Heritage',
+    country: req.body.country || 'Rwanda',
+    catalogueId: req.body.catalogueId || null,
+    theme: req.body.theme || 'Heritage & Earth',
+    symbolism: req.body.symbolism || '',
+    story: req.body.story || '',
+    sortOrder: parseInt(req.body.sortOrder, 10) || 0,
+    isPublished: req.body.isPublished !== false,
     featured: Boolean(req.body.featured),
     image: imagePath,
     highResZoom: req.body.highResZoom || imagePath
@@ -416,6 +503,42 @@ app.put(['/api/artworks/:id', '/artworks/:id'], authenticateAdmin, async (req, r
   }
 
   res.json(updatedArtwork);
+});
+
+// Soft-Delete / Archive artwork (Admin protected)
+app.post(['/api/artworks/:id/archive', '/artworks/:id/archive'], authenticateAdmin, async (req, res) => {
+  try {
+    await db.archiveArtwork(req.params.id);
+  } catch (err) {
+    console.warn('Notice archiving artwork in db:', err.message);
+  }
+  const artworks = readJSON(ARTWORKS_FILE);
+  const target = artworks.find(a => a.id === req.params.id);
+  if (target) {
+    target.archivedAt = new Date().toISOString();
+    target.isArchived = true;
+    target.is_archived = 1;
+    writeJSON(ARTWORKS_FILE, artworks);
+  }
+  res.json({ success: true, message: `Artwork ${req.params.id} archived successfully`, id: req.params.id });
+});
+
+// Restore archived artwork (Admin protected)
+app.post(['/api/artworks/:id/restore', '/artworks/:id/restore'], authenticateAdmin, async (req, res) => {
+  try {
+    await db.restoreArtwork(req.params.id);
+  } catch (err) {
+    console.warn('Notice restoring artwork in db:', err.message);
+  }
+  const artworks = readJSON(ARTWORKS_FILE);
+  const target = artworks.find(a => a.id === req.params.id);
+  if (target) {
+    target.archivedAt = null;
+    target.isArchived = false;
+    target.is_archived = 0;
+    writeJSON(ARTWORKS_FILE, artworks);
+  }
+  res.json({ success: true, message: `Artwork ${req.params.id} restored successfully`, id: req.params.id });
 });
 
 // DELETE artwork (Admin protected - Permanently deleted from database)
@@ -1373,6 +1496,413 @@ app.delete(['/api/admin/reviews/:id', '/admin/reviews/:id'], authenticateAdmin, 
 
   writeJSON(REVIEWS_FILE, reviews);
   res.json({ success: true, message: `Review ${req.params.id} deleted` });
+});
+
+// --- ARTISTS API ---
+
+// GET all artists
+app.get(['/api/artists', '/artists'], async (req, res) => {
+  const includeArchived = req.query.includeArchived === 'true';
+  if (db.isAvailable) {
+    try {
+      const dbArtists = await db.getArtists({ includeArchived });
+      if (dbArtists) return res.json(dbArtists);
+    } catch (err) {
+      console.warn('Database getArtists notice, falling back:', err.message);
+    }
+  }
+
+  let artists = readJSON(ARTISTS_FILE, []);
+  if (!includeArchived) {
+    artists = artists.filter(a => !a.archivedAt);
+  }
+  res.json(artists);
+});
+
+// GET single artist by ID
+app.get(['/api/artists/:id', '/artists/:id'], async (req, res) => {
+  if (db.isAvailable) {
+    try {
+      const artist = await db.getArtistById(req.params.id);
+      if (artist) return res.json(artist);
+      if (artist === null) return res.status(404).json({ error: 'Artist not found' });
+    } catch (err) {
+      console.warn('Database getArtistById notice:', err.message);
+    }
+  }
+
+  const artists = readJSON(ARTISTS_FILE, []);
+  const found = artists.find(a => a.id === req.params.id);
+  if (!found) return res.status(404).json({ error: 'Artist not found' });
+  res.json(found);
+});
+
+// POST new artist (Admin protected)
+app.post(['/api/artists', '/artists'], authenticateAdmin, async (req, res) => {
+  let imagePath = req.body.image || 'images/art-01.jpg';
+  if (imagePath.startsWith('data:image/')) {
+    imagePath = saveBase64Image(imagePath);
+  }
+
+  const newArtist = {
+    id: req.body.id || 'artist-' + Date.now().toString(36),
+    name: req.body.name || 'Master Artist',
+    country: req.body.country || 'Rwanda',
+    style: req.body.style || 'Contemporary Fine Art',
+    statement: req.body.statement || '',
+    bio: req.body.bio || '',
+    meanings: req.body.meanings || '',
+    socialLinks: req.body.socialLinks || { instagram: '', email: '', studio: '' },
+    image: imagePath,
+    coverImage: req.body.coverImage || imagePath,
+    archivedAt: null,
+    createdAt: new Date().toISOString()
+  };
+
+  let saved = null;
+  if (db.isAvailable) {
+    try { saved = await db.createArtist(newArtist); } catch (e) { console.warn('db.createArtist error:', e.message); }
+  }
+  if (!saved) saved = newArtist;
+
+  const artists = readJSON(ARTISTS_FILE, []);
+  artists.push(saved);
+  writeJSON(ARTISTS_FILE, artists);
+
+  res.status(201).json(saved);
+});
+
+// PUT update artist (Admin protected)
+app.put(['/api/artists/:id', '/artists/:id'], authenticateAdmin, async (req, res) => {
+  let updateData = { ...req.body };
+  if (updateData.image && updateData.image.startsWith('data:image/')) {
+    updateData.image = saveBase64Image(updateData.image);
+  }
+
+  let updated = null;
+  if (db.isAvailable) {
+    try { updated = await db.updateArtist(req.params.id, updateData); } catch (e) { console.warn('db.updateArtist error:', e.message); }
+  }
+
+  const artists = readJSON(ARTISTS_FILE, []);
+  const idx = artists.findIndex(a => a.id === req.params.id);
+  if (idx > -1) {
+    artists[idx] = { ...artists[idx], ...updateData, id: req.params.id };
+    writeJSON(ARTISTS_FILE, artists);
+    if (!updated) updated = artists[idx];
+  }
+
+  if (!updated) return res.status(404).json({ error: 'Artist not found' });
+  res.json(updated);
+});
+
+// Archive artist (Admin protected)
+app.post(['/api/artists/:id/archive', '/artists/:id/archive'], authenticateAdmin, async (req, res) => {
+  if (db.isAvailable) {
+    try { await db.archiveArtist(req.params.id); } catch(e) {}
+  }
+  const artists = readJSON(ARTISTS_FILE, []);
+  const target = artists.find(a => a.id === req.params.id);
+  if (target) {
+    target.archivedAt = new Date().toISOString();
+    writeJSON(ARTISTS_FILE, artists);
+  }
+  res.json({ success: true, message: `Artist ${req.params.id} archived successfully` });
+});
+
+// Restore artist (Admin protected)
+app.post(['/api/artists/:id/restore', '/artists/:id/restore'], authenticateAdmin, async (req, res) => {
+  if (db.isAvailable) {
+    try { await db.restoreArtist(req.params.id); } catch(e) {}
+  }
+  const artists = readJSON(ARTISTS_FILE, []);
+  const target = artists.find(a => a.id === req.params.id);
+  if (target) {
+    target.archivedAt = null;
+    writeJSON(ARTISTS_FILE, artists);
+  }
+  res.json({ success: true, message: `Artist ${req.params.id} restored successfully` });
+});
+
+// DELETE artist (Admin protected)
+app.delete(['/api/artists/:id', '/artists/:id'], authenticateAdmin, async (req, res) => {
+  if (db.isAvailable) {
+    try { await db.deleteArtist(req.params.id); } catch(e) {}
+  }
+  let artists = readJSON(ARTISTS_FILE, []);
+  artists = artists.filter(a => a.id !== req.params.id);
+  writeJSON(ARTISTS_FILE, artists);
+  res.json({ success: true, message: `Artist ${req.params.id} deleted` });
+});
+
+// --- CATALOGUES API ---
+
+// GET all catalogues
+app.get(['/api/catalogues', '/catalogues'], async (req, res) => {
+  const includeArchived = req.query.includeArchived === 'true';
+  if (db.isAvailable) {
+    try {
+      const dbCats = await db.getCatalogues({ includeArchived });
+      if (dbCats) return res.json(dbCats);
+    } catch (err) {
+      console.warn('Database getCatalogues notice, falling back:', err.message);
+    }
+  }
+
+  let catalogues = readJSON(CATALOGUES_FILE, []);
+  if (!includeArchived) {
+    catalogues = catalogues.filter(c => !c.archivedAt);
+  }
+  res.json(catalogues);
+});
+
+// GET single catalogue by ID
+app.get(['/api/catalogues/:id', '/catalogues/:id'], async (req, res) => {
+  if (db.isAvailable) {
+    try {
+      const cat = await db.getCatalogueById(req.params.id);
+      if (cat) return res.json(cat);
+      if (cat === null) return res.status(404).json({ error: 'Catalogue not found' });
+    } catch (err) {
+      console.warn('Database getCatalogueById notice:', err.message);
+    }
+  }
+
+  const catalogues = readJSON(CATALOGUES_FILE, []);
+  const found = catalogues.find(c => c.id === req.params.id || c.slug === req.params.id);
+  if (!found) return res.status(404).json({ error: 'Catalogue not found' });
+  res.json(found);
+});
+
+// POST new catalogue (Admin protected)
+app.post(['/api/catalogues', '/catalogues'], authenticateAdmin, async (req, res) => {
+  let coverImage = req.body.coverImage || 'images/art-01.jpg';
+  if (coverImage.startsWith('data:image/')) {
+    coverImage = saveBase64Image(coverImage);
+  }
+
+  const newCat = {
+    id: req.body.id || 'cat-' + Date.now().toString(36),
+    title: req.body.title || 'Curated Monograph',
+    slug: req.body.slug || (req.body.title ? req.body.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'collection'),
+    coverImage,
+    theme: req.body.theme || 'Shared Heritage & Form',
+    narrative: req.body.narrative || '',
+    artworkIds: Array.isArray(req.body.artworkIds) ? req.body.artworkIds : [],
+    archivedAt: null,
+    createdAt: new Date().toISOString()
+  };
+
+  let saved = null;
+  if (db.isAvailable) {
+    try { saved = await db.createCatalogue(newCat); } catch (e) { console.warn('db.createCatalogue error:', e.message); }
+  }
+  if (!saved) saved = newCat;
+
+  const catalogues = readJSON(CATALOGUES_FILE, []);
+  catalogues.push(saved);
+  writeJSON(CATALOGUES_FILE, catalogues);
+
+  res.status(201).json(saved);
+});
+
+// PUT update catalogue (Admin protected)
+app.put(['/api/catalogues/:id', '/catalogues/:id'], authenticateAdmin, async (req, res) => {
+  let updateData = { ...req.body };
+  if (updateData.coverImage && updateData.coverImage.startsWith('data:image/')) {
+    updateData.coverImage = saveBase64Image(updateData.coverImage);
+  }
+
+  let updated = null;
+  if (db.isAvailable) {
+    try { updated = await db.updateCatalogue(req.params.id, updateData); } catch (e) { console.warn('db.updateCatalogue error:', e.message); }
+  }
+
+  const catalogues = readJSON(CATALOGUES_FILE, []);
+  const idx = catalogues.findIndex(c => c.id === req.params.id);
+  if (idx > -1) {
+    catalogues[idx] = { ...catalogues[idx], ...updateData, id: req.params.id };
+    writeJSON(CATALOGUES_FILE, catalogues);
+    if (!updated) updated = catalogues[idx];
+  }
+
+  if (!updated) return res.status(404).json({ error: 'Catalogue not found' });
+  res.json(updated);
+});
+
+// Archive catalogue (Admin protected)
+app.post(['/api/catalogues/:id/archive', '/catalogues/:id/archive'], authenticateAdmin, async (req, res) => {
+  if (db.isAvailable) {
+    try { await db.archiveCatalogue(req.params.id); } catch(e) {}
+  }
+  const catalogues = readJSON(CATALOGUES_FILE, []);
+  const target = catalogues.find(c => c.id === req.params.id);
+  if (target) {
+    target.archivedAt = new Date().toISOString();
+    writeJSON(CATALOGUES_FILE, catalogues);
+  }
+  res.json({ success: true, message: `Catalogue ${req.params.id} archived successfully` });
+});
+
+// Restore catalogue (Admin protected)
+app.post(['/api/catalogues/:id/restore', '/catalogues/:id/restore'], authenticateAdmin, async (req, res) => {
+  if (db.isAvailable) {
+    try { await db.restoreCatalogue(req.params.id); } catch(e) {}
+  }
+  const catalogues = readJSON(CATALOGUES_FILE, []);
+  const target = catalogues.find(c => c.id === req.params.id);
+  if (target) {
+    target.archivedAt = null;
+    writeJSON(CATALOGUES_FILE, catalogues);
+  }
+  res.json({ success: true, message: `Catalogue ${req.params.id} restored successfully` });
+});
+
+// DELETE catalogue (Admin protected)
+app.delete(['/api/catalogues/:id', '/catalogues/:id'], authenticateAdmin, async (req, res) => {
+  if (db.isAvailable) {
+    try { await db.deleteCatalogue(req.params.id); } catch(e) {}
+  }
+  let catalogues = readJSON(CATALOGUES_FILE, []);
+  catalogues = catalogues.filter(c => c.id !== req.params.id);
+  writeJSON(CATALOGUES_FILE, catalogues);
+  res.json({ success: true, message: `Catalogue ${req.params.id} deleted` });
+});
+
+// --- VISITOR INTERPRETATIONS & COMMENTS API ---
+
+// GET artwork comments
+app.get(['/api/comments', '/comments'], async (req, res) => {
+  const artworkId = req.query.artworkId || req.query.artwork_id;
+  const includeArchived = req.query.includeArchived === 'true';
+
+  if (db.isAvailable) {
+    try {
+      const dbComments = artworkId
+        ? await db.getArtworkComments(artworkId, { includeArchived })
+        : await db.getAllComments({ includeArchived });
+      if (dbComments) return res.json(dbComments);
+    } catch (err) {
+      console.warn('Database getComments notice, falling back:', err.message);
+    }
+  }
+
+  let comments = readJSON(COMMENTS_FILE, []);
+  if (artworkId) {
+    comments = comments.filter(c => c.artworkId === artworkId);
+  }
+  if (!includeArchived) {
+    comments = comments.filter(c => c.status === 'published' && !c.archivedAt);
+  }
+  comments.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  res.json(comments);
+});
+
+// Duplicate map for visitor comments
+const recentCommentSubmissions = new Map();
+
+// POST submit personal interpretation / comment on artwork (Public with Rate Limiting)
+app.post(['/api/comments', '/comments'], reviewRateLimiter, async (req, res) => {
+  // Honeypot check
+  if (isHoneypotTriggered(req.body)) {
+    return res.status(200).json({ success: true, message: 'Thank you for sharing your reflection.' });
+  }
+
+  // Time-gate check
+  if (isTimeGateFailed(req.body._ts || req.body.clientTimestamp, 1.2)) {
+    return res.status(200).json({ success: true, message: 'Thank you for sharing your reflection.' });
+  }
+
+  const rawName = req.body.author_name || req.body.authorName || req.body.name || '';
+  const authorName = sanitizeText(rawName, 60);
+  if (!authorName || authorName.length < 2) {
+    return res.status(400).json({ error: 'Validation Error', message: 'Please provide your name (2–60 characters).' });
+  }
+
+  const rawArtworkId = sanitizeText(req.body.artwork_id || req.body.artworkId || '', 64);
+  if (!rawArtworkId) {
+    return res.status(400).json({ error: 'Validation Error', message: 'Artwork ID is required for commentary.' });
+  }
+
+  const rawInterpretation = req.body.comment_text || req.body.commentText || req.body.interpretation || req.body.comment || '';
+  const interpretation = sanitizeHtml(rawInterpretation, 1200);
+  if (!interpretation || interpretation.length < 5) {
+    return res.status(400).json({ error: 'Validation Error', message: 'Please share your reflection or interpretation (at least 5 characters).' });
+  }
+
+  const authorLocation = sanitizeText(req.body.author_location || req.body.authorLocation || req.body.location || '', 80);
+  const authorEmail = (req.body.authorEmail || req.body.email || '').trim().toLowerCase();
+  const feeling = sanitizeText(req.body.feeling || 'Reflection & Reverence', 60);
+
+  // Prevent duplicate within 45s
+  const dupKey = `${rawArtworkId}:${authorName}:${interpretation.toLowerCase().slice(0, 60)}`;
+  if (recentCommentSubmissions.has(dupKey) && (Date.now() - recentCommentSubmissions.get(dupKey) < 45000)) {
+    return res.status(409).json({ error: 'Duplicate Submission', message: 'Your reflection has already been recorded.' });
+  }
+  recentCommentSubmissions.set(dupKey, Date.now());
+
+  const newComment = {
+    id: 'com-' + Date.now().toString(36),
+    artworkId: rawArtworkId,
+    artwork_id: rawArtworkId,
+    authorName,
+    author_name: authorName,
+    authorLocation: authorLocation || null,
+    author_location: authorLocation || null,
+    authorEmail: authorEmail || null,
+    feeling,
+    interpretation,
+    comment_text: interpretation,
+    status: 'published',
+    archivedAt: null,
+    createdAt: new Date().toISOString()
+  };
+
+  let saved = null;
+  if (db.isAvailable) {
+    try {
+      saved = await db.createArtworkComment(newComment);
+    } catch (e) {
+      console.warn('db.createArtworkComment notice:', e.message);
+    }
+  }
+  if (!saved) saved = newComment;
+
+  const comments = readJSON(COMMENTS_FILE, []);
+  comments.unshift(saved);
+  writeJSON(COMMENTS_FILE, comments);
+
+  res.status(201).json({
+    success: true,
+    message: 'Your personal reflection has been permanently recorded in the gallery archive.',
+    comment: saved
+  });
+});
+
+// PUT update comment status (Admin protected)
+app.put(['/api/comments/:id', '/comments/:id'], authenticateAdmin, async (req, res) => {
+  const { status } = req.body;
+  if (db.isAvailable) {
+    try { await db.updateCommentStatus(req.params.id, status); } catch(e) {}
+  }
+  const comments = readJSON(COMMENTS_FILE, []);
+  const target = comments.find(c => c.id === req.params.id);
+  if (target) {
+    target.status = status;
+    writeJSON(COMMENTS_FILE, comments);
+  }
+  res.json({ success: true, message: `Comment status updated to ${status}` });
+});
+
+// DELETE comment (Admin protected)
+app.delete(['/api/comments/:id', '/comments/:id'], authenticateAdmin, async (req, res) => {
+  if (db.isAvailable) {
+    try { await db.deleteComment(req.params.id); } catch(e) {}
+  }
+  let comments = readJSON(COMMENTS_FILE, []);
+  comments = comments.filter(c => c.id !== req.params.id);
+  writeJSON(COMMENTS_FILE, comments);
+  res.json({ success: true, message: `Comment ${req.params.id} permanently deleted` });
 });
 
 // Start Server with graceful port fallback

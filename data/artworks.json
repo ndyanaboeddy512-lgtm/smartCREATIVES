@@ -14,8 +14,14 @@
       "Black Steel Base",
       "Modern Floating Mount"
     ],
-    "provenance": "Direct from artist Eddy. 100% original, one-of-a-kind artwork.",
-    "curatorialStatement": "A clean, modern sculpture handcrafted from natural wood, highlighting authentic grain and organic balance.",
+    "provenance": "Direct accession from artist Eddy's Kigali Atelier. Tamper-evident studio stamp and sealed parchment certificate.",
+    "curatorialStatement": "A clean, modern sculpture handcrafted from indigenous Rwandan hardwood, highlighting authentic grain, tactile warmth, and organic balance.",
+    "culture": "Great Lakes Contemporary",
+    "country": "Rwanda",
+    "catalogueId": "cat-01",
+    "theme": "Ancestral Balance & Organic Form",
+    "symbolism": "The smooth unbroken ring symbolizes communal unity and the continuity of life across generations; the raw wood grain exposes centuries of seasonal rainfall.",
+    "story": "Hand-sculpted in the hills of Kigali from salvaged indigenous hardwood. The dual arched planes represent the eternal equilibrium between humanity and the primordial landscape.",
     "featured": false,
     "image": "images/artwork-1788371635007-145.jpg",
     "highResZoom": "images/artwork-1788371635007-145.jpg",
@@ -33,10 +39,6 @@
       {
         "q": "What are the shipping and delivery options?",
         "a": "Every original piece is protected in custom wooden crating and dispatched with full transit insurance via private white-glove courier."
-      },
-      {
-        "q": "Can framing be customized?",
-        "a": "Yes, custom museum-grade framing options are available upon request."
       }
     ]
   },
@@ -58,6 +60,12 @@
     ],
     "provenance": "Direct from the artist studio. Includes signed Certificate of Authenticity.",
     "curatorialStatement": "A stunning original painting featuring deep shadows and warm earth tones. Created with hand-mixed natural pigments on premium canvas.",
+    "culture": "East African Heritage",
+    "country": "Rwanda",
+    "catalogueId": "cat-01",
+    "theme": "Earth & Shadow",
+    "symbolism": "Deep charcoal strata denote sacred ancestral earth; glowing ochre bands evoke volcanic hearth fires and the quiet sanctuary of the evening horizon.",
+    "story": "Created with natural earth ochres and mineral charcoals ground in the artist's studio. It captures the twilight descent over the volcanic hills of the Virungas.",
     "featured": true,
     "image": "images/art-01.jpg",
     "highResZoom": "images/art-01.jpg",
@@ -71,14 +79,6 @@
       {
         "q": "Is a Certificate of Authenticity included?",
         "a": "Yes, each original artwork is accompanied by an official Certificate of Authenticity hand-signed by the artist and creative platform curator."
-      },
-      {
-        "q": "What are the shipping and delivery options?",
-        "a": "Every original piece is protected in custom wooden crating and dispatched with full transit insurance via private white-glove courier."
-      },
-      {
-        "q": "Can framing be customized?",
-        "a": "Yes, custom museum-grade framing options are available upon request."
       }
     ]
   },
@@ -88,22 +88,28 @@
     "artist": "Mateo Rossi",
     "year": 2024,
     "medium": "Cast solid bronze with warm patina",
-    "dimensions": "78 × 42 × 35 cm / 31 × 16 × 14 in",
-    "price": 19800,
+    "dimensions": "78 × 42 × 36 cm / 31 × 16 × 14 in",
+    "price": 18200,
     "status": "Available",
-    "framing": "Includes custom black marble display stand",
+    "framing": "Solid Belgian Bluestone plinth base (Included)",
     "frameOptions": [
-      "Black Marble Stand",
-      "Brushed Steel Stand",
-      "Modern Concrete Stand"
+      "Belgian Bluestone Base",
+      "Honed Nero Marquina Marble",
+      "Solid Natural Oak Pedestal"
     ],
-    "provenance": "Direct from sculptor studio. Numbered 1 of 1 original. Includes Certificate of Authenticity.",
-    "curatorialStatement": "A timeless bronze sculpture with smooth curves and tactile texture, resting securely on an elegant polished marble base.",
+    "provenance": "Direct accession from the artist studio. Complete photographic foundry documentation and signed Certificate of Authenticity.",
+    "curatorialStatement": "A monolithic lost-wax bronze sculpture with hand-rubbed warm patina, reflecting timeless organic curves and architectural gravity.",
+    "culture": "Lost-Wax Patina",
+    "country": "Italy",
+    "catalogueId": "cat-02",
+    "theme": "Monolithic Form & Sacred Geometry",
+    "symbolism": "The central negative void signifies the inner stillness necessary to hear ancient wisdom; the hand-rubbed bronze catches daylight like sunlit temple steps.",
+    "story": "Cast using ancient lost-wax metallurgy, then hand-patinated with sulfur and beeswax. A monolithic testament to timeless architectural grace.",
     "featured": false,
     "image": "images/art-02.jpg",
     "highResZoom": "images/art-02.jpg",
-    "description": "A timeless bronze sculpture with smooth curves and tactile texture, resting securely on an elegant polished marble base.",
-    "shippingDetails": "Museum-grade bespoke wooden crate with transit insurance and white-glove courier delivery worldwide.",
+    "description": "A monolithic lost-wax bronze sculpture with hand-rubbed warm patina, reflecting timeless organic curves and architectural gravity.",
+    "shippingDetails": "Specialized heavy art crating with internal suspension, transit insurance, and white-glove placement service.",
     "images": [
       "images/art-02.jpg",
       "images/art-02.jpg"
@@ -111,15 +117,7 @@
     "faq": [
       {
         "q": "Is a Certificate of Authenticity included?",
-        "a": "Yes, each original artwork is accompanied by an official Certificate of Authenticity hand-signed by the artist and creative platform curator."
-      },
-      {
-        "q": "What are the shipping and delivery options?",
-        "a": "Every original piece is protected in custom wooden crating and dispatched with full transit insurance via private white-glove courier."
-      },
-      {
-        "q": "Can framing be customized?",
-        "a": "Yes, custom museum-grade framing options are available upon request."
+        "a": "Yes, accompanied by a signed parchment certificate and photographic proof of foundry casting."
       }
     ]
   },
@@ -129,38 +127,36 @@
     "artist": "Soren Lindqvist",
     "year": 2025,
     "medium": "Textured plaster and mineral relief on wood panel",
-    "dimensions": "120 × 120 cm / 47 × 47 in",
-    "price": 16500,
+    "dimensions": "160 × 120 cm / 63 × 47 in",
+    "price": 14800,
     "status": "Available",
-    "framing": "Slim white gallery frame (Included)",
+    "framing": "Floating bleached Scandinavian ash tray frame",
     "frameOptions": [
-      "Slim White Gallery Frame",
-      "Floating Black Oak Frame",
-      "Natural Maple Frame"
+      "Floating Bleached Ash Frame",
+      "Raw White Oak Shadowbox",
+      "Unframed Clean Mineral Edge"
     ],
-    "provenance": "Original studio piece. Accompanied by artist-signed certificate.",
-    "curatorialStatement": "A calm, elegant white textured wall artwork that catches ambient light throughout the day, creating gentle geometric shadows.",
+    "provenance": "Studio archive piece, signed and catalogued under 55 smartCREATIVES Registry #SL-2025-03.",
+    "curatorialStatement": "A tactile architectural wall relief sculpted with natural lime plaster, marble dust, and pulverized quartz on museum panel.",
+    "culture": "Nordic Mineral",
+    "country": "Sweden",
+    "catalogueId": "cat-03",
+    "theme": "Transcendence & Silence",
+    "symbolism": "Layered stepped ridges reflect the rhythmic passage of time, evoking ancient temple staircases eroded by centuries.",
+    "story": "Built with hand-troweled lime plaster, pulverized quartz, and raw linen mounted on antique timber panel. Changes mood continuously with shifting natural sunlight.",
     "featured": false,
     "image": "images/art-03.jpg",
     "highResZoom": "images/art-03.jpg",
-    "description": "A calm, elegant white textured wall artwork that catches ambient light throughout the day, creating gentle geometric shadows.",
-    "shippingDetails": "Museum-grade bespoke wooden crate with transit insurance and white-glove courier delivery worldwide.",
+    "description": "A tactile architectural wall relief sculpted with natural lime plaster, marble dust, and pulverized quartz on museum panel.",
+    "shippingDetails": "Custom rigid timber crate, silica gel climate packs, and fully insured air freight delivery.",
     "images": [
       "images/art-03.jpg",
       "images/art-03.jpg"
     ],
     "faq": [
       {
-        "q": "Is a Certificate of Authenticity included?",
-        "a": "Yes, each original artwork is accompanied by an official Certificate of Authenticity hand-signed by the artist and creative platform curator."
-      },
-      {
-        "q": "What are the shipping and delivery options?",
-        "a": "Every original piece is protected in custom wooden crating and dispatched with full transit insurance via private white-glove courier."
-      },
-      {
-        "q": "Can framing be customized?",
-        "a": "Yes, custom museum-grade framing options are available upon request."
+        "q": "How does the relief respond to lighting?",
+        "a": "The sculptural ridges cast dynamic shadows that shift subtly throughout the day with ambient sunlight."
       }
     ]
   },
@@ -170,40 +166,41 @@
     "artist": "Clara Beauchamp",
     "year": 2024,
     "medium": "Oil and warm clay pigments on heavy linen",
-    "dimensions": "160 × 130 cm / 63 × 51 in",
-    "price": 22000,
-    "status": "Reserved",
-    "framing": "Solid walnut floating frame (Included)",
+    "dimensions": "140 × 110 cm / 55 × 43 in",
+    "price": 11500,
+    "status": "Available",
+    "framing": "Floating charcoal stained walnut frame",
     "frameOptions": [
-      "Solid Walnut Floating Frame",
-      "Black Oak Frame",
-      "Raw Canvas Edge"
+      "Charcoal Stained Walnut",
+      "Natural Raw Linen Edge",
+      "Burnished Bronze Rim"
     ],
-    "provenance": "Exhibited at private London gallery. Fully authenticated original.",
-    "curatorialStatement": "A rich, grounded composition using warm terracotta, sand, and cream tones to bring warmth and comfort into living spaces.",
+    "provenance": "Direct atelier accession, Provençal studio archive. 1-of-1 original.",
+    "curatorialStatement": "Radiant geometric abstraction invoking natural Mediterranean terracotta, raw sienna, and mineral clays.",
+    "culture": "Continental Clay",
+    "country": "France",
+    "catalogueId": "cat-01",
+    "theme": "Ancestral Memory",
+    "symbolism": "The intersecting terracotta blocks symbolize the convergence of human shelter and raw mineral landscape.",
+    "story": "Composed with wild Provençal terracotta clays and burnt sienna oils on raw unbleached linen. Evokes prehistoric hearths and ancient pottery fragments.",
     "featured": false,
     "image": "images/art-04.jpg",
     "highResZoom": "images/art-04.jpg",
-    "description": "A rich, grounded composition using warm terracotta, sand, and cream tones to bring warmth and comfort into living spaces.",
-    "shippingDetails": "Museum-grade bespoke wooden crate with transit insurance and white-glove courier delivery worldwide.",
+    "description": "Radiant geometric abstraction invoking natural Mediterranean terracotta, raw sienna, and mineral clays.",
+    "shippingDetails": "Archival fine art packaging with reinforced corner bumpers and tracked courier.",
     "images": [
       "images/art-04.jpg",
       "images/art-04.jpg"
     ],
     "faq": [
       {
-        "q": "Is a Certificate of Authenticity included?",
-        "a": "Yes, each original artwork is accompanied by an official Certificate of Authenticity hand-signed by the artist and creative platform curator."
-      },
-      {
-        "q": "What are the shipping and delivery options?",
-        "a": "Every original piece is protected in custom wooden crating and dispatched with full transit insurance via private white-glove courier."
-      },
-      {
-        "q": "Can framing be customized?",
-        "a": "Yes, custom museum-grade framing options are available upon request."
+        "q": "What canvas is utilized?",
+        "a": "Heavy 520 gsm French unbleached flax linen, double-sized with rabbit-skin glue."
       }
-    ]
+    ],
+    "archivedAt": null,
+    "isArchived": false,
+    "is_archived": 0
   },
   {
     "id": "art-05",
@@ -211,37 +208,35 @@
     "artist": "Kaito Moriyama",
     "year": 2025,
     "medium": "Blackened steel and carved volcanic stone",
-    "dimensions": "92 × 48 × 40 cm / 36 × 19 × 16 in",
-    "price": 31000,
+    "dimensions": "110 × 45 × 38 cm / 43 × 18 × 15 in",
+    "price": 16900,
     "status": "Available",
-    "framing": "Integrated weighted architectural stand",
+    "framing": "Integrated weighted basalt plinth",
     "frameOptions": [
-      "Integrated Steel Stand",
-      "Gallery Pedestal (Optional)"
+      "Integrated Basalt Plinth",
+      "Brushed Steel Base"
     ],
-    "provenance": "Direct studio piece. Verified authentic by 55 smartCREATIVES Gallery.",
-    "curatorialStatement": "A bold sculpture combining dark structural steel with hand-carved stone, inspired by modern architectural geometry.",
+    "provenance": "Kyoto Studio archive accession. Includes signed calligraphy registry scroll.",
+    "curatorialStatement": "A monolithic sculpture balancing rough-hewn volcanic stone with precise hot-rolled carbon steel, exploring tectonic stillness.",
+    "culture": "Volcanic Basalt",
+    "country": "Japan",
+    "catalogueId": "cat-02",
+    "theme": "Monolithic Form & Sacred Geometry",
+    "symbolism": "The heavy stone represents the immutability of planetary rock; the blackened steel represents human intellect shaping the cosmos.",
+    "story": "A monolithic tension between forge-blackened carbon steel and hand-fractured volcanic basalt stone from the volcanic mountain slopes.",
     "featured": false,
     "image": "images/art-05.jpg",
     "highResZoom": "images/art-05.jpg",
-    "description": "A bold sculpture combining dark structural steel with hand-carved stone, inspired by modern architectural geometry.",
-    "shippingDetails": "Museum-grade bespoke wooden crate with transit insurance and white-glove courier delivery worldwide.",
+    "description": "A monolithic sculpture balancing rough-hewn volcanic stone with precise hot-rolled carbon steel, exploring tectonic stillness.",
+    "shippingDetails": "White-glove international air transport in custom foam-lined wooden vault crate.",
     "images": [
       "images/art-05.jpg",
       "images/art-05.jpg"
     ],
     "faq": [
       {
-        "q": "Is a Certificate of Authenticity included?",
-        "a": "Yes, each original artwork is accompanied by an official Certificate of Authenticity hand-signed by the artist and creative platform curator."
-      },
-      {
-        "q": "What are the shipping and delivery options?",
-        "a": "Every original piece is protected in custom wooden crating and dispatched with full transit insurance via private white-glove courier."
-      },
-      {
-        "q": "Can framing be customized?",
-        "a": "Yes, custom museum-grade framing options are available upon request."
+        "q": "Is this suitable for outdoor residential display?",
+        "a": "Yes, the materials are natural weather-treated basalt and sealed blackened steel."
       }
     ]
   },
@@ -251,38 +246,36 @@
     "artist": "Eleanor Vance",
     "year": 2025,
     "medium": "Oil painting with subtle 24K gold leaf accents",
-    "dimensions": "200 × 150 cm / 79 × 59 in",
-    "price": 27500,
+    "dimensions": "180 × 130 cm / 71 × 51 in",
+    "price": 22000,
     "status": "Available",
-    "framing": "Custom gilded edge frame (Included)",
+    "framing": "Handcrafted floating gilded edge frame",
     "frameOptions": [
-      "Gilded Brass Frame",
-      "Charcoal Floating Frame",
-      "Unframed Gallery Linen"
+      "Gilded Brass Leaf Edge",
+      "Dark Charcoal Oak",
+      "Natural Maple Tray"
     ],
-    "provenance": "Original studio creation. Includes signed certificate and authentication documents.",
-    "curatorialStatement": "A luminous abstract landscape capturing the warm glow of dusk. Gentle gold details reflect sunlight and ambient lighting.",
+    "provenance": "Direct studio collection, featured in the 2025 Monographic Horizon series.",
+    "curatorialStatement": "An ethereal sunset landscape infused with hand-applied 24-karat gold leaf beneath transparent oil glazes.",
+    "culture": "Illuminated Folio",
+    "country": "Rwanda",
+    "catalogueId": "cat-03",
+    "theme": "Sacred Light & Folios",
+    "symbolism": "The radiant gold ribbon signifies spiritual awakening and the eternal promise of dawn.",
+    "story": "A luminous meditation on dusk across the Rift Valley, hand-embellished with genuine 24-karat gold leaf laid onto wet mineral glazes.",
     "featured": false,
     "image": "images/art-06.jpg",
     "highResZoom": "images/art-06.jpg",
-    "description": "A luminous abstract landscape capturing the warm glow of dusk. Gentle gold details reflect sunlight and ambient lighting.",
-    "shippingDetails": "Museum-grade bespoke wooden crate with transit insurance and white-glove courier delivery worldwide.",
+    "description": "An ethereal sunset landscape infused with hand-applied 24-karat gold leaf beneath transparent oil glazes.",
+    "shippingDetails": "Double-walled wooden crate with temperature-stabilized insulation and fully insured courier.",
     "images": [
       "images/art-06.jpg",
       "images/art-06.jpg"
     ],
     "faq": [
       {
-        "q": "Is a Certificate of Authenticity included?",
-        "a": "Yes, each original artwork is accompanied by an official Certificate of Authenticity hand-signed by the artist and creative platform curator."
-      },
-      {
-        "q": "What are the shipping and delivery options?",
-        "a": "Every original piece is protected in custom wooden crating and dispatched with full transit insurance via private white-glove courier."
-      },
-      {
-        "q": "Can framing be customized?",
-        "a": "Yes, custom museum-grade framing options are available upon request."
+        "q": "Is real gold used in the composition?",
+        "a": "Yes, genuine Italian 24-karat gold leaf applied using traditional water-gilding techniques."
       }
     ]
   },
@@ -292,37 +285,35 @@
     "artist": "Mateo Rossi",
     "year": 2024,
     "medium": "Solid white Carrara marble, hand-polished",
-    "dimensions": "65 × 38 × 30 cm / 26 × 15 × 12 in",
-    "price": 26000,
-    "status": "Sold",
-    "framing": "Includes protective felted display base",
+    "dimensions": "85 × 50 × 40 cm / 33 × 20 × 16 in",
+    "price": 27500,
+    "status": "Reserved",
+    "framing": "Integrated honed Carrara plinth",
     "frameOptions": [
-      "Polished White Marble Base",
-      "Dark Walnut Pedestal"
+      "Integrated Carrara Plinth",
+      "Charcoal Basalt Stand"
     ],
-    "provenance": "Sold to private collection in London. Archived in gallery permanent catalog.",
-    "curatorialStatement": "Carved from a single block of authentic white marble, featuring smooth flowing lines and a satiny hand-finished touch.",
+    "provenance": "Tuscan studio archive, exhibited in Florence. 1-of-1 original monument.",
+    "curatorialStatement": "A continuous sinuous ribbon carved by hand from a single block of statuary Carrara marble.",
+    "culture": "Classical Modernist",
+    "country": "Italy",
+    "catalogueId": "cat-02",
+    "theme": "Monolithic Form & Sacred Geometry",
+    "symbolism": "Fluid undulating curves dissolve the rigid hardness of stone, reminding us that even the most stubborn mountain is shaped by flowing water.",
+    "story": "Sculpted directly from a single monolithic block of white Carrara marble, polished by hand over five months to achieve a silk-like tactile luminescence.",
     "featured": false,
     "image": "images/art-07.jpg",
     "highResZoom": "images/art-07.jpg",
-    "description": "Carved from a single block of authentic white marble, featuring smooth flowing lines and a satiny hand-finished touch.",
-    "shippingDetails": "Museum-grade bespoke wooden crate with transit insurance and white-glove courier delivery worldwide.",
+    "description": "A continuous sinuous ribbon carved by hand from a single block of statuary Carrara marble.",
+    "shippingDetails": "Custom padded suspension crate with certified white-glove placement service.",
     "images": [
       "images/art-07.jpg",
       "images/art-07.jpg"
     ],
     "faq": [
       {
-        "q": "Is a Certificate of Authenticity included?",
-        "a": "Yes, each original artwork is accompanied by an official Certificate of Authenticity hand-signed by the artist and creative platform curator."
-      },
-      {
-        "q": "What are the shipping and delivery options?",
-        "a": "Every original piece is protected in custom wooden crating and dispatched with full transit insurance via private white-glove courier."
-      },
-      {
-        "q": "Can framing be customized?",
-        "a": "Yes, custom museum-grade framing options are available upon request."
+        "q": "What marble quarry does this stone originate from?",
+        "a": "Directly quarried from the historical Fantiscritti basin in Carrara, Italy."
       }
     ]
   },
@@ -332,38 +323,36 @@
     "artist": "Soren Lindqvist",
     "year": 2025,
     "medium": "Woven raw linen, natural beeswax, and walnut stain",
-    "dimensions": "150 × 110 cm / 59 × 43 in",
-    "price": 21500,
+    "dimensions": "150 × 100 cm / 59 × 39 in",
+    "price": 8900,
     "status": "Available",
-    "framing": "Light oak shadowbox frame with museum glass",
+    "framing": "Floating unbleached ash frame",
     "frameOptions": [
-      "Light Oak Shadowbox Frame",
-      "Matte Black Frame",
-      "Natural Unframed Edge"
+      "Floating Unbleached Ash",
+      "Natural Waxed Maple",
+      "Dark Walnut Frame"
     ],
-    "provenance": "Studio archive piece. Complete with artist signature on reverse.",
-    "curatorialStatement": "An organic textile artwork made from pure natural materials, bringing calm serenity and rich texture into modern interiors.",
+    "provenance": "Studio accession. Hand-woven on traditional Nordic loom.",
+    "curatorialStatement": "A quiet, meditative composition exploring organic tactile fibers, raw beeswax resistance, and botanical dye washes.",
+    "culture": "Botanical Fiber",
+    "country": "Sweden",
+    "catalogueId": "cat-03",
+    "theme": "Organic Materiality & Solitude",
+    "symbolism": "Each warp and weft reflects the tactile rhythm of mindful breath, grounding the observer in physical reality.",
+    "story": "Woven by hand on a traditional timber loom using unrefined Belgian flax, stained with walnut husk extract and sealed with warm botanical beeswax.",
     "featured": false,
     "image": "images/art-08.jpg",
     "highResZoom": "images/art-08.jpg",
-    "description": "An organic textile artwork made from pure natural materials, bringing calm serenity and rich texture into modern interiors.",
-    "shippingDetails": "Museum-grade bespoke wooden crate with transit insurance and white-glove courier delivery worldwide.",
+    "description": "A quiet, meditative composition exploring organic tactile fibers, raw beeswax resistance, and botanical dye washes.",
+    "shippingDetails": "Standard fine art wooden crate with fully tracked priority air shipment.",
     "images": [
       "images/art-08.jpg",
       "images/art-08.jpg"
     ],
     "faq": [
       {
-        "q": "Is a Certificate of Authenticity included?",
-        "a": "Yes, each original artwork is accompanied by an official Certificate of Authenticity hand-signed by the artist and creative platform curator."
-      },
-      {
-        "q": "What are the shipping and delivery options?",
-        "a": "Every original piece is protected in custom wooden crating and dispatched with full transit insurance via private white-glove courier."
-      },
-      {
-        "q": "Can framing be customized?",
-        "a": "Yes, custom museum-grade framing options are available upon request."
+        "q": "Are the dyes organic?",
+        "a": "Yes, 100% botanical dyes extracted from walnut shells and oak gall."
       }
     ]
   }

@@ -1,0 +1,35 @@
+[
+  {
+    "id": "com-01",
+    "artworkId": "art-01",
+    "authorName": "Jean-Paul Habimana",
+    "authorEmail": "habimana@patron.art",
+    "feeling": "Reverence & Awe",
+    "interpretation": "Standing before this piece feels like standing at the rim of the Virunga volcanoes at dusk. The mineral charcoal pulls you inward into deep silence, while the ochre band feels like an ancient hearth keeping hope alive.",
+    "status": "published",
+    "createdAt": "2026-09-08T14:20:00Z",
+    "archivedAt": null
+  },
+  {
+    "id": "com-02",
+    "artworkId": "art-mtkeap1c",
+    "authorName": "Claire Laurent",
+    "authorEmail": "claire.laurent@interiors.fr",
+    "feeling": "Inner Equilibrium",
+    "interpretation": "The curvature of the hardwood feels alive. It does not impose itself on space; rather, the space curves naturally around its organic grain. Truly an extraordinary mastery of equilibrium.",
+    "status": "published",
+    "createdAt": "2026-09-10T09:15:00Z",
+    "archivedAt": null
+  },
+  {
+    "id": "com-03",
+    "artworkId": "art-02",
+    "authorName": "David K. Omondi",
+    "authorEmail": "omondi@fineart.ke",
+    "feeling": "Timeless Mystery",
+    "interpretation": "The hollow core speaks louder than the bronze itself. It seems to frame the unseen—the quiet space inside our own minds when contemplating infinity.",
+    "status": "published",
+    "createdAt": "2026-09-11T16:45:00Z",
+    "archivedAt": null
+  }
+]

@@ -1,5 +1,18 @@
 [
   {
+    "id": "rev-5805",
+    "artworkId": null,
+    "artworkTitle": null,
+    "authorName": "Eleanor Vance",
+    "authorEmail": "test.collector.1789236802025@gallery-acquisitions.com",
+    "authorLocation": "London, UK",
+    "rating": 5,
+    "comment": "Masterwork fine art piece with extraordinary texture and museum lighting. Tested at 2026-09-12T18:13:22.025Z",
+    "status": "approved",
+    "createdAt": "2026-09-12T18:13:22.034Z",
+    "reviewedAt": "2026-09-12T18:13:22.034Z"
+  },
+  {
     "id": "rev-103",
     "artworkId": null,
     "artworkTitle": "Curatorial Collection Advisory",

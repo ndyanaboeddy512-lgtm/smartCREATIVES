@@ -1,0 +1,48 @@
+[
+  {
+    "id": "cat-01",
+    "title": "Sacred Echoes of the Great Rift",
+    "slug": "sacred-echoes-great-rift",
+    "coverImage": "images/art-01.jpg",
+    "theme": "Ancestral Earth & Primordial Memory",
+    "narrative": "A curated monographic journey exploring the raw geological and cultural cradle of the Rift Valley and the Great Lakes basin. Hand-ground mineral ochres, volcanic basalt, salvaged indigenous hardwoods, and wild terracotta clays converge to excavate the quiet majesty of our primordial home.",
+    "artworkIds": [
+      "art-01",
+      "art-mtkeap1c",
+      "art-04",
+      "art-05"
+    ],
+    "archivedAt": null,
+    "createdAt": "2026-09-12T19:16:22.666Z"
+  },
+  {
+    "id": "cat-02",
+    "title": "The Whispering Stone Monographs",
+    "slug": "whispering-stone-monographs",
+    "coverImage": "images/art-02.jpg",
+    "theme": "Monolithic Form & Sacred Geometry",
+    "narrative": "Sculptural monuments of stillness carved from ancient Italian Carrara marble, volcanic basalt stone, and lost-wax bronze. Each work is an architectural sanctuary designed to bring meditative gravity and quiet contemplation to monumental spaces.",
+    "artworkIds": [
+      "art-02",
+      "art-05",
+      "art-07"
+    ],
+    "archivedAt": null,
+    "createdAt": "2026-09-12T19:16:22.666Z"
+  },
+  {
+    "id": "cat-03",
+    "title": "Illuminated Pigments & Ancient Folios",
+    "slug": "illuminated-pigments-folios",
+    "coverImage": "images/art-06.jpg",
+    "theme": "Sacred Light, Gold Leaf & Archival Fiber",
+    "narrative": "Evoking the precious illuminated manuscripts and monastic codices of antiquity, this collection pairs hand-beaten 24-karat gold leaf with raw lime plaster reliefs and hand-woven Belgian flax linen.",
+    "artworkIds": [
+      "art-06",
+      "art-03",
+      "art-08"
+    ],
+    "archivedAt": null,
+    "createdAt": "2026-09-12T19:16:22.666Z"
+  }
+]

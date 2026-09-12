@@ -233,6 +233,10 @@ const EddyStore = {
     // Load visitor reviews & testimonials
     await this.fetchReviews();
 
+    // Load master artists & story catalogues
+    await this.fetchArtists();
+    await this.fetchCatalogues();
+
     this.updateWishlistBadge();
     this.initCurrencyButtons();
     this.updateUserNav();
@@ -410,6 +414,131 @@ const EddyStore = {
       throw new Error(errMsg);
     }
     return data;
+  },
+
+  artists: [],
+  catalogues: [],
+  comments: [],
+
+  async fetchArtists() {
+    try {
+      const res = await fetch('/api/artists');
+      const contentType = res.headers.get('content-type') || '';
+      if (res.ok && contentType.includes('application/json')) {
+        this.artists = await res.json();
+      }
+    } catch (e) {
+      console.warn('Notice loading artists from server', e);
+    }
+    window.dispatchEvent(new CustomEvent('artistsLoaded', { detail: this.artists }));
+    return this.artists;
+  },
+
+  getArtistById(id) {
+    if (!this.artists || this.artists.length === 0) return null;
+    return this.artists.find(a => a.id === id || (a.name && a.name.toLowerCase() === (id || '').toLowerCase())) || this.artists[0];
+  },
+
+  async fetchCatalogues() {
+    try {
+      const res = await fetch('/api/catalogues');
+      const contentType = res.headers.get('content-type') || '';
+      if (res.ok && contentType.includes('application/json')) {
+        this.catalogues = await res.json();
+      }
+    } catch (e) {
+      console.warn('Notice loading catalogues from server', e);
+    }
+    window.dispatchEvent(new CustomEvent('cataloguesLoaded', { detail: this.catalogues }));
+    return this.catalogues;
+  },
+
+  getCatalogueById(id) {
+    if (!this.catalogues || this.catalogues.length === 0) return null;
+    return this.catalogues.find(c => c.id === id) || this.catalogues[0];
+  },
+
+  async fetchComments(artworkId = null) {
+    try {
+      const url = artworkId ? `/api/comments?artworkId=${encodeURIComponent(artworkId)}` : '/api/comments';
+      const res = await fetch(url);
+      const contentType = res.headers.get('content-type') || '';
+      if (res.ok && contentType.includes('application/json')) {
+        this.comments = await res.json();
+      }
+    } catch (e) {
+      console.warn('Notice loading comments from server', e);
+    }
+    if (Array.isArray(this.comments)) {
+      this.comments.sort((a, b) => new Date(b.createdAt || b.created_at || 0) - new Date(a.createdAt || a.created_at || 0));
+    }
+    window.dispatchEvent(new CustomEvent('commentsLoaded', { detail: this.comments }));
+    return this.comments;
+  },
+
+  async addComment(commentData) {
+    let res;
+    try {
+      res = await fetch('/api/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(commentData)
+      });
+    } catch (netErr) {
+      throw new Error('Network connection error. Please try again.');
+    }
+
+    let data = null;
+    try { data = await res.json(); } catch (e) { data = null; }
+    if (!res.ok) {
+      const errMsg = (data && (data.message || data.error)) || `Failed to submit interpretation (Server status ${res.status})`;
+      throw new Error(errMsg);
+    }
+    const saved = data.comment || data;
+    this.comments.unshift(saved);
+    window.dispatchEvent(new CustomEvent('commentAdded', { detail: saved }));
+    return saved;
+  },
+
+  async filterArtworks(filterParams = {}) {
+    const query = new URLSearchParams();
+    Object.entries(filterParams).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== '' && v !== 'all') {
+        query.append(k, v);
+      }
+    });
+    try {
+      const res = await fetch(`/api/artworks?${query.toString()}`);
+      const contentType = res.headers.get('content-type') || '';
+      if (res.ok && contentType.includes('application/json')) {
+        const results = await res.json();
+        return results;
+      }
+    } catch (e) {
+      console.warn('Filter API error, falling back to client-side filtering:', e);
+    }
+    // In-memory fallback
+    return (this.artworks || []).filter(a => {
+      if (filterParams.artist && filterParams.artist !== 'all' && a.artist !== filterParams.artist) return false;
+      if (filterParams.culture && filterParams.culture !== 'all' && a.culture !== filterParams.culture) return false;
+      if (filterParams.country && filterParams.country !== 'all' && a.country !== filterParams.country) return false;
+      if (filterParams.catalogueId && filterParams.catalogueId !== 'all' && a.catalogueId !== filterParams.catalogueId) return false;
+      if (filterParams.theme && filterParams.theme !== 'all' && a.theme !== filterParams.theme) return false;
+      if (filterParams.medium && filterParams.medium !== 'all' && (!a.medium || !a.medium.toLowerCase().includes(filterParams.medium.toLowerCase()))) return false;
+      if (filterParams.year && filterParams.year !== 'all' && String(a.year) !== String(filterParams.year)) return false;
+      if (filterParams.search) {
+        const s = filterParams.search.toLowerCase();
+        const match = (a.title && a.title.toLowerCase().includes(s)) ||
+                      (a.artist && a.artist.toLowerCase().includes(s)) ||
+                      (a.medium && a.medium.toLowerCase().includes(s)) ||
+                      (a.culture && a.culture.toLowerCase().includes(s)) ||
+                      (a.theme && a.theme.toLowerCase().includes(s)) ||
+                      (a.story && a.story.toLowerCase().includes(s)) ||
+                      (a.curatorialStatement && a.curatorialStatement.toLowerCase().includes(s));
+        if (!match) return false;
+      }
+      return true;
+    });
   },
 
   getArtworkById(id) {
@@ -1215,12 +1344,137 @@ function initPreloader() {
   window.addEventListener('pointerdown', dismiss, { once: true });
 }
 
+// 5. Subtle Ancient Archive Ambient Soundscape (Web Audio API, strictly muted by default)
+const AmbientSoundEngine = {
+  ctx: null,
+  masterGain: null,
+  isPlaying: false,
+  oscillators: [],
+
+  initAudio() {
+    if (this.ctx) return;
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    this.ctx = new AudioContext();
+
+    this.masterGain = this.ctx.createGain();
+    this.masterGain.gain.setValueAtTime(0.0001, this.ctx.currentTime);
+    this.masterGain.connect(this.ctx.destination);
+
+    // Deep ancient warm drone oscillator (55Hz root A1)
+    const osc1 = this.ctx.createOscillator();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(55, this.ctx.currentTime);
+
+    const osc1Gain = this.ctx.createGain();
+    osc1Gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+    osc1.connect(osc1Gain);
+    osc1Gain.connect(this.masterGain);
+
+    // Warm sub-harmonic triangle oscillator (110Hz A2)
+    const osc2 = this.ctx.createOscillator();
+    osc2.type = 'triangle';
+    osc2.frequency.setValueAtTime(110, this.ctx.currentTime);
+
+    const osc2Gain = this.ctx.createGain();
+    osc2Gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
+    osc2.connect(osc2Gain);
+    osc2Gain.connect(this.masterGain);
+
+    // Gentle ancient atmospheric noise generator (simulating warm gallery room resonance & tape air)
+    const bufferSize = 2 * this.ctx.sampleRate;
+    const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      output[i] = Math.random() * 2 - 1;
+    }
+
+    const whiteNoise = this.ctx.createBufferSource();
+    whiteNoise.buffer = noiseBuffer;
+    whiteNoise.loop = true;
+
+    // Warm low-pass filter (stone acoustic resonance)
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(280, this.ctx.currentTime);
+    filter.Q.setValueAtTime(1.5, this.ctx.currentTime);
+
+    const noiseGain = this.ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.025, this.ctx.currentTime);
+
+    whiteNoise.connect(filter);
+    filter.connect(noiseGain);
+    noiseGain.connect(this.masterGain);
+
+    osc1.start();
+    osc2.start();
+    whiteNoise.start();
+
+    this.oscillators = [osc1, osc2, whiteNoise];
+  },
+
+  toggle() {
+    if (!this.isPlaying) {
+      this.play();
+    } else {
+      this.pause();
+    }
+  },
+
+  async play() {
+    this.initAudio();
+    if (!this.ctx) return;
+    if (this.ctx.state === 'suspended') {
+      await this.ctx.resume();
+    }
+    const t = this.ctx.currentTime;
+    this.masterGain.gain.cancelScheduledValues(t);
+    this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, t);
+    this.masterGain.gain.linearRampToValueAtTime(0.12, t + 1.2);
+    this.isPlaying = true;
+    this.updateUI(true);
+  },
+
+  pause() {
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime;
+    this.masterGain.gain.cancelScheduledValues(t);
+    this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, t);
+    this.masterGain.gain.linearRampToValueAtTime(0.0001, t + 0.8);
+    this.isPlaying = false;
+    this.updateUI(false);
+  },
+
+  updateUI(playing) {
+    document.querySelectorAll('#ambientSoundToggle, .ambient-sound-btn').forEach(btn => {
+      btn.classList.toggle('playing', playing);
+      const textEl = btn.querySelector('#ambientSoundText') || btn.querySelector('.ambient-sound-text');
+      if (textEl) {
+        textEl.textContent = playing ? 'Ambience Active' : 'Archive Sound';
+      }
+    });
+  }
+};
+
+window.AmbientSoundEngine = AmbientSoundEngine;
+
+function initAmbientSoundButtons() {
+  document.querySelectorAll('#ambientSoundToggle, .ambient-sound-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      AmbientSoundEngine.toggle();
+    });
+  });
+}
+
 // Initialize all luxury micro-engines on DOM readiness
 document.addEventListener('DOMContentLoaded', () => {
   initPreloader();
   initLuxuryCursor();
   initHero3DTilt();
   window.initScrollReveal();
+  initAmbientSoundButtons();
 });
+
 
 

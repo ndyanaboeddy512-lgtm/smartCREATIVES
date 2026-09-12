@@ -1,5 +1,236 @@
 [
   {
+    "id": "inq-8876",
+    "artworkId": "art-mtkeap1c",
+    "artworkTitle": "Natural Wood Balance",
+    "artworkArtist": "Eddy",
+    "artworkPrice": 900,
+    "artworkImage": "images/artwork-1788371635007-145.jpg",
+    "collectorName": "Discerning Collector",
+    "collectorEmail": "collector.test@example.com",
+    "collectorPhone": "+1 212 555 0199",
+    "framePreference": "Included Framing",
+    "notes": "Testing catalog integrity and price verification.",
+    "status": "Pending",
+    "opened": false,
+    "isCustomerSubmission": true,
+    "date": "2026-09-12T19:38:14.334Z",
+    "curatorNotes": "Inquiry received. Awaiting curator assignment.",
+    "generatedReply": null,
+    "emailDeliveryResult": {
+      "customerEmail": {
+        "success": false,
+        "provider": "all_providers_failed",
+        "error": "Invalid `to` field. Please use our testing email address instead of domains like `example.com`. See our documentation for more information."
+      },
+      "adminEmail": {
+        "success": true,
+        "provider": "resend",
+        "id": "9dc551a5-d681-40bf-b972-0714eeb5180b"
+      }
+    },
+    "replySentAt": null,
+    "makeWebhookStatus": "pending"
+  },
+  {
+    "id": "inq-4763",
+    "artworkId": "art-mtkeap1c",
+    "artworkTitle": "Natural Wood Balance",
+    "artworkArtist": "Eddy",
+    "artworkPrice": 900,
+    "artworkImage": "images/artwork-1788371635007-145.jpg",
+    "collectorName": "Discerning Collector",
+    "collectorEmail": "collector.test@example.com",
+    "collectorPhone": "+1 212 555 0199",
+    "framePreference": "Included Framing",
+    "notes": "Testing catalog integrity and price verification.",
+    "status": "Pending",
+    "opened": false,
+    "isCustomerSubmission": true,
+    "date": "2026-09-12T19:35:27.346Z",
+    "curatorNotes": "Inquiry received. Awaiting curator assignment.",
+    "generatedReply": null,
+    "emailDeliveryResult": {
+      "customerEmail": {
+        "success": false,
+        "provider": "all_providers_failed",
+        "error": "Invalid `to` field. Please use our testing email address instead of domains like `example.com`. See our documentation for more information."
+      },
+      "adminEmail": {
+        "success": true,
+        "provider": "resend",
+        "id": "cced4afd-9621-4ec3-a21b-fcd4bb6ea330"
+      }
+    },
+    "replySentAt": null,
+    "makeWebhookStatus": "pending"
+  },
+  {
+    "id": "inq-5611",
+    "artworkId": "art-mtkeap1c",
+    "artworkTitle": "Natural Wood Balance",
+    "artworkArtist": "Eddy",
+    "artworkPrice": 900,
+    "artworkImage": "images/artwork-1788371635007-145.jpg",
+    "collectorName": "Discerning Collector",
+    "collectorEmail": "collector.test@example.com",
+    "collectorPhone": "+1 212 555 0199",
+    "framePreference": "Included Framing",
+    "notes": "Testing catalog integrity and price verification.",
+    "status": "Pending",
+    "opened": false,
+    "isCustomerSubmission": true,
+    "date": "2026-09-12T18:46:26.732Z",
+    "curatorNotes": "Inquiry received. Awaiting curator assignment.",
+    "generatedReply": null,
+    "emailDeliveryResult": {
+      "customerEmail": {
+        "success": false,
+        "provider": "all_providers_failed",
+        "error": "Invalid `to` field. Please use our testing email address instead of domains like `example.com`. See our documentation for more information."
+      },
+      "adminEmail": {
+        "success": true,
+        "provider": "resend",
+        "id": "aa7817ce-cd19-4ebc-8042-433e23c300e6"
+      }
+    },
+    "replySentAt": null,
+    "makeWebhookStatus": "pending"
+  },
+  {
+    "id": "inq-6227",
+    "artworkId": "art-mtkeap1c",
+    "artworkTitle": "Natural Wood Balance",
+    "artworkArtist": "Eddy",
+    "artworkPrice": 900,
+    "artworkImage": "images/artwork-1788371635007-145.jpg",
+    "collectorName": "Discerning Collector",
+    "collectorEmail": "collector.test@example.com",
+    "collectorPhone": "+1 212 555 0199",
+    "framePreference": "Included Framing",
+    "notes": "Testing catalog integrity and price verification.",
+    "status": "Pending",
+    "opened": false,
+    "isCustomerSubmission": true,
+    "date": "2026-09-12T18:45:17.718Z",
+    "curatorNotes": "Inquiry received. Awaiting curator assignment.",
+    "generatedReply": null,
+    "emailDeliveryResult": {
+      "customerEmail": {
+        "success": false,
+        "provider": "all_providers_failed",
+        "error": "Invalid `to` field. Please use our testing email address instead of domains like `example.com`. See our documentation for more information."
+      },
+      "adminEmail": {
+        "success": true,
+        "provider": "resend",
+        "id": "4075a996-8bd7-4ab8-b5cd-d125768730ca"
+      }
+    },
+    "replySentAt": null,
+    "makeWebhookStatus": "pending"
+  },
+  {
+    "id": "inq-6181",
+    "artworkId": null,
+    "artworkTitle": "General Acquisition Inquiry",
+    "artworkArtist": "55 smartCREATIVES Studio",
+    "artworkPrice": 0,
+    "artworkImage": "",
+    "collectorName": "Instant Script Bot",
+    "collectorEmail": "fastbot@spammer.org",
+    "collectorPhone": "",
+    "framePreference": "Included Framing",
+    "notes": "",
+    "status": "Pending",
+    "opened": false,
+    "isCustomerSubmission": true,
+    "date": "2026-09-12T18:45:12.727Z",
+    "curatorNotes": "Inquiry received. Awaiting curator assignment.",
+    "generatedReply": null,
+    "emailDeliveryResult": {
+      "customerEmail": {
+        "success": false,
+        "provider": "all_providers_failed",
+        "error": "You can only send testing emails to your own email address (edsonndyanabo84@gmail.com). To send emails to other recipients, please verify a domain at resend.com/domains, and change the `from` address to an email using this domain."
+      },
+      "adminEmail": {
+        "success": true,
+        "provider": "resend",
+        "id": "5c5c8114-c723-4197-bfcc-bea102f2c7a3"
+      }
+    },
+    "replySentAt": null,
+    "makeWebhookStatus": "pending"
+  },
+  {
+    "id": "inq-8949",
+    "artworkId": "art-mtkeap1c",
+    "artworkTitle": "Natural Wood Balance",
+    "artworkArtist": "Eddy",
+    "artworkPrice": 900,
+    "artworkImage": "images/artwork-1788371635007-145.jpg",
+    "collectorName": "Discerning Collector",
+    "collectorEmail": "collector.test@example.com",
+    "collectorPhone": "+1 212 555 0199",
+    "framePreference": "Included Framing",
+    "notes": "Testing catalog integrity and price verification.",
+    "status": "Pending",
+    "opened": false,
+    "isCustomerSubmission": true,
+    "date": "2026-09-12T18:14:31.911Z",
+    "curatorNotes": "Inquiry received. Awaiting curator assignment.",
+    "generatedReply": null,
+    "emailDeliveryResult": {
+      "customerEmail": {
+        "success": false,
+        "provider": "all_providers_failed",
+        "error": "Invalid `to` field. Please use our testing email address instead of domains like `example.com`. See our documentation for more information."
+      },
+      "adminEmail": {
+        "success": true,
+        "provider": "resend",
+        "id": "24fa9320-5539-4479-ad4f-63be0679c8a8"
+      }
+    },
+    "replySentAt": null,
+    "makeWebhookStatus": "pending"
+  },
+  {
+    "id": "inq-1076",
+    "artworkId": null,
+    "artworkTitle": "General Acquisition Inquiry",
+    "artworkArtist": "55 smartCREATIVES Studio",
+    "artworkPrice": 0,
+    "artworkImage": "",
+    "collectorName": "Instant Script Bot",
+    "collectorEmail": "fastbot@spammer.org",
+    "collectorPhone": "",
+    "framePreference": "Included Framing",
+    "notes": "",
+    "status": "Pending",
+    "opened": false,
+    "isCustomerSubmission": true,
+    "date": "2026-09-12T18:14:30.227Z",
+    "curatorNotes": "Inquiry received. Awaiting curator assignment.",
+    "generatedReply": null,
+    "emailDeliveryResult": {
+      "customerEmail": {
+        "success": false,
+        "provider": "all_providers_failed",
+        "error": "You can only send testing emails to your own email address (edsonndyanabo84@gmail.com). To send emails to other recipients, please verify a domain at resend.com/domains, and change the `from` address to an email using this domain."
+      },
+      "adminEmail": {
+        "success": true,
+        "provider": "resend",
+        "id": "30aa4d02-95aa-4023-a29e-9d40eb571eee"
+      }
+    },
+    "replySentAt": null,
+    "makeWebhookStatus": "pending"
+  },
+  {
     "id": "inq-8915",
     "artworkId": "art-05",
     "artworkTitle": "Architectural Steel & Stone",

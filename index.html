@@ -41,14 +41,25 @@
 
       <nav class="nav-desktop">
         <a href="#collection" class="nav-link">Spotlight</a>
+        <a href="gallery.html" class="nav-link">All Artworks</a>
+        <a href="catalogues.html" class="nav-link">Story Collections</a>
+        <a href="artist.html" class="nav-link">Artist Studios</a>
         <a href="#philosophy" class="nav-link">Philosophy</a>
-        <a href="#catalog" class="nav-link active">Archive</a>
         <a href="#reviews" class="nav-link">Accolades</a>
-        <a href="#salon" class="nav-link">Atelier</a>
-        <a href="auth.html" class="nav-link">Patron Portal</a>
+        <a href="auth.html" class="nav-link">Patron Sanctuary</a>
       </nav>
 
       <div class="header-tools">
+        <!-- Ambient Sound Toggle -->
+        <button id="ambientSoundToggle" class="ambient-sound-btn" aria-label="Toggle Archive Ambience" title="Toggle Ancient Ambient Soundscape (Muted by default)">
+          <span class="sound-bars">
+            <span class="sound-bar"></span>
+            <span class="sound-bar"></span>
+            <span class="sound-bar"></span>
+          </span>
+          <span id="ambientSoundText">Archive Sound</span>
+        </button>
+
         <!-- Currency Selector -->
         <div class="currency-selector" title="Select Display Currency">
           <button class="currency-btn active" data-curr="USD">USD</button>
@@ -82,12 +93,14 @@
     </div>
     <nav class="mobile-nav-links">
       <a href="#collection" class="mobile-nav-link">Spotlight</a>
-      <a href="#philosophy" class="mobile-nav-link">Philosophy</a>
-      <a href="#catalog" class="mobile-nav-link">Monographic Archive</a>
+      <a href="gallery.html" class="mobile-nav-link">All Artworks Gallery</a>
+      <a href="catalogues.html" class="mobile-nav-link">Story Collections</a>
+      <a href="artist.html" class="mobile-nav-link">Artist Studios</a>
+      <a href="#philosophy" class="mobile-nav-link">Philosophy of Form</a>
       <a href="#reviews" class="mobile-nav-link">Collector Reviews</a>
-      <a href="#salon" class="mobile-nav-link">Atelier Booking</a>
-      <a href="auth.html" class="mobile-nav-link">Patron Portal</a>
+      <a href="auth.html" class="mobile-nav-link">Patron Sanctuary</a>
       <a href="auth.html#wishlist" class="mobile-nav-link">Saved Masterworks</a>
+      <a href="admin.html" class="mobile-nav-link" style="color: var(--accent-gold);">Curator Directorate ↗</a>
     </nav>
     <div class="mobile-nav-footer">
       <span style="font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-inverse-muted);">Display Currency:</span>
@@ -99,27 +112,46 @@
   </div>
 
   <main>
-    <!-- Hero 55 smartCREATIVES Spotlight (Cinematic Obsidian & Forest) -->
-    <section class="hero-collection" id="collection">
+    <!-- Hero 55 smartCREATIVES Spotlight (Ancient Codex Manuscript & Vault Archive) -->
+    <section class="hero-collection" id="collection" style="position: relative; overflow: hidden;">
       <div class="hero-ambient-glow"></div>
       <div class="container">
         <div class="hero-grid" id="heroSpotlightContainer">
-          <!-- Dynamically populated from app.js / first featured artwork -->
-          <div class="hero-visual" id="heroVisualTilt">
-            <div class="hero-image-wrapper" onclick="window.location.href='artwork.html?id=art-01'">
-              <span class="hero-visual-badge">Featured Masterwork · 1-of-1 Original</span>
-              <img id="heroImage" src="images/art-01.jpg" alt="Featured Artwork">
+          
+          <!-- Asymmetric Layered Plates: Main Masterwork + Detail Folio Stamp -->
+          <div class="codex-asymmetric-stage" id="heroVisualTilt">
+            <div class="codex-plate-main" onclick="window.location.href='artwork.html?id=art-01'" style="cursor: pointer;">
+              <span class="hero-visual-badge">✦ Archive Codex · Monograph 01 · 1-of-1 Original</span>
+              <img id="heroImage" src="images/art-01.jpg" alt="Featured Masterwork Specimen">
+            </div>
+            <div class="codex-plate-secondary" onclick="window.location.href='artwork.html?id=art-01'" style="cursor: pointer;">
+              <img src="images/art-01.jpg" alt="Macro Loupe Detail Angle" style="filter: brightness(1.1) contrast(1.1);">
+              <div style="margin-top: 6px; display: flex; justify-content: space-between; align-items: center;">
+                <span class="manuscript-stamp">SEALED MMXXVI</span>
+                <span style="font-family: var(--font-roman); font-size: 0.65rem; color: var(--accent-gold);">DETAIL LOUPE ↗</span>
+              </div>
             </div>
           </div>
 
           <div class="hero-content">
-            <div class="curatorial-stamp">EST. MMXXVI · ARCHIVE 55 · MONOGRAPH NO. 01</div>
+            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap;">
+              <div class="curatorial-stamp">CODEX NO. 55 · MONOGRAPH SPECIMEN</div>
+              <span class="badge-culture" id="heroCultureBadge">East African Heritage</span>
+              <span class="badge-country" id="heroCountryBadge">Rwanda</span>
+            </div>
+
             <h1 class="hero-title" id="heroTitle">Night Shadows in Warm Earth</h1>
-            <div class="artwork-artist-row" style="margin-bottom: 1.25rem;">
+            
+            <div class="artwork-artist-row" style="margin-bottom: 1rem;">
               <span class="artist-badge-prefix">Master Artist</span>
               <strong class="artwork-artist-name" id="heroArtist" style="font-size: 1.15rem; color: #FAF8F4;">Eleanor Vance</strong>
               <span class="artwork-year-tag" id="heroYear" style="color: var(--text-inverse-muted);">(2025)</span>
             </div>
+
+            <div class="marginalia-note" style="margin-bottom: 1.25rem;">
+              « Ground volcanic ochre, charred acacia wood, and crushed river shale. Salvaged archival accession. »
+            </div>
+
             <p class="hero-statement" id="heroStatement">
               A stunning original painting featuring deep shadows and warm earth tones. Created with hand-mixed natural pigments on premium canvas.
             </p>
@@ -130,6 +162,10 @@
                 <span class="spec-value" id="heroArtistSpec" style="color: var(--accent-gold-bright); font-weight: 600;">Eleanor Vance</span>
               </div>
               <div class="spec-item">
+                <span class="spec-label">Culture & Origin</span>
+                <span class="spec-value" id="heroOriginSpec">East African · Great Rift Valley</span>
+              </div>
+              <div class="spec-item">
                 <span class="spec-label">Medium</span>
                 <span class="spec-value" id="heroMedium">Oil & natural earth pigments on canvas</span>
               </div>
@@ -138,27 +174,151 @@
                 <span class="spec-value" id="heroDimensions">190 × 140 cm / 75 × 55 in</span>
               </div>
               <div class="spec-item">
-                <span class="spec-label">Acquisition Price</span>
+                <span class="spec-label">Acquisition Value</span>
                 <span class="spec-value" id="heroPrice" style="color: var(--accent-gold-bright); font-size: 1.15rem; font-weight: 600;">$24,500</span>
               </div>
               <div class="spec-item">
                 <span class="spec-label">Curatorial Status</span>
                 <span class="spec-value" style="color: #6ee7b7;">● Available to Acquire</span>
               </div>
-              <div class="spec-item">
-                <span class="spec-label">Authentication</span>
-                <span class="spec-value" style="color: var(--text-inverse-muted);">Certificate of Registry Included</span>
-              </div>
             </div>
 
-            <div class="hero-actions">
+            <div class="hero-actions" style="flex-wrap: wrap; gap: 10px;">
               <button class="btn-primary" id="heroInquireBtn" onclick="window.openInquiryModal('art-01')">
                 Direct Curatorial Inquiry
               </button>
               <a href="artwork.html?id=art-01" class="btn-secondary" id="heroLoupeBtn">
-                Inspect Masterwork Loupe →
+                Inspect Dossier Loupe →
+              </a>
+              <a href="gallery.html" class="btn-secondary" style="border-color: rgba(197, 160, 89, 0.4); color: var(--accent-gold);">
+                Browse All Artworks Collection ↗
               </a>
             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Curated Story Collections & Thematic Catalogues Preview -->
+    <section class="reveal-item" style="padding: 5rem 0 3.5rem; background: linear-gradient(180deg, #080E0A 0%, #0F1A13 100%); border-top: 1px solid rgba(197, 160, 89, 0.2); border-bottom: 1px solid rgba(197, 160, 89, 0.2);">
+      <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1.5rem;">
+          <div>
+            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 0.5rem;">
+              <span class="glyph-mark">✦</span>
+              <span class="tracking-wide" style="color: var(--accent-gold); font-family: var(--font-roman); font-size: 0.75rem;">THEMATIC ARCHIVES</span>
+            </div>
+            <h2 style="font-family: var(--font-display); font-size: clamp(2rem, 3.5vw, 2.8rem); font-weight: 300; color: #FAF8F4; margin: 0;">Shared Story Catalogues</h2>
+            <p style="color: var(--text-inverse-muted); font-size: 0.95rem; margin-top: 0.5rem; max-width: 600px;">
+              Curated collections where artworks unite to narrate a single profound cultural, metaphysical, or geological journey.
+            </p>
+          </div>
+          <a href="catalogues.html" class="btn-secondary" style="color: var(--accent-gold); border-color: var(--border-gold);">
+            View All Story Catalogues →
+          </a>
+        </div>
+
+        <div class="catalogues-collection-grid" style="padding: 0;">
+          <!-- Collection 1 -->
+          <div class="catalogue-monograph-card" onclick="window.location.href='catalogues.html?id=cat-01'" style="cursor: pointer;">
+            <div class="catalogue-cover-wrap">
+              <img src="images/art-01.jpg" alt="Sacred Echoes of the Great Rift">
+            </div>
+            <div class="catalogue-card-content">
+              <span class="catalogue-chapter-label">COLLECTION I · 4 SPECIMENS</span>
+              <h3 class="catalogue-card-title">Sacred Echoes of the Great Rift</h3>
+              <p class="catalogue-card-narrative">
+                Hand-ground mineral ochres, volcanic basalt, and indigenous hardwoods chronicle the primordial emergence of memory across the Great Lakes.
+              </p>
+              <span style="font-family: var(--font-roman); font-size: 0.75rem; color: var(--accent-gold); letter-spacing: 0.1em;">EXPLORE NARRATIVE ↗</span>
+            </div>
+          </div>
+
+          <!-- Collection 2 -->
+          <div class="catalogue-monograph-card" onclick="window.location.href='catalogues.html?id=cat-02'" style="cursor: pointer;">
+            <div class="catalogue-cover-wrap">
+              <img src="images/art-02.jpg" alt="The Whispering Stone Monographs">
+            </div>
+            <div class="catalogue-card-content">
+              <span class="catalogue-chapter-label">COLLECTION II · 3 SPECIMENS</span>
+              <h3 class="catalogue-card-title">The Whispering Stone Monographs</h3>
+              <p class="catalogue-card-narrative">
+                Monographic sculptures carved from raw metamorphic stone, weathered Carrara marble, and lost-wax bronze exploring eternal stillness.
+              </p>
+              <span style="font-family: var(--font-roman); font-size: 0.75rem; color: var(--accent-gold); letter-spacing: 0.1em;">EXPLORE NARRATIVE ↗</span>
+            </div>
+          </div>
+
+          <!-- Collection 3 -->
+          <div class="catalogue-monograph-card" onclick="window.location.href='catalogues.html?id=cat-03'" style="cursor: pointer;">
+            <div class="catalogue-cover-wrap">
+              <img src="images/art-06.jpg" alt="Illuminated Pigments & Ancient Folios">
+            </div>
+            <div class="catalogue-card-content">
+              <span class="catalogue-chapter-label">COLLECTION III · 3 SPECIMENS</span>
+              <h3 class="catalogue-card-title">Illuminated Pigments & Ancient Folios</h3>
+              <p class="catalogue-card-narrative">
+                Echoing the damaged gold-leaf manuscripts of ancient desert scriptoriums, pairing 24K leaf with raw lime plaster reliefs and raw flax.
+              </p>
+              <span style="font-family: var(--font-roman); font-size: 0.75rem; color: var(--accent-gold); letter-spacing: 0.1em;">EXPLORE NARRATIVE ↗</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Master Artists & Atelier Studios Preview -->
+    <section class="reveal-item" style="padding: 4.5rem 0; background: #0A120D;">
+      <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1.5rem;">
+          <div>
+            <span class="tracking-wide" style="color: var(--accent-gold); font-family: var(--font-roman); font-size: 0.75rem; display: block; margin-bottom: 4px;">RESIDENT ATELIERS</span>
+            <h2 style="font-family: var(--font-display); font-size: clamp(2rem, 3.5vw, 2.8rem); font-weight: 300; color: #FAF8F4; margin: 0;">The Master Creators</h2>
+          </div>
+          <a href="artist.html" class="btn-secondary" style="color: var(--accent-gold); border-color: var(--border-gold);">
+            Visit All Artist Studios →
+          </a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;">
+          <!-- Artist 1: Eddy -->
+          <div class="deckle-card" onclick="window.location.href='artist.html?id=artist-eddy'" style="cursor: pointer; padding: 1.75rem;">
+            <div style="aspect-ratio: 1; overflow: hidden; margin-bottom: 1.25rem; border: 1px solid rgba(197, 160, 89, 0.3);">
+              <img src="images/artwork-1788371635007-145.jpg" alt="Eddy" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <span class="badge-country" style="margin-bottom: 8px;">Rwanda</span>
+            <h4 style="font-family: var(--font-roman); font-size: 1.25rem; color: #fff; margin-bottom: 4px;">Eddy</h4>
+            <p style="font-size: 0.85rem; color: var(--text-inverse-muted); line-height: 1.6;">Contemporary African Sculpture & Raw Organic Hardwood.</p>
+          </div>
+
+          <!-- Artist 2: Eleanor Vance -->
+          <div class="deckle-card" onclick="window.location.href='artist.html?id=artist-eleanor'" style="cursor: pointer; padding: 1.75rem;">
+            <div style="aspect-ratio: 1; overflow: hidden; margin-bottom: 1.25rem; border: 1px solid rgba(197, 160, 89, 0.3);">
+              <img src="images/art-01.jpg" alt="Eleanor Vance" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <span class="badge-country" style="margin-bottom: 8px;">Kenya / Rwanda</span>
+            <h4 style="font-family: var(--font-roman); font-size: 1.25rem; color: #fff; margin-bottom: 4px;">Eleanor Vance</h4>
+            <p style="font-size: 0.85rem; color: var(--text-inverse-muted); line-height: 1.6;">Primitive Mineral Pigment & Monumental Oil Folios.</p>
+          </div>
+
+          <!-- Artist 3: Mateo Rossi -->
+          <div class="deckle-card" onclick="window.location.href='artist.html?id=artist-mateo'" style="cursor: pointer; padding: 1.75rem;">
+            <div style="aspect-ratio: 1; overflow: hidden; margin-bottom: 1.25rem; border: 1px solid rgba(197, 160, 89, 0.3);">
+              <img src="images/art-02.jpg" alt="Mateo Rossi" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <span class="badge-country" style="margin-bottom: 8px;">Italy</span>
+            <h4 style="font-family: var(--font-roman); font-size: 1.25rem; color: #fff; margin-bottom: 4px;">Mateo Rossi</h4>
+            <p style="font-size: 0.85rem; color: var(--text-inverse-muted); line-height: 1.6;">Lost-Wax Bronze & Hand-Hewn Carrara Marble.</p>
+          </div>
+
+          <!-- Artist 4: Soren Lindqvist -->
+          <div class="deckle-card" onclick="window.location.href='artist.html?id=artist-soren'" style="cursor: pointer; padding: 1.75rem;">
+            <div style="aspect-ratio: 1; overflow: hidden; margin-bottom: 1.25rem; border: 1px solid rgba(197, 160, 89, 0.3);">
+              <img src="images/art-03.jpg" alt="Soren Lindqvist" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <span class="badge-country" style="margin-bottom: 8px;">Sweden</span>
+            <h4 style="font-family: var(--font-roman); font-size: 1.25rem; color: #fff; margin-bottom: 4px;">Soren Lindqvist</h4>
+            <p style="font-size: 0.85rem; color: var(--text-inverse-muted); line-height: 1.6;">Mineral Plaster Relief & Unrefined Flax Weaving.</p>
           </div>
         </div>
       </div>
