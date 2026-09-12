@@ -491,19 +491,16 @@ app.get(['/api/inquiries', '/inquiries'], authenticateAdmin, async (req, res) =>
 
 // POST new inquiry (Collector or Guest with Security Hardening & Catalog Verification)
 app.post(['/api/inquiries', '/inquiries'], inquiryRateLimiter, async (req, res) => {
-  // 1. Decoy honeypot check (only reject if actual spam content exists)
+  // 1. Decoy honeypot check (silently drop bot submissions without saving to DB)
   if (isHoneypotTriggered(req.body)) {
-    const decoyVal = String(req.body.website_hp || req.body.gallery_curation_check || req.body.editorial_decoy_trap || '');
-    if (decoyVal.includes('http://') || decoyVal.includes('https://') || decoyVal.length > 60) {
-      console.log('🛡️ [Security] Automated spam payload detected in decoy field. Rejecting.');
-      return res.status(400).json({ error: 'Spam Detected', message: 'Automated submission rejected.' });
-    }
-    console.warn('Notice: Decoy field contained value (possible autofill); continuing with strict validation.');
+    console.log('🛡️ [Security] Automated spam payload detected in decoy field. Silently dropping.');
+    return res.status(200).json({ success: true, message: 'Your inquiry has been received and will be reviewed by our curatorial directorate.' });
   }
 
-  // 2. Human pacing check (log notice without silently dropping valid client inquiries)
-  if (isTimeGateFailed(req.body._ts || req.body.clientTimestamp, 0.4)) {
-    console.log('🛡️ [Security] Fast submission pace detected; proceeding with data verification.');
+  // 2. Human pacing check (silently drop ultra-fast bot submissions < 1.5s)
+  if (isTimeGateFailed(req.body._ts || req.body.clientTimestamp, 1.5)) {
+    console.log('🛡️ [Security] Fast submission pace detected (< 1.5s). Silently dropping bot payload.');
+    return res.status(200).json({ success: true, message: 'Your inquiry has been received and will be reviewed by our curatorial directorate.' });
   }
 
   // 3. Input validation & sanitization

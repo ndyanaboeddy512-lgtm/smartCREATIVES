@@ -15,22 +15,37 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
 </head>
-<body>
+<body class="has-custom-cursor">
+
+  <!-- Editorial Luxury Preloader -->
+  <div class="luxury-preloader" id="luxuryPreloader">
+    <div class="preloader-inner">
+      <div class="preloader-crest">✦</div>
+      <div class="preloader-brand">55 smartCREATIVES</div>
+      <div class="preloader-tag">Curated Fine Art & Editions</div>
+      <div class="preloader-bar"><div class="preloader-progress"></div></div>
+    </div>
+  </div>
+
+  <!-- Luxury Custom Cursor for Desktop -->
+  <div class="luxury-cursor-dot" id="cursorDot"></div>
+  <div class="luxury-cursor-ring" id="cursorRing"><span class="luxury-cursor-label">VIEW</span></div>
 
   <!-- Site Navigation Header -->
   <header class="site-header">
     <div class="container header-inner">
       <a href="index.html" class="brand-logo">
         <span class="brand-name">55 smartCREATIVES</span>
-        <span class="brand-tagline">FINE ART & EDITIONS</span>
+        <span class="brand-tagline">FINE ART & MONOGRAPHS</span>
       </a>
 
       <nav class="nav-desktop">
-        <a href="#collection" class="nav-link">Featured Art</a>
-        <a href="#catalog" class="nav-link active">Gallery</a>
-        <a href="#reviews" class="nav-link">Collector Reviews</a>
-        <a href="#salon" class="nav-link">Book a Viewing</a>
-        <a href="auth.html" class="nav-link">My Account</a>
+        <a href="#collection" class="nav-link">Spotlight</a>
+        <a href="#philosophy" class="nav-link">Philosophy</a>
+        <a href="#catalog" class="nav-link active">Archive</a>
+        <a href="#reviews" class="nav-link">Accolades</a>
+        <a href="#salon" class="nav-link">Atelier</a>
+        <a href="auth.html" class="nav-link">Patron Portal</a>
       </nav>
 
       <div class="header-tools">
@@ -66,12 +81,13 @@
       <button class="mobile-nav-close" id="mobileNavClose" aria-label="Close Navigation">&times;</button>
     </div>
     <nav class="mobile-nav-links">
-      <a href="#collection" class="mobile-nav-link">Featured Art</a>
-      <a href="#catalog" class="mobile-nav-link">All Artworks</a>
+      <a href="#collection" class="mobile-nav-link">Spotlight</a>
+      <a href="#philosophy" class="mobile-nav-link">Philosophy</a>
+      <a href="#catalog" class="mobile-nav-link">Monographic Archive</a>
       <a href="#reviews" class="mobile-nav-link">Collector Reviews</a>
-      <a href="#salon" class="mobile-nav-link">Book a Viewing</a>
-      <a href="auth.html" class="mobile-nav-link">My Account</a>
-      <a href="auth.html#wishlist" class="mobile-nav-link">Saved Artworks</a>
+      <a href="#salon" class="mobile-nav-link">Atelier Booking</a>
+      <a href="auth.html" class="mobile-nav-link">Patron Portal</a>
+      <a href="auth.html#wishlist" class="mobile-nav-link">Saved Masterworks</a>
     </nav>
     <div class="mobile-nav-footer">
       <span style="font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-inverse-muted);">Display Currency:</span>
@@ -83,24 +99,26 @@
   </div>
 
   <main>
-    <!-- Hero 55 smartCREATIVES Spotlight -->
+    <!-- Hero 55 smartCREATIVES Spotlight (Cinematic Obsidian & Forest) -->
     <section class="hero-collection" id="collection">
+      <div class="hero-ambient-glow"></div>
       <div class="container">
         <div class="hero-grid" id="heroSpotlightContainer">
           <!-- Dynamically populated from app.js / first featured artwork -->
-          <div class="hero-visual">
+          <div class="hero-visual" id="heroVisualTilt">
             <div class="hero-image-wrapper" onclick="window.location.href='artwork.html?id=art-01'">
-              <span class="hero-visual-badge">Featured Artwork · 1-of-1 Original</span>
+              <span class="hero-visual-badge">Featured Masterwork · 1-of-1 Original</span>
               <img id="heroImage" src="images/art-01.jpg" alt="Featured Artwork">
             </div>
           </div>
 
           <div class="hero-content">
+            <div class="curatorial-stamp">EST. MMXXVI · ARCHIVE 55 · MONOGRAPH NO. 01</div>
             <h1 class="hero-title" id="heroTitle">Night Shadows in Warm Earth</h1>
             <div class="artwork-artist-row" style="margin-bottom: 1.25rem;">
-              <span class="artist-badge-prefix">Artist</span>
-              <strong class="artwork-artist-name" id="heroArtist" style="font-size: 1.15rem;">Eleanor Vance</strong>
-              <span class="artwork-year-tag" id="heroYear">(2025)</span>
+              <span class="artist-badge-prefix">Master Artist</span>
+              <strong class="artwork-artist-name" id="heroArtist" style="font-size: 1.15rem; color: #FAF8F4;">Eleanor Vance</strong>
+              <span class="artwork-year-tag" id="heroYear" style="color: var(--text-inverse-muted);">(2025)</span>
             </div>
             <p class="hero-statement" id="heroStatement">
               A stunning original painting featuring deep shadows and warm earth tones. Created with hand-mixed natural pigments on premium canvas.
@@ -109,7 +127,7 @@
             <div class="hero-specs">
               <div class="spec-item">
                 <span class="spec-label">Artist</span>
-                <span class="spec-value" id="heroArtistSpec" style="color: var(--accent-gold); font-weight: 600;">Eleanor Vance</span>
+                <span class="spec-value" id="heroArtistSpec" style="color: var(--accent-gold-bright); font-weight: 600;">Eleanor Vance</span>
               </div>
               <div class="spec-item">
                 <span class="spec-label">Medium</span>
@@ -120,21 +138,25 @@
                 <span class="spec-value" id="heroDimensions">190 × 140 cm / 75 × 55 in</span>
               </div>
               <div class="spec-item">
-                <span class="spec-label">Price</span>
-                <span class="spec-value" id="heroPrice">$24,500</span>
+                <span class="spec-label">Acquisition Price</span>
+                <span class="spec-value" id="heroPrice" style="color: var(--accent-gold-bright); font-size: 1.15rem; font-weight: 600;">$24,500</span>
               </div>
               <div class="spec-item">
-                <span class="spec-label">Status</span>
-                <span class="spec-value" style="color: var(--status-available);">● Available to Buy</span>
+                <span class="spec-label">Curatorial Status</span>
+                <span class="spec-value" style="color: #6ee7b7;">● Available to Acquire</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Authentication</span>
+                <span class="spec-value" style="color: var(--text-inverse-muted);">Certificate of Registry Included</span>
               </div>
             </div>
 
             <div class="hero-actions">
               <button class="btn-primary" id="heroInquireBtn" onclick="window.openInquiryModal('art-01')">
-                Ask About This Piece
+                Direct Curatorial Inquiry
               </button>
               <a href="artwork.html?id=art-01" class="btn-secondary" id="heroLoupeBtn">
-                Zoom In & Details →
+                Inspect Masterwork Loupe →
               </a>
             </div>
           </div>
@@ -142,28 +164,82 @@
       </div>
     </section>
 
-    <!-- Curated Catalog Section -->
-    <section class="catalog-section" id="catalog">
+    <!-- Curatorial Philosophy Section: Ancient Nature Meets Modern Luxury -->
+    <section class="philosophy-section reveal-item" id="philosophy">
+      <div class="container">
+        <div class="philosophy-grid">
+          <div class="philosophy-aside">
+            <div class="botanical-monogram">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 2L13.5 8.5L20 10L13.5 11.5L12 18L10.5 11.5L4 10L10.5 8.5L12 2Z" fill="var(--accent-gold)" stroke="none"/>
+                <circle cx="12" cy="10" r="9" stroke="var(--accent-gold)" stroke-width="0.75" stroke-dasharray="2 2"/>
+              </svg>
+            </div>
+            <span class="tracking-wide" style="color: var(--accent-gold); display: block;">Philosophy of Form</span>
+            <h2 class="philosophy-headline">Ancient Nature<br><em>meets</em> Modern Luxury</h2>
+          </div>
+          <div class="philosophy-content">
+            <p class="philosophy-lead">
+              55 smartCREATIVES bridges the raw materiality of ancient earth pigments, mineral clays, weathered stone, and hand-woven Belgian linen with the razor precision of contemporary architectural minimalism.
+            </p>
+            <p class="philosophy-text">
+              Every work within our permanent archive is a certified 1-of-1 original acquired under rigorous curatorial provenance. We do not produce editions for mass reproduction; our ateliers cater exclusively to private collectors, architectural residences, and institutional acquisitions seeking quiet, timeless grandeur.
+            </p>
+            <div class="philosophy-pillars">
+              <div class="philosophy-pillar">
+                <span class="pillar-number">I.</span>
+                <h4>Organic Materiality</h4>
+                <p>Natural botanical binders, volcanic ash, hand-beaten bronze, and raw archival linen.</p>
+              </div>
+              <div class="philosophy-pillar">
+                <span class="pillar-number">II.</span>
+                <h4>Singular Registry</h4>
+                <p>Every piece is certified 1-of-1 with sealed certificates of origin and studio provenance.</p>
+              </div>
+              <div class="philosophy-pillar">
+                <span class="pillar-number">III.</span>
+                <h4>White-Glove Custody</h4>
+                <p>Museum-grade UV framing, climate-monitored international transit, and private salon viewings.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Artistic Botanical Hairline Divider -->
+    <div class="artistic-divider">
+      <span class="divider-line"></span>
+      <span class="divider-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M12 3L14 9L20 11L14 13L12 19L10 13L4 11L10 9L12 3Z" fill="var(--accent-gold)"/>
+        </svg>
+      </span>
+      <span class="divider-line"></span>
+    </div>
+
+    <!-- Curated Monographic Catalog Section -->
+    <section class="catalog-section reveal-item" id="catalog">
       <div class="container">
         <div class="section-header">
           <div class="section-title-wrap">
-            <span class="tracking-wide" style="color: var(--accent-gold); display: block; margin-bottom: 0.5rem;">Original Collection</span>
-            <h2>Explore Artworks for Sale</h2>
-            <p class="section-subtitle">Every piece is an authentic original. Includes a Certificate of Authenticity and safe insured delivery.</p>
+            <span class="tracking-wide" style="color: var(--accent-gold); display: block; margin-bottom: 0.5rem;">Curated Monographic Archive</span>
+            <h2 style="font-family: var(--font-display); font-weight: 300;">Explore Original Masterworks</h2>
+            <p class="section-subtitle">Every piece is an authentic original masterwork. Accompanied by a Certificate of Registry and insured fine art delivery.</p>
           </div>
-          <div style="font-size: 0.85rem; color: var(--text-muted);">
-            Showing <span id="catalogCount">9</span> Artworks
+          <div style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--font-roman); letter-spacing: 0.12em;">
+            ARCHIVE DOSSIER: <span id="catalogCount" style="color: var(--accent-gold); font-weight: 600;">9</span> PIECES
           </div>
         </div>
 
         <!-- Filter & Search Toolbar -->
         <div class="filter-toolbar">
           <div class="filter-categories" id="filterCategories">
-            <button class="filter-chip active" data-category="all">All Artworks</button>
-            <button class="filter-chip" data-category="oil">Oil Paintings</button>
+            <button class="filter-chip active" data-category="all">All Disciplines</button>
+            <button class="filter-chip" data-category="oil">Oil on Canvas</button>
             <button class="filter-chip" data-category="sculpture">Sculptures</button>
-            <button class="filter-chip" data-category="plaster">Wall Art & Plaster</button>
-            <button class="filter-chip" data-category="mixed">Mixed Media</button>
+            <button class="filter-chip" data-category="plaster">Wall Plaster & Relief</button>
+            <button class="filter-chip" data-category="mixed">Mixed Mineral</button>
           </div>
 
           <div class="filter-options">
@@ -171,19 +247,19 @@
               <label for="statusFilter">Status:</label>
               <select id="statusFilter" class="filter-select">
                 <option value="all">All Pieces</option>
-                <option value="Available">Available to Buy</option>
-                <option value="Reserved">Reserved</option>
-                <option value="Sold">Sold</option>
+                <option value="Available">Available to Acquire</option>
+                <option value="Reserved">Under Curatorial Hold</option>
+                <option value="Sold">Private Collection (Sold)</option>
               </select>
             </div>
 
             <div class="filter-select-group">
               <label for="sortOrder">Sort By:</label>
               <select id="sortOrder" class="filter-select">
-                <option value="featured">Featured First</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="year-desc">Year: Newest First</option>
+                <option value="featured">Curatorial Featured</option>
+                <option value="price-desc">Acquisition Value: High to Low</option>
+                <option value="price-asc">Acquisition Value: Low to High</option>
+                <option value="year-desc">Creation Year: Newest First</option>
               </select>
             </div>
           </div>
@@ -196,18 +272,30 @@
       </div>
     </section>
 
+    <!-- Artistic Botanical Hairline Divider -->
+    <div class="artistic-divider">
+      <span class="divider-line"></span>
+      <span class="divider-icon">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="8" stroke="var(--accent-gold)" stroke-width="0.75" stroke-dasharray="2 2"/>
+          <circle cx="10" cy="10" r="3" fill="var(--accent-gold)"/>
+        </svg>
+      </span>
+      <span class="divider-line"></span>
+    </div>
+
     <!-- Visitor Reviews & Collector Testimonials Section -->
-    <section class="testimonials-section" id="reviews">
+    <section class="testimonials-section reveal-item" id="reviews">
       <div class="container">
         <div class="testimonials-header">
           <div>
-            <span class="tracking-wide" style="color: var(--accent-gold); display: block; margin-bottom: 0.5rem;">Curatorial Accolades</span>
-            <h2 style="font-size: clamp(2.2rem, 3.5vw, 3rem); font-weight: 300; margin: 0;">Collector Testimonials & Reviews</h2>
-            <p style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.95rem;">
-              Reflections and acquisition experiences shared by our esteemed private and corporate patrons.
+            <span class="tracking-wide" style="color: var(--accent-gold); display: block; margin-bottom: 0.5rem;">Curatorial Accolades & Provenance</span>
+            <h2 style="font-family: var(--font-display); font-size: clamp(2.2rem, 3.8vw, 3.2rem); font-weight: 300; margin: 0;">Collector Testimonials & Reviews</h2>
+            <p style="color: var(--text-inverse-muted); margin-top: 0.5rem; font-size: 0.95rem;">
+              Reflections and acquisition experiences shared by our esteemed private patrons, architects, and institutions.
             </p>
           </div>
-          <button class="btn-primary" onclick="window.openReviewModal()">+ Leave a Testimonial</button>
+          <button class="btn-primary" onclick="window.openReviewModal()" style="background: var(--accent-gold); color: #080E0A; border-color: var(--accent-gold); font-weight: 600;">+ Leave a Testimonial</button>
         </div>
 
         <div class="testimonials-grid" id="testimonialsGrid">
@@ -216,17 +304,62 @@
       </div>
     </section>
 
-    <!-- Private Consultation & Inquiries Banner -->
-    <section class="hero-collection" id="salon" style="background: var(--bg-secondary); border-top: 1px solid var(--border-subtle);">
-      <div class="container" style="text-align: center; max-width: 860px; padding: 5rem 1.5rem;">
-        <span class="tracking-wide" style="color: var(--accent-gold); display: block; margin-bottom: 1rem;">Art Consultation & Delivery</span>
-        <h2 style="font-size: clamp(2.4rem, 4vw, 3.4rem); font-weight: 300; margin-bottom: 1.5rem;">Personalized Service For Your Home & Office</h2>
-        <p style="font-size: 1.05rem; line-height: 1.8; color: var(--text-secondary); margin-bottom: 2.5rem;">
-          Looking for the perfect piece for your living space or corporate collection? 55 smartCREATIVES provides safe insured international delivery, custom framing options, and private preview viewings.
+    <!-- 4 Pillars of Curatorial Provenance & Trust -->
+    <section class="trust-pillars-section reveal-item">
+      <div class="container">
+        <div class="trust-pillars-header">
+          <span class="tracking-wide" style="color: var(--accent-gold); display: block; margin-bottom: 0.5rem;">The Curatorial Covenant</span>
+          <h2>Timeless Trust & Provenance</h2>
+          <p style="color: var(--text-inverse-muted); margin-top: 0.5rem; font-size: 0.95rem;">
+            Every acquisition at 55 smartCREATIVES is backed by our four pillars of curatorial integrity and white-glove security.
+          </p>
+        </div>
+
+        <div class="trust-pillars-grid">
+          <div class="trust-pillar-card">
+            <div class="trust-pillar-icon">✦</div>
+            <h4>Certificate of Registry</h4>
+            <p>Each original work is sealed with a studio monogram, catalogued under tamper-evident registration, and accompanied by a signed physical parchment certificate.</p>
+          </div>
+
+          <div class="trust-pillar-card">
+            <div class="trust-pillar-icon">🏛</div>
+            <h4>Museum Conservation</h4>
+            <p>Prepared with archival acid-free mounts, optional museum-grade 99% UV anti-reflective glass, and custom hand-finished timber frames.</p>
+          </div>
+
+          <div class="trust-pillar-card">
+            <div class="trust-pillar-icon">✈</div>
+            <h4>White-Glove Insured Transit</h4>
+            <p>Specialized fine art couriers ensure climate-controlled, fully insured doorstep delivery across Europe, the Americas, Africa, and Asia.</p>
+          </div>
+
+          <div class="trust-pillar-card">
+            <div class="trust-pillar-icon">⚜</div>
+            <h4>Private Atelier Advisory</h4>
+            <p>Direct consultation with our senior curatorial team for architectural placement, residential sizing simulations, and bespoke commissions.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Private Consultation & Viewing Salon -->
+    <section class="philosophy-section reveal-item" id="salon" style="border-top: 1px solid var(--border-subtle); background: var(--bg-primary);">
+      <div class="container" style="text-align: center; max-width: 880px; padding: 4.5rem 1.5rem;">
+        <div class="botanical-monogram" style="margin: 0 auto 1.5rem;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="12" cy="12" r="9" stroke="var(--accent-gold)" stroke-width="1"/>
+            <path d="M12 6V18M6 12H18" stroke="var(--accent-gold)" stroke-width="1"/>
+          </svg>
+        </div>
+        <span class="tracking-wide" style="color: var(--accent-gold); display: block; margin-bottom: 0.75rem;">Private Salon & Curatorial Advisory</span>
+        <h2 style="font-family: var(--font-display); font-size: clamp(2.4rem, 4.2vw, 3.6rem); font-weight: 300; margin-bottom: 1.5rem;">Personalized Acquisition For Estates & Residences</h2>
+        <p style="font-size: 1.05rem; line-height: 1.8; color: var(--text-secondary); margin-bottom: 2.5rem; max-width: 720px; margin-left: auto; margin-right: auto;">
+          Whether acquiring a cornerstone masterwork for an architectural residence or curating a corporate collection, 55 smartCREATIVES provides personalized advisory, insured international delivery, and private viewing appointments.
         </p>
         <div style="display: flex; gap: 1.25rem; justify-content: center; flex-wrap: wrap;">
-          <a href="auth.html" class="btn-primary">Create Free Account</a>
-          <button class="btn-secondary" onclick="window.openInquiryModal('art-01')">Book a Private Viewing</button>
+          <a href="auth.html" class="btn-primary">Open Patron Account</a>
+          <button class="btn-secondary" onclick="window.openInquiryModal('art-01')">Schedule Private Salon Viewing</button>
         </div>
       </div>
     </section>
@@ -443,46 +576,47 @@
     </div>
   </div>
 
-  <!-- Simple Clean Footer -->
+  <!-- Simple Clean Editorial Footer -->
   <footer class="site-footer">
     <div class="container">
       <div class="footer-grid">
         <div class="footer-col">
-          <h4 style="letter-spacing: 0.12em;">55 smartCREATIVES</h4>
+          <h4 style="letter-spacing: 0.16em;">55 smartCREATIVES</h4>
           <p style="margin-bottom: 1.5rem;">
-            An original art gallery dedicated to unique contemporary paintings, modern sculptures, and authentic works.
+            A private monographic fine art atelier dedicated to certified 1-of-1 contemporary originals, masterwork sculptures, and museum-grade acquisitions.
           </p>
-          <div style="font-size: 0.82rem; color: var(--text-inverse-muted);">
-            London · New York · Paris<br>
-            Direct inquiries: contact@55smartcreatives.com
+          <div style="font-size: 0.82rem; color: var(--text-inverse-muted); line-height: 1.8;">
+            Ateliers: London · New York · Paris · Kigali<br>
+            Curatorial Advisory: <span style="color: var(--accent-gold);">contact@55smartcreatives.com</span>
           </div>
         </div>
 
         <div class="footer-col">
-          <h4>Navigation</h4>
+          <h4>Collection</h4>
           <ul class="footer-links">
-            <li><a href="#collection">Featured Art</a></li>
-            <li><a href="#catalog">All Artworks</a></li>
-            <li><a href="auth.html">My Account</a></li>
-            <li><a href="#salon">Book a Viewing</a></li>
+            <li><a href="#collection">Featured Spotlight</a></li>
+            <li><a href="#philosophy">Curatorial Philosophy</a></li>
+            <li><a href="#catalog">Monographic Archive</a></li>
+            <li><a href="#reviews">Collector Accolades</a></li>
+            <li><a href="#salon">Private Salon</a></li>
           </ul>
         </div>
 
         <div class="footer-col">
           <h4>Services</h4>
           <ul class="footer-links">
-            <li><a href="#salon">Art Consultation</a></li>
-            <li><a href="#salon">Custom Framing</a></li>
-            <li><a href="#salon">Insured Worldwide Delivery</a></li>
-            <li><a href="#salon">Certificate of Authenticity</a></li>
+            <li><a href="#salon">Private Advisory</a></li>
+            <li><a href="#salon">Archival Custom Framing</a></li>
+            <li><a href="#salon">Insured Worldwide Transit</a></li>
+            <li><a href="#salon">Certificate of Registry</a></li>
           </ul>
         </div>
 
         <div class="footer-col">
           <h4>Newsletter</h4>
-          <p>Get notified when new original artworks and 55 smartCREATIVES collections are released.</p>
-          <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Thank you for subscribing to 55 smartCREATIVES updates.'); this.reset();">
-            <input type="email" class="newsletter-input" placeholder="Your email address" required>
+          <p>Receive private curatorial monographs and notices for upcoming 1-of-1 masterwork releases.</p>
+          <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Thank you for subscribing to 55 smartCREATIVES monographs.'); this.reset();">
+            <input type="email" class="newsletter-input" placeholder="Patron email address" required>
             <button type="submit" class="newsletter-submit">Subscribe</button>
           </form>
         </div>
@@ -491,9 +625,9 @@
       <div class="footer-bottom">
         <div>&copy; 2026 55 smartCREATIVES FINE ART. All Rights Reserved.</div>
         <div style="display: flex; gap: 2rem;">
-          <a href="#" style="color: var(--text-inverse-muted);">Authenticity Guarantee</a>
-          <a href="#" style="color: var(--text-inverse-muted);">Terms of Service</a>
-          <a href="#" style="color: var(--text-inverse-muted);">Privacy Policy</a>
+          <a href="#" style="color: var(--text-inverse-muted);">Certificate of Registry Guarantee</a>
+          <a href="#" style="color: var(--text-inverse-muted);">Terms of Custody</a>
+          <a href="#" style="color: var(--text-inverse-muted);">Patron Privacy Policy</a>
         </div>
       </div>
     </div>
@@ -596,7 +730,7 @@
         const isFav = EddyStore.isWishlisted(art.id);
         const statusClass = (art.status || 'available').toLowerCase();
         return `
-          <article class="artwork-card" data-id="${art.id}">
+          <article class="artwork-card reveal-item" data-id="${art.id}">
             <div class="artwork-image-container">
               <div class="card-badges">
                 <span class="status-badge ${statusClass}">${art.status === 'Sold' ? 'Sold' : art.status}</span>
@@ -639,6 +773,10 @@
           </article>
         `;
       }).join('');
+
+      if (window.initScrollReveal) {
+        window.initScrollReveal();
+      }
     }
 
     function handleWishlistToggle(id, btn) {

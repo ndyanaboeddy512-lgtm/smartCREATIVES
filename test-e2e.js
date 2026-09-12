@@ -3,11 +3,12 @@
  * 55 smartCREATIVES — Editorial Luxury Art Gallery
  */
 
-const BASE_URL = process.env.TEST_URL || 'http://localhost:3000';
+let BASE_URL = process.env.TEST_URL || 'http://localhost:3000';
 let adminToken = '';
 let createdReviewId = '';
 let testPassed = 0;
 let testFailed = 0;
+let spawnedServer = null;
 
 function assert(condition, testName) {
   if (condition) {
@@ -38,7 +39,27 @@ async function request(path, options = {}) {
   return { status: res.status, headers: res.headers, data };
 }
 
+async function ensureServerRunning() {
+  try {
+    const res = await fetch(`${BASE_URL}/api/health`);
+    if (res.ok) return;
+  } catch(e) {
+    // Server not running on BASE_URL, spawn on port 3002
+    const PORT = 3002;
+    process.env.PORT = PORT;
+    const app = require('./server.js');
+    await new Promise((resolve) => {
+      spawnedServer = app.listen(PORT, () => {
+        BASE_URL = `http://localhost:${PORT}`;
+        console.log(`Local test server spawned on port ${PORT}`);
+        setTimeout(resolve, 300);
+      });
+    });
+  }
+}
+
 async function runTests() {
+  await ensureServerRunning();
   console.log('===============================================================');
   console.log(' STARTING END-TO-END TEST SUITE FOR 55 smartCREATIVES GALLERY');
   console.log(` Target: ${BASE_URL}`);
@@ -272,6 +293,10 @@ async function runTests() {
   console.log('\n===============================================================');
   console.log(` TEST EXECUTION COMPLETE: ${testPassed} PASSED, ${testFailed} FAILED`);
   console.log('===============================================================');
+
+  if (spawnedServer) {
+    try { spawnedServer.close(); } catch(e) {}
+  }
 
   if (testFailed > 0) {
     process.exit(1);

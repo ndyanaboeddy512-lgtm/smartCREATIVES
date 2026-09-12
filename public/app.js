@@ -1017,7 +1017,7 @@ window.renderTestimonials = function(containerId = 'testimonialsGrid') {
     const starCount = Math.max(1, Math.min(5, parseInt(r.rating, 10) || 5));
     const stars = '★'.repeat(starCount) + '☆'.repeat(5 - starCount);
     return `
-      <div class="testimonial-card">
+      <div class="testimonial-card reveal-item">
         <div>
           <div class="testimonial-stars" aria-label="${starCount} out of 5 stars">${stars}</div>
           <div class="testimonial-quote">"${r.comment}"</div>
@@ -1025,14 +1025,18 @@ window.renderTestimonials = function(containerId = 'testimonialsGrid') {
         <div class="testimonial-meta">
           <div>
             <div class="testimonial-author-name">${r.authorName}</div>
-            <div class="testimonial-author-location">${r.authorLocation || 'Collector'}</div>
+            <div class="testimonial-author-location">${r.authorLocation || 'Verified Patron'}</div>
             ${r.artworkTitle ? `<div class="testimonial-artwork-tag">Acquisition: ${r.artworkTitle}</div>` : ''}
           </div>
-          <span style="font-size: 0.7rem; color: var(--accent-gold); letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600;">Verified Collector</span>
+          <span style="font-size: 0.7rem; color: var(--accent-gold); letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600;">Verified Acquisition</span>
         </div>
       </div>
     `;
   }).join('');
+
+  if (window.initScrollReveal) {
+    window.initScrollReveal();
+  }
 };
 
 // Auto-render testimonials on page load or reviews loaded event
@@ -1040,6 +1044,183 @@ window.addEventListener('reviewsLoaded', () => {
   if (typeof window.renderTestimonials === 'function') {
     window.renderTestimonials();
   }
+});
+
+/* ==========================================================================
+   Luxury Digital Artwork Micro-Engines (Cursor, 3D Tilt, Reveal, Preloader)
+   ========================================================================== */
+
+// 1. Scroll-Driven Reveal Micro-Animations
+window.initScrollReveal = function() {
+  const items = document.querySelectorAll('.reveal-item:not(.reveal-visible)');
+  if (!items || items.length === 0) return;
+
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('reveal-visible');
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    items.forEach(el => observer.observe(el));
+  } else {
+    items.forEach(el => el.classList.add('reveal-visible'));
+  }
+};
+
+// 2. Refined Luxury Custom Cursor
+function initLuxuryCursor() {
+  const isFinePointer = window.matchMedia('(pointer: fine) and (hover: hover)').matches;
+  if (!isFinePointer) {
+    document.body.classList.remove('has-custom-cursor');
+    return;
+  }
+
+  const dot = document.getElementById('cursorDot');
+  const ring = document.getElementById('cursorRing');
+  if (!dot || !ring) return;
+
+  let mouseX = -100;
+  let mouseY = -100;
+  let ringX = -100;
+  let ringY = -100;
+  let isMoving = false;
+
+  window.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    dot.style.left = `${mouseX}px`;
+    dot.style.top = `${mouseY}px`;
+
+    if (!isMoving) {
+      isMoving = true;
+      requestAnimationFrame(renderRing);
+    }
+  }, { passive: true });
+
+  function renderRing() {
+    // Easing factor (0.16 gives a silky, weighted luxury glide)
+    ringX += (mouseX - ringX) * 0.18;
+    ringY += (mouseY - ringY) * 0.18;
+
+    ring.style.left = `${ringX}px`;
+    ring.style.top = `${ringY}px`;
+
+    if (Math.abs(mouseX - ringX) > 0.1 || Math.abs(mouseY - ringY) > 0.1) {
+      requestAnimationFrame(renderRing);
+    } else {
+      isMoving = false;
+    }
+  }
+
+  // Interactive Hover Bindings
+  document.addEventListener('mouseover', (e) => {
+    const target = e.target;
+    if (!target) return;
+
+    // Artwork card inspection state
+    const isArtwork = target.closest('.artwork-card, .hero-image-wrapper, .loupe-container');
+    if (isArtwork) {
+      ring.classList.add('cursor-artwork');
+      ring.classList.remove('cursor-hover');
+      const label = ring.querySelector('.luxury-cursor-label');
+      if (label) label.textContent = isArtwork.classList.contains('loupe-container') ? 'LOUPE' : 'INSPECT';
+      return;
+    }
+
+    // General clickable interactive state
+    const isClickable = target.closest('a, button, input, select, textarea, .filter-chip, .wishlist-pill, .currency-btn, .modal-close-btn');
+    if (isClickable) {
+      ring.classList.add('cursor-hover');
+      ring.classList.remove('cursor-artwork');
+      return;
+    }
+
+    ring.classList.remove('cursor-hover', 'cursor-artwork');
+  }, { passive: true });
+
+  document.addEventListener('mouseleave', () => {
+    dot.style.opacity = '0';
+    ring.style.opacity = '0';
+  });
+
+  document.addEventListener('mouseenter', () => {
+    dot.style.opacity = '1';
+    ring.style.opacity = '1';
+  });
+}
+
+// 3. Hero Visual 3D Tilt Micro-Interaction
+function initHero3DTilt() {
+  const heroTilt = document.getElementById('heroVisualTilt');
+  const heroWrapper = document.querySelector('.hero-image-wrapper');
+  if (!heroTilt || !heroWrapper) return;
+
+  const isFinePointer = window.matchMedia('(pointer: fine) and (hover: hover)').matches;
+  if (!isFinePointer) return;
+
+  let ticking = false;
+
+  heroTilt.addEventListener('mousemove', (e) => {
+    if (ticking) return;
+    ticking = true;
+
+    requestAnimationFrame(() => {
+      const rect = heroTilt.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+
+      const rotateX = ((y - centerY) / centerY) * -5;
+      const rotateY = ((x - centerX) / centerX) * 5;
+
+      heroWrapper.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(1.02)`;
+      ticking = false;
+    });
+  }, { passive: true });
+
+  heroTilt.addEventListener('mouseleave', () => {
+    heroWrapper.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+  });
+}
+
+// 4. Polished Entry Preloader
+function initPreloader() {
+  const preloader = document.getElementById('luxuryPreloader');
+  if (!preloader) return;
+
+  function dismiss() {
+    preloader.classList.add('fade-out');
+    setTimeout(() => {
+      if (preloader.parentNode) {
+        preloader.parentNode.removeChild(preloader);
+      }
+    }, 800);
+  }
+
+  // Dismiss on window load or safety timeout (500ms for fast impressions)
+  if (document.readyState === 'complete') {
+    setTimeout(dismiss, 350);
+  } else {
+    window.addEventListener('load', () => setTimeout(dismiss, 350));
+    setTimeout(dismiss, 1200); // Safety fallback
+  }
+
+  // Dismiss immediately if user scrolls or clicks
+  window.addEventListener('keydown', dismiss, { once: true });
+  window.addEventListener('pointerdown', dismiss, { once: true });
+}
+
+// Initialize all luxury micro-engines on DOM readiness
+document.addEventListener('DOMContentLoaded', () => {
+  initPreloader();
+  initLuxuryCursor();
+  initHero3DTilt();
+  window.initScrollReveal();
 });
 
 

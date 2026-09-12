@@ -15,22 +15,27 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
 </head>
-<body>
+<body class="has-custom-cursor">
+
+  <!-- Luxury Custom Cursor for Desktop -->
+  <div class="luxury-cursor-dot" id="cursorDot"></div>
+  <div class="luxury-cursor-ring" id="cursorRing"><span class="luxury-cursor-label">VIEW</span></div>
 
   <!-- Site Navigation Header -->
   <header class="site-header">
     <div class="container header-inner">
       <a href="index.html" class="brand-logo">
         <span class="brand-name">55 smartCREATIVES</span>
-        <span class="brand-tagline">FINE ART & EDITIONS</span>
+        <span class="brand-tagline">FINE ART & MONOGRAPHS</span>
       </a>
 
       <nav class="nav-desktop">
-        <a href="index.html#collection" class="nav-link">Featured Art</a>
-        <a href="index.html#catalog" class="nav-link active">Gallery</a>
-        <a href="index.html#reviews" class="nav-link">Reviews</a>
-        <a href="index.html#salon" class="nav-link">Book a Viewing</a>
-        <a href="auth.html" class="nav-link">My Account</a>
+        <a href="index.html#collection" class="nav-link">Spotlight</a>
+        <a href="index.html#philosophy" class="nav-link">Philosophy</a>
+        <a href="index.html#catalog" class="nav-link active">Archive</a>
+        <a href="index.html#reviews" class="nav-link">Accolades</a>
+        <a href="index.html#salon" class="nav-link">Atelier</a>
+        <a href="auth.html" class="nav-link">Patron Portal</a>
       </nav>
 
       <div class="header-tools">
@@ -59,17 +64,18 @@
     <div class="mobile-nav-header">
       <div class="brand-logo">
         <span class="brand-name" style="color: #fff;">55 smartCREATIVES</span>
-        <span class="brand-tagline" style="color: var(--accent-gold);">FINE ART GALLERY</span>
+        <span class="brand-tagline" style="color: var(--accent-gold);">FINE ART & MONOGRAPHS</span>
       </div>
       <button class="mobile-nav-close" id="mobileNavClose" aria-label="Close Navigation">&times;</button>
     </div>
     <nav class="mobile-nav-links">
-      <a href="index.html#collection" class="mobile-nav-link">Featured Art</a>
-      <a href="index.html#catalog" class="mobile-nav-link">All Artworks</a>
+      <a href="index.html#collection" class="mobile-nav-link">Spotlight</a>
+      <a href="index.html#philosophy" class="mobile-nav-link">Philosophy</a>
+      <a href="index.html#catalog" class="mobile-nav-link">Monographic Archive</a>
       <a href="index.html#reviews" class="mobile-nav-link">Collector Reviews</a>
-      <a href="index.html#salon" class="mobile-nav-link">Book a Viewing</a>
-      <a href="auth.html" class="mobile-nav-link">My Account</a>
-      <a href="auth.html#wishlist" class="mobile-nav-link">Saved Artworks</a>
+      <a href="index.html#salon" class="mobile-nav-link">Atelier Booking</a>
+      <a href="auth.html" class="mobile-nav-link">Patron Portal</a>
+      <a href="auth.html#wishlist" class="mobile-nav-link">Saved Masterworks</a>
     </nav>
     <div class="mobile-nav-footer">
       <span style="font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-inverse-muted);">Display Currency:</span>
@@ -435,52 +441,53 @@
     <div class="container">
       <div class="footer-grid">
         <div class="footer-col">
-          <h4 style="letter-spacing: 0.12em;">55 smartCREATIVES</h4>
+          <h4 style="letter-spacing: 0.16em;">55 smartCREATIVES</h4>
           <p style="margin-bottom: 1.5rem;">
-            An editorial luxury gallery committed to extraordinary 1-of-1 contemporary originals, architectural sculptures, and masterwork editions.
+            A private monographic fine art atelier dedicated to certified 1-of-1 contemporary originals, masterwork sculptures, and museum-grade acquisitions.
           </p>
-          <div style="font-size: 0.82rem; color: var(--text-inverse-muted);">
-            Paris: 8 Rue de Bellechasse, 75007<br>
-            New York: 524 West 24th Street, Chelsea
+          <div style="font-size: 0.82rem; color: var(--text-inverse-muted); line-height: 1.8;">
+            Ateliers: London · New York · Paris · Kigali<br>
+            Curatorial Advisory: <span style="color: var(--accent-gold);">contact@55smartcreatives.com</span>
           </div>
         </div>
 
         <div class="footer-col">
-          <h4>Navigation</h4>
+          <h4>Collection</h4>
           <ul class="footer-links">
-            <li><a href="index.html#collection">55 smartCREATIVES Collection</a></li>
-            <li><a href="index.html#catalog">Full Catalog</a></li>
-            <li><a href="auth.html">Collector Portal</a></li>
-            <li><a href="index.html#salon">Book a Viewing</a></li>
+            <li><a href="index.html#collection">Featured Spotlight</a></li>
+            <li><a href="index.html#philosophy">Curatorial Philosophy</a></li>
+            <li><a href="index.html#catalog">Monographic Archive</a></li>
+            <li><a href="index.html#reviews">Collector Accolades</a></li>
+            <li><a href="index.html#salon">Private Salon</a></li>
           </ul>
         </div>
 
         <div class="footer-col">
           <h4>Services</h4>
           <ul class="footer-links">
-            <li><a href="index.html#salon">Private Art Advisory</a></li>
-            <li><a href="index.html#salon">Bespoke Framing</a></li>
-            <li><a href="index.html#salon">Museum White-Glove Freight</a></li>
-            <li><a href="index.html#salon">Authenticity Certification</a></li>
+            <li><a href="index.html#salon">Private Advisory</a></li>
+            <li><a href="index.html#salon">Archival Custom Framing</a></li>
+            <li><a href="index.html#salon">Insured Worldwide Transit</a></li>
+            <li><a href="index.html#salon">Certificate of Registry</a></li>
           </ul>
         </div>
 
         <div class="footer-col">
-          <h4>Curator's Dispatch</h4>
-          <p>Receive confidential previews of unreleased contemporary works before public cataloguing.</p>
-          <form class="newsletter-form" onsubmit="event.preventDefault(); alert('You have been subscribed to the private 55 smartCREATIVES Curator Dispatch.'); this.reset();">
-            <input type="email" class="newsletter-input" placeholder="Your email address" required>
-            <button type="submit" class="newsletter-submit">Join</button>
+          <h4>Monographs</h4>
+          <p>Receive private curatorial monographs and notices for upcoming 1-of-1 masterwork releases.</p>
+          <form class="newsletter-form" onsubmit="event.preventDefault(); alert('You have been subscribed to 55 smartCREATIVES monographs.'); this.reset();">
+            <input type="email" class="newsletter-input" placeholder="Patron email address" required>
+            <button type="submit" class="newsletter-submit">Subscribe</button>
           </form>
         </div>
       </div>
 
       <div class="footer-bottom">
-        <div>&copy; 2026 55 smartCREATIVES. All rights reserved. Registered Creative Platform & Directorate.</div>
-        <div style="display: flex; gap: 1.5rem;">
-          <a href="auth.html">Collector Services</a>
-          <a href="index.html#salon">Private Advisory</a>
-          <a href="admin.html">Curator Access</a>
+        <div>&copy; 2026 55 smartCREATIVES FINE ART. All Rights Reserved.</div>
+        <div style="display: flex; gap: 2rem;">
+          <a href="#" style="color: var(--text-inverse-muted);">Certificate of Registry Guarantee</a>
+          <a href="#" style="color: var(--text-inverse-muted);">Terms of Custody</a>
+          <a href="#" style="color: var(--text-inverse-muted);">Patron Privacy Policy</a>
         </div>
       </div>
     </div>
@@ -490,7 +497,7 @@
   <script src="app.js"></script>
   <script>
     let currentArtwork = null;
-    let currentFrame = 'Floating Charcoal Oak';
+    let selectedFrameStyle = 'charcoal-oak';
 
     // Parse URL parameter ?id=...
     function getQueryParam(param) {
